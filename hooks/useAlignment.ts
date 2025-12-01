@@ -98,13 +98,11 @@ export function useAlignment(): UseAlignmentReturn {
         return;
       }
 
-      // Calculate alignment
+      // Calculate alignment (uses normalized coordinates)
       const result = calculateAlignment(
         beforePhoto.landmarks,
         afterPhoto.landmarks,
-        alignment.anchor,
-        { width: beforePhoto.width, height: beforePhoto.height },
-        { width: afterPhoto.width, height: afterPhoto.height }
+        alignment.anchor
       );
 
       // Update store with calculated values

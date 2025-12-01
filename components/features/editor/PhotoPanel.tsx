@@ -136,7 +136,10 @@ export function PhotoPanel({
                 style={
                   isAfterPhoto
                     ? {
-                        transform: `scale(${alignment.scale}) translate(${alignment.offsetX}px, ${alignment.offsetY}px)`,
+                        // Apply scale first (around center), then translate
+                        // The translate values are in normalized coordinates, convert to pixels
+                        // Since translate happens in scaled space, we need to account for scale
+                        transform: `scale(${alignment.scale}) translate(${alignment.offsetX * 100}%, ${alignment.offsetY * 100}%)`,
                         transition: 'transform 0.1s ease-out',
                         transformOrigin: 'center center',
                       }
@@ -155,7 +158,8 @@ export function PhotoPanel({
                   style={
                     isAfterPhoto
                       ? {
-                          transform: `scale(${alignment.scale}) translate(${alignment.offsetX}px, ${alignment.offsetY}px)`,
+                          // Match the image transform
+                          transform: `scale(${alignment.scale}) translate(${alignment.offsetX * 100}%, ${alignment.offsetY * 100}%)`,
                           transition: 'transform 0.1s ease-out',
                           transformOrigin: 'center center',
                         }

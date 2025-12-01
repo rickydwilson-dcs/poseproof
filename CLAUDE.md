@@ -225,11 +225,12 @@ Use `/commit.changes` to commit with proper workflow.
 
 ## Current Scope
 
-**Source Files:** 57 TypeScript/TSX files
+**Source Files:** 61 TypeScript/TSX files
 **Custom Hooks:** 5 (useAlignment, useCanvasExport, useKeyboardShortcuts, usePoseDetection, useUsageLimit)
 **State Stores:** 2 (editor-store, user-store)
-**UI Components:** 8 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt, etc.)
-**API Routes:** 4 (stripe/checkout, stripe/webhook, usage/*, auth callback)
+**UI Components:** 7 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt)
+**API Routes:** 6 (stripe/checkout, stripe/webhook, usage/*, auth callback)
+**Documentation:** See `docs/` folder for technical documentation
 
 ---
 
@@ -274,4 +275,4 @@ Use `/commit.changes` to commit with proper workflow.
 
 ---
 
-**Last Updated:** 2025-11-30
+**Last Updated:** 2025-12-01

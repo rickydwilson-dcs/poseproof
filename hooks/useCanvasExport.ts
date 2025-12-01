@@ -21,7 +21,7 @@ export function useCanvasExport() {
    *
    * @param beforePhoto - Before photo data
    * @param afterPhoto - After photo data
-   * @param alignment - Alignment settings
+   * @param alignment - Alignment settings (includes anchor type)
    * @param options - Export options
    * @returns Promise<boolean> - True if successful, false otherwise
    */
@@ -49,31 +49,26 @@ export function useCanvasExport() {
       // Set loading state
       setIsExporting(true);
 
-      // Prepare photo data for export
+      // Prepare photo data for export (including landmarks for alignment calculation)
       const beforePhotoData = {
         dataUrl: beforePhoto.dataUrl,
         width: beforePhoto.width,
         height: beforePhoto.height,
+        landmarks: beforePhoto.landmarks ?? undefined,
       };
 
       const afterPhotoData = {
         dataUrl: afterPhoto.dataUrl,
         width: afterPhoto.width,
         height: afterPhoto.height,
+        landmarks: afterPhoto.landmarks ?? undefined,
       };
 
-      // Prepare alignment data
-      const alignmentData = {
-        scale: alignment.scale,
-        offsetX: alignment.offsetX,
-        offsetY: alignment.offsetY,
-      };
-
-      // Export canvas
+      // Export canvas - alignment is calculated at export time based on landmarks and anchor
       const result = await exportCanvas(
         beforePhotoData,
         afterPhotoData,
-        alignmentData,
+        alignment.anchor,
         options
       );
 

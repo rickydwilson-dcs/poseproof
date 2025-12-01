@@ -51,10 +51,12 @@ export function useUsageLimit(): UsageLimit {
   /**
    * Check if user can export and increment usage count.
    * Returns true if export was allowed and count was incremented.
+   * Anonymous users are always allowed (no tracking).
    */
   const checkAndIncrement = async (): Promise<boolean> => {
+    // Allow anonymous users to export (no usage tracking)
     if (!user) {
-      return false;
+      return true;
     }
 
     const result = await incrementUsage();

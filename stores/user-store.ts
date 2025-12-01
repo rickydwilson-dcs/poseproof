@@ -3,7 +3,7 @@ import { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile, Subscription, Usage } from '@/types/database';
 
-const FREE_EXPORT_LIMIT = 5;
+const FREE_EXPORT_LIMIT = 100; // TODO: Set back to 5 for production
 
 interface UserState {
   // Data

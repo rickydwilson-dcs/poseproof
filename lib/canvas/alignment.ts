@@ -1,6 +1,7 @@
 /**
  * Alignment Calculation Logic
  * Computes scale and offset for aligning two photos based on pose landmarks
+ * All calculations use normalized coordinates (0-1 range) for resolution independence
  */
 
 import type { Landmark } from '@/types/landmarks';
@@ -8,11 +9,12 @@ import { VISIBILITY_THRESHOLD } from '@/types/landmarks';
 
 /**
  * Result of alignment calculation
+ * All values are normalized for resolution independence
  */
 export interface AlignmentResult {
-  scale: number;
-  offsetX: number;
-  offsetY: number;
+  scale: number;      // Scale factor to apply to the "after" photo (>1 means zoom in, <1 means zoom out)
+  offsetX: number;    // Normalized X offset (-1 to 1, where 1 = full image width)
+  offsetY: number;    // Normalized Y offset (-1 to 1, where 1 = full image height)
 }
 
 /**
@@ -32,19 +34,11 @@ export const anchorIndices: Record<AnchorType, number[]> = {
 };
 
 /**
- * Point in 2D space
+ * Point in 2D space (normalized 0-1)
  */
 interface Point {
   x: number;
   y: number;
-}
-
-/**
- * Image dimensions
- */
-interface ImageSize {
-  width: number;
-  height: number;
 }
 
 /**
@@ -57,18 +51,16 @@ const DEFAULT_ALIGNMENT: AlignmentResult = {
 };
 
 /**
- * Calculate the center point from multiple landmarks
+ * Calculate the center point from multiple landmarks in normalized coordinates
  * Filters out low-confidence landmarks
  *
- * @param landmarks - Array of all pose landmarks
+ * @param landmarks - Array of all pose landmarks (already normalized 0-1)
  * @param indices - Indices of landmarks to use for center calculation
- * @param imageSize - Dimensions of the image (to convert normalized coords to pixels)
- * @returns Center point in pixel coordinates, or null if no valid landmarks
+ * @returns Center point in normalized coordinates, or null if no valid landmarks
  */
-function calculateCenter(
+function calculateNormalizedCenter(
   landmarks: Landmark[],
-  indices: number[],
-  imageSize: ImageSize
+  indices: number[]
 ): Point | null {
   const validLandmarks = indices
     .map((idx) => landmarks[idx])
@@ -80,8 +72,8 @@ function calculateCenter(
 
   const sum = validLandmarks.reduce(
     (acc, lm) => ({
-      x: acc.x + lm.x * imageSize.width,
-      y: acc.y + lm.y * imageSize.height,
+      x: acc.x + lm.x,
+      y: acc.y + lm.y,
     }),
     { x: 0, y: 0 }
   );
@@ -93,95 +85,102 @@ function calculateCenter(
 }
 
 /**
- * Calculate scale factor based on shoulder width or body height
+ * Calculate scale reference based on body proportions in normalized coordinates
  *
- * Strategy:
- * - For head/shoulders anchors: use shoulder width
- * - For hips/full anchors: use body height (nose to hips)
+ * Uses multiple strategies to handle different poses (front, side, etc.):
+ * 1. Nose to hip center (best for front poses)
+ * 2. Nose to single visible hip (for side poses)
+ * 3. Shoulder to hip on same side (alternative for side poses)
  *
- * @param landmarks - Array of all pose landmarks
- * @param anchor - Type of anchor point
- * @param imageSize - Dimensions of the image
- * @returns Scale reference distance in pixels, or null if cannot calculate
+ * @param landmarks - Array of all pose landmarks (normalized 0-1)
+ * @param anchor - Type of anchor point (used to determine measurement strategy)
+ * @returns Normalized scale reference (ratio within image), or null if cannot calculate
  */
-function calculateScaleReference(
+function calculateNormalizedScaleReference(
   landmarks: Landmark[],
-  anchor: AnchorType,
-  imageSize: ImageSize
+  _anchor: AnchorType
 ): number | null {
-  // For head and shoulders, use shoulder width
-  if (anchor === 'head' || anchor === 'shoulders') {
-    const leftShoulder = landmarks[11];
-    const rightShoulder = landmarks[12];
-
-    if (
-      !leftShoulder ||
-      !rightShoulder ||
-      leftShoulder.visibility < VISIBILITY_THRESHOLD ||
-      rightShoulder.visibility < VISIBILITY_THRESHOLD
-    ) {
-      return null;
-    }
-
-    const leftX = leftShoulder.x * imageSize.width;
-    const leftY = leftShoulder.y * imageSize.height;
-    const rightX = rightShoulder.x * imageSize.width;
-    const rightY = rightShoulder.y * imageSize.height;
-
-    return Math.sqrt(
-      Math.pow(rightX - leftX, 2) + Math.pow(rightY - leftY, 2)
-    );
-  }
-
-  // For hips and full body, use body height (nose to hip center)
   const nose = landmarks[0];
   const leftHip = landmarks[23];
   const rightHip = landmarks[24];
+  const leftShoulder = landmarks[11];
+  const rightShoulder = landmarks[12];
 
-  if (
-    !nose ||
-    !leftHip ||
-    !rightHip ||
-    nose.visibility < VISIBILITY_THRESHOLD ||
-    leftHip.visibility < VISIBILITY_THRESHOLD ||
-    rightHip.visibility < VISIBILITY_THRESHOLD
-  ) {
-    return null;
+  // Strategy 1: Nose to hip center (best for front poses)
+  const canUseBothHips =
+    nose?.visibility >= VISIBILITY_THRESHOLD &&
+    leftHip?.visibility >= VISIBILITY_THRESHOLD &&
+    rightHip?.visibility >= VISIBILITY_THRESHOLD;
+
+  if (canUseBothHips) {
+    const hipCenterY = (leftHip.y + rightHip.y) / 2;
+    return Math.abs(hipCenterY - nose.y);
   }
 
-  const noseX = nose.x * imageSize.width;
-  const noseY = nose.y * imageSize.height;
-  const hipCenterX = ((leftHip.x + rightHip.x) / 2) * imageSize.width;
-  const hipCenterY = ((leftHip.y + rightHip.y) / 2) * imageSize.height;
+  // Strategy 2: Nose to single visible hip (for side poses)
+  const canUseLeftHip =
+    nose?.visibility >= VISIBILITY_THRESHOLD &&
+    leftHip?.visibility >= VISIBILITY_THRESHOLD;
 
-  return Math.sqrt(
-    Math.pow(hipCenterX - noseX, 2) + Math.pow(hipCenterY - noseY, 2)
-  );
+  const canUseRightHip =
+    nose?.visibility >= VISIBILITY_THRESHOLD &&
+    rightHip?.visibility >= VISIBILITY_THRESHOLD;
+
+  if (canUseLeftHip) {
+    return Math.abs(leftHip.y - nose.y);
+  }
+
+  if (canUseRightHip) {
+    return Math.abs(rightHip.y - nose.y);
+  }
+
+  // Strategy 3: Shoulder to hip on same side (for side poses)
+  const canUseLeftSide =
+    leftShoulder?.visibility >= VISIBILITY_THRESHOLD &&
+    leftHip?.visibility >= VISIBILITY_THRESHOLD;
+
+  const canUseRightSide =
+    rightShoulder?.visibility >= VISIBILITY_THRESHOLD &&
+    rightHip?.visibility >= VISIBILITY_THRESHOLD;
+
+  if (canUseLeftSide) {
+    return Math.abs(leftHip.y - leftShoulder.y);
+  }
+
+  if (canUseRightSide) {
+    return Math.abs(rightHip.y - rightShoulder.y);
+  }
+
+  return null;
 }
 
 /**
  * Calculate alignment parameters to align two photos based on pose landmarks
  *
  * Algorithm:
- * 1. Get anchor landmarks from both photos based on anchor type
- * 2. Calculate center point of anchor landmarks for each photo
- * 3. Calculate scale factor based on shoulder width or body height
- * 4. Calculate offset to align center points
- * 5. Return { scale, offsetX, offsetY }
+ * 1. Calculate normalized center points for anchor landmarks in both photos
+ * 2. Calculate normalized body size (height or shoulder width) for both photos
+ * 3. Compute scale factor so the "after" body matches the "before" body size
+ * 4. Compute offset so the anchor points align after scaling
+ *
+ * Key insight: The offset calculation must account for how scale transforms work.
+ * When we scale around the image center (0.5, 0.5), we need to:
+ * 1. Scale the anchor point position: scaledAnchor = center + (anchor - center) * scale
+ * 2. Calculate offset to move scaled anchor to match the target anchor
+ *
+ * The result values are all normalized:
+ * - scale: ratio to apply to "after" photo
+ * - offsetX/Y: normalized offset (-1 to 1 range)
  *
  * @param landmarks1 - Landmarks from the first (before) photo
  * @param landmarks2 - Landmarks from the second (after) photo to be aligned
  * @param anchor - Type of anchor point to use for alignment
- * @param imageSize1 - Dimensions of the first photo
- * @param imageSize2 - Dimensions of the second photo
- * @returns Alignment result with scale and offset values
+ * @returns Alignment result with normalized scale and offset values
  */
 export function calculateAlignment(
   landmarks1: Landmark[],
   landmarks2: Landmark[],
-  anchor: AnchorType,
-  imageSize1: ImageSize,
-  imageSize2: ImageSize
+  anchor: AnchorType
 ): AlignmentResult {
   // Validate inputs
   if (
@@ -197,34 +196,43 @@ export function calculateAlignment(
   // Get anchor indices for the selected anchor type
   const indices = anchorIndices[anchor];
 
-  // Calculate center points for both photos
-  const center1 = calculateCenter(landmarks1, indices, imageSize1);
-  const center2 = calculateCenter(landmarks2, indices, imageSize2);
+  // Calculate normalized center points for both photos
+  const anchor1 = calculateNormalizedCenter(landmarks1, indices);
+  const anchor2 = calculateNormalizedCenter(landmarks2, indices);
 
-  if (!center1 || !center2) {
+  if (!anchor1 || !anchor2) {
     console.warn(
       'Could not calculate center points - landmarks not visible or missing'
     );
     return DEFAULT_ALIGNMENT;
   }
 
-  // Calculate scale factor based on body proportions
-  const scaleRef1 = calculateScaleReference(landmarks1, anchor, imageSize1);
-  const scaleRef2 = calculateScaleReference(landmarks2, anchor, imageSize2);
+  // Calculate normalized scale references for both photos
+  const scaleRef1 = calculateNormalizedScaleReference(landmarks1, anchor);
+  const scaleRef2 = calculateNormalizedScaleReference(landmarks2, anchor);
 
   let scale = 1;
   if (scaleRef1 && scaleRef2 && scaleRef2 > 0) {
-    // Scale factor to make photo2 match photo1's proportions
+    // Scale factor to make photo2's body match photo1's body size
+    // If scaleRef1 = 0.4 (body takes 40% of image) and scaleRef2 = 0.6 (body takes 60%)
+    // Then scale = 0.4/0.6 = 0.67 (zoom out the after photo)
     scale = scaleRef1 / scaleRef2;
 
-    // Clamp scale to reasonable range (0.5x to 2x)
+    // Clamp scale to reasonable range (0.5x to 2x for more subtle adjustments)
     scale = Math.max(0.5, Math.min(2, scale));
   }
 
-  // Calculate offset to align center points
-  // After scaling, we want center2 to align with center1
-  const offsetX = center1.x - center2.x * scale;
-  const offsetY = center1.y - center2.y * scale;
+  // Calculate where anchor2 will be after scaling around the image center (0.5, 0.5)
+  // When we scale by factor 's' around center (0.5, 0.5):
+  // scaledPoint = 0.5 + (originalPoint - 0.5) * s
+  const imageCenter = 0.5;
+  const scaledAnchor2X = imageCenter + (anchor2.x - imageCenter) * scale;
+  const scaledAnchor2Y = imageCenter + (anchor2.y - imageCenter) * scale;
+
+  // Calculate offset to move scaled anchor2 position to match anchor1 position
+  // offset = target - current
+  const offsetX = anchor1.x - scaledAnchor2X;
+  const offsetY = anchor1.y - scaledAnchor2Y;
 
   return {
     scale,
