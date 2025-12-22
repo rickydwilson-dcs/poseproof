@@ -67,12 +67,52 @@ jobs:
         run: npm test -- run
 
   # =============================================================================
-  # E2E Tests: Playwright (staging branch only)
+  # Smoke Tests: Critical path tests on develop branch
+  # Required to pass before promoting to staging
+  # =============================================================================
+  smoke:
+    name: Smoke Tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: npm run test:e2e:smoke -- --project=chromium
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: smoke-test-report
+          path: playwright-report/
+          retention-days: 7
+
+  # =============================================================================
+  # E2E Tests: Full suite on staging and main branches
   # =============================================================================
   e2e:
     name: E2E Tests
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/staging' || github.ref == 'refs/heads/main'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -101,37 +141,23 @@ jobs:
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: playwright-report
+          name: e2e-test-report
           path: playwright-report/
           retention-days: 7
 
   # =============================================================================
-  # Smoke Tests: Critical path tests on develop
+  # Gate Check: Summarizes required checks for branch protection
   # =============================================================================
-  smoke:
-    name: Smoke Tests
+  gate:
+    name: Gate Check
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    needs: [quality, test]
+    if: always()
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
-
-      - name: Run smoke tests
-        run: npm run test:e2e:smoke -- --project=chromium
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
-          NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
-          NEXT_PUBLIC_APP_URL: http://localhost:3000
+      - name: Check required jobs
+        run: |
+          if [[ "${{ needs.quality.result }}" != "success" ]] || [[ "${{ needs.test.result }}" != "success" ]]; then
+            echo "Required checks failed"
+            exit 1
+          fi
+          echo "All required checks passed"

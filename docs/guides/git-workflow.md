@@ -33,7 +33,7 @@ git commit -m "feat: add new feature"
 ### 3. Push to develop
 
 ```bash
-# Pre-push hooks will run automatically
+# Pre-push hooks will run automatically (lint, type-check, build)
 git push origin develop
 ```
 
@@ -47,17 +47,23 @@ git push origin develop
 When features are ready for testing:
 
 ```bash
-# Merge develop into staging
+# First, ensure develop CI is green
+# Then merge develop into staging
 git checkout staging
 git pull origin staging
 git merge develop
 git push origin staging
 ```
 
-Wait for:
+**Requirements before pushing:**
 
-- Full E2E tests to pass
-- 24-hour soak time minimum
+- All develop CI checks passing (Quality, Unit Tests, Smoke Tests)
+- Pre-push hooks pass locally
+
+After pushing to staging:
+
+- Full E2E tests run automatically on staging
+- Wait 24-hour soak time minimum
 - Manual QA verification
 
 ## Promoting to Production
@@ -65,14 +71,21 @@ Wait for:
 After staging verification:
 
 ```bash
-# Merge staging into main
+# First, ensure staging CI is green (including E2E)
+# Then merge staging into main
 git checkout main
 git pull origin main
 git merge staging
 git push origin main
 ```
 
-Then:
+**Requirements before pushing:**
+
+- All staging CI checks passing (Quality, Unit Tests, E2E Tests)
+- 24-hour staging soak time completed
+- Pre-push hooks pass locally
+
+After pushing to main:
 
 - Monitor Vercel deployment
 - Verify production site
@@ -116,7 +129,7 @@ refactor(canvas): simplify landmark rendering
 
 The following checks run automatically before each push:
 
-1. **lint-staged** - Lints and formats staged files
+1. **lint** - Full ESLint on entire codebase
 2. **type-check** - TypeScript compilation check
 3. **build** - Production build verification
 
@@ -129,25 +142,24 @@ If any check fails, the push is blocked.
 git push --no-verify
 ```
 
-## Branch Protection Rules
+## Quality Gates by Branch
 
-Configure in GitHub Settings → Branches:
+Each branch has specific quality checks that run automatically:
 
-### `main` branch
+| Branch  | Local (Pre-push)        | CI Checks                        |
+| ------- | ----------------------- | -------------------------------- |
+| develop | lint, type-check, build | Quality + Unit Tests             |
+| staging | lint, type-check, build | Quality + Unit Tests + Smoke E2E |
+| main    | lint, type-check, build | Quality + Unit Tests + Full E2E  |
 
-- Require pull request before merging (optional)
-- Require status checks to pass
-- Require branches to be up to date
-- Do not allow force pushes
+**Workflow:** Always verify CI is green before promoting to the next branch.
 
-### `staging` branch
+## CI/CD Test Requirements
 
-- Require status checks to pass
-- Do not allow force pushes
-
-### `develop` branch
-
-- Require status checks to pass
+| Promotion         | Required Tests                   |
+| ----------------- | -------------------------------- |
+| develop → staging | Quality + Unit Tests + Smoke E2E |
+| staging → main    | Quality + Unit Tests + Full E2E  |
 
 ## Handling Conflicts
 
@@ -221,8 +233,9 @@ git stash pop
 
 ## Critical Rules
 
-1. **Never force push** to `main`, `staging`, or `develop`
+1. **Never force push** to any branch
 2. **Always pull** before starting work
-3. **Run `npm run validate`** before pushing
+3. **Let pre-push hooks run** - they catch issues before CI
 4. **Follow the branch flow**: develop → staging → main
 5. **Write meaningful commit messages**
+6. **Verify CI is green** before promoting to the next branch
