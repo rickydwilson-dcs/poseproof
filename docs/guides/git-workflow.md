@@ -39,51 +39,48 @@ git push origin develop
 
 ### 4. Verify CI
 
-- Check GitHub Actions for CI status
-- Ensure all checks pass before proceeding
+```bash
+# Wait for CI to complete
+gh run watch
+```
 
 ## Promoting to Staging
 
 When features are ready for testing:
 
 ```bash
-# First, ensure develop CI is green
-# Then merge develop into staging
+# Wait for develop CI to pass
+gh run watch
+
+# Merge develop into staging
 git checkout staging
 git pull origin staging
 git merge develop
 git push origin staging
+gh run watch  # Wait for E2E tests
 ```
-
-**Requirements before pushing:**
-
-- All develop CI checks passing (Quality, Unit Tests, Smoke Tests)
-- Pre-push hooks pass locally
 
 After pushing to staging:
 
-- Full E2E tests run automatically on staging
-- Wait 24-hour soak time minimum
+- Full E2E tests run automatically
 - Manual QA verification
+- Optional 24-hour soak time for major changes
 
 ## Promoting to Production
 
 After staging verification:
 
 ```bash
-# First, ensure staging CI is green (including E2E)
-# Then merge staging into main
+# Wait for staging CI to pass (including E2E)
+gh run watch
+
+# Merge staging into main
 git checkout main
 git pull origin main
 git merge staging
 git push origin main
+gh run watch  # Wait for deployment
 ```
-
-**Requirements before pushing:**
-
-- All staging CI checks passing (Quality, Unit Tests, E2E Tests)
-- 24-hour staging soak time completed
-- Pre-push hooks pass locally
 
 After pushing to main:
 

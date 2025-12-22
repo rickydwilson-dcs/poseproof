@@ -1,95 +1,121 @@
 # Deployment Standards
 
-This document outlines the deployment workflow and standards for PoseProof.
+**Version:** 1.0.0
+**Last Updated:** 2025-12-22
+**Scope:** PoseProof application
 
-## Three-Tier Branching Strategy
+---
+
+## Overview
+
+PoseProof uses a multi-stage deployment pipeline with GitHub Actions CI/CD and Vercel automatic deployments. All deployments follow a validated promotion strategy.
+
+## Core Principles
+
+### 1. Git Branch Flow
 
 ```
 develop → staging → main
-  (dev)   (preview)  (production)
 ```
 
-### Branch Purposes
+- **develop:** Development environment, smoke tests required
+- **staging:** Preview/QA gate, full E2E tests required
+- **main:** Production, requires staging CI passing
 
-| Branch    | Environment | URL                   | Purpose                |
-| --------- | ----------- | --------------------- | ---------------------- |
-| `develop` | Development | Auto-generated        | Active development     |
-| `staging` | Preview     | staging.poseproof.com | Pre-production testing |
-| `main`    | Production  | poseproof.com         | Live production        |
+### 2. Automated CI/CD
 
-## Deployment Flow
+All deployments validated by GitHub Actions before proceeding.
 
-### 1. Development (develop branch)
+### 3. Pre-Push Validation
 
-- All feature work happens here
-- Automatic Vercel preview deployments
-- Smoke tests run on every push
-- Quick iteration cycle
+Local pre-push hooks run lint, type-check, and build before any push.
 
-### 2. Staging (staging branch)
+## GitHub Actions Workflows
 
-- Merge from `develop` when ready for testing
-- Full E2E test suite runs
-- Manual QA verification
-- **Minimum 24-hour soak time before production**
+### CI Workflow (ci.yml)
 
-### 3. Production (main branch)
+Runs on every push to develop, staging, main:
 
-- Merge from `staging` after verification
-- Automatic production deployment
-- Monitor for 30 minutes post-deploy
+```yaml
+- ESLint linting
+- TypeScript validation
+- Unit tests (Vitest)
+- Production build
+```
 
-## Pre-Push Quality Gates
+### E2E Tests by Branch
 
-The following checks run automatically before each push:
+| Branch  | Tests     | When Run |
+| ------- | --------- | -------- |
+| develop | Smoke E2E | On push  |
+| staging | Full E2E  | On push  |
+| main    | Full E2E  | On push  |
 
-1. **TypeScript Check** - `npm run type-check`
-2. **Production Build** - `npm run build`
+## Pre-Deployment Checks
 
-If either fails, the push is blocked.
+Before any push, pre-push hooks run:
 
-## CI/CD Pipeline
+```bash
+npm run lint          # ESLint
+npm run type-check    # TypeScript
+npm run build         # Production build
+```
 
-See `.github/workflows/ci.yml` for the full configuration.
+These block the push if any check fails.
 
-### Jobs by Branch
+## Git Workflow Commands
 
-| Job        | develop | staging | main |
-| ---------- | ------- | ------- | ---- |
-| Lint       | Yes     | Yes     | Yes  |
-| TypeScript | Yes     | Yes     | Yes  |
-| Build      | Yes     | Yes     | Yes  |
-| Unit Tests | Yes     | Yes     | Yes  |
-| Smoke E2E  | Yes     | No      | No   |
-| Full E2E   | No      | Yes     | No   |
+```bash
+# Push to develop
+git push origin develop
+gh run watch  # Wait for CI
+
+# Merge to staging (after CI passes)
+git checkout staging
+git merge develop
+git push origin staging
+gh run watch  # Wait for E2E tests
+
+# Merge to main (after staging E2E passes)
+git checkout main
+git merge staging
+git push origin main
+gh run watch  # Wait for deployment
+```
+
+## Vercel Configuration
+
+PoseProof has automatic deployments configured:
+
+| Branch  | Environment | URL                    |
+| ------- | ----------- | ---------------------- |
+| develop | Development | Auto-generated preview |
+| staging | Preview     | staging.poseproof.com  |
+| main    | Production  | poseproof.com          |
 
 ## Deployment Checklist
 
-### Before Promoting develop → staging
+### Before Merging develop → staging
 
-- [ ] All CI checks passing
-- [ ] Smoke tests passing
-- [ ] No console errors in development
-- [ ] Feature tested locally
-- [ ] TypeScript compilation successful
-- [ ] Build successful
+- [ ] All develop CI checks passing (lint, type-check, build, unit tests)
+- [ ] Smoke E2E tests pass on develop
+- [ ] Run `gh run watch` to confirm CI is green
 
-### Before Promoting staging → main
+### Before Merging staging → main
 
-- [ ] All CI checks passing on staging
-- [ ] Full E2E tests passed
-- [ ] 24-hour staging soak time complete
+- [ ] All staging CI checks passing
+- [ ] Full E2E tests pass on staging
+- [ ] 24-hour staging soak time complete (optional for urgent fixes)
 - [ ] Manual QA verification complete
-- [ ] Critical user flows tested
-- [ ] No new errors in staging logs
+- [ ] Run `gh run watch` to confirm CI is green
 
 ### After Production Deployment
 
-- [ ] Verify deployment success in Vercel
-- [ ] Check production URL loads correctly
-- [ ] Verify critical user flows work
+- [ ] Site loads successfully
+- [ ] Authentication working
+- [ ] Core editor functionality works
+- [ ] Stripe checkout loads
 - [ ] Monitor for 30 minutes post-deploy
-- [ ] Check for any new error reports
 
 ## Rollback Procedure
 
@@ -97,8 +123,16 @@ If issues are discovered in production:
 
 1. **Immediate:** Use Vercel's instant rollback feature
 2. **Navigate to:** Vercel Dashboard → Deployments → Previous deployment → Promote to Production
-3. **Notify:** Team of rollback and investigate issue
-4. **Fix:** Create hotfix on develop, fast-track through staging
+3. **Fix:** Create fix on develop, fast-track through staging
+
+## What NOT to Do
+
+| Anti-Pattern             | Why It's Wrong       | Correct Approach      |
+| ------------------------ | -------------------- | --------------------- |
+| Merge without CI green   | May break production | Always `gh run watch` |
+| Skip pre-push hooks      | May break CI         | Let hooks run         |
+| Force push to any branch | Loses history        | Never force push      |
+| Deploy on Friday evening | No support coverage  | Deploy early in day   |
 
 ## Environment Variables
 
@@ -128,29 +162,21 @@ npm run dev           # Start dev server
 npm run build         # Production build
 npm run validate      # Full validation suite
 
-# Pre-push checks
-npm run type-check    # TypeScript validation
+# Pre-push checks (run automatically)
 npm run lint          # ESLint check
+npm run type-check    # TypeScript validation
 
 # Testing
 npm test              # Unit tests
-npm run test:e2e      # E2E tests
+npm run test:e2e      # Full E2E tests
+npm run test:e2e:smoke # Smoke E2E tests
 ```
 
-## Critical Rules
+## Related Guides
 
-### NEVER Do
+- [Git Workflow](../guides/git-workflow.md)
+- [Testing Standards](./testing.md)
 
-- Push directly to `main` without staging verification
-- Skip the 24-hour staging soak time
-- Deploy on Fridays without urgent need
-- Force push to shared branches
-- Skip pre-push hooks
+---
 
-### ALWAYS Do
-
-- Run quality checks before committing
-- Wait for CI to pass before promoting branches
-- Verify on staging before production
-- Monitor for 30 minutes after production deploy
-- Document any manual overrides
+**Maintained By:** Ricky Wilson
