@@ -82,7 +82,17 @@ export const useUserStore = create<UserState>((set, get) => ({
       // Get current user
       const { data: { user }, error: userError } = await supabase.auth.getUser();
 
+      // AuthSessionMissingError is expected when user is not logged in
       if (userError) {
+        const isSessionMissing =
+          userError.message?.includes('Auth session missing') ||
+          userError.name === 'AuthSessionMissingError';
+
+        if (isSessionMissing) {
+          // User is simply not logged in - this is normal
+          set({ user: null, profile: null, subscription: null, usage: null, isInitialized: true, isLoading: false });
+          return;
+        }
         throw userError;
       }
 

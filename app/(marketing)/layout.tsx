@@ -6,31 +6,29 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="min-h-dvh bg-canvas flex flex-col">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-lg dark:border-zinc-800 dark:bg-zinc-950/80">
-        <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-6">
+      <header className="floating-header fixed top-0 left-0 right-0 z-50 safe-top">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-purple-600">
-              <span className="text-lg font-bold text-white">PP</span>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-instagram-gradient rounded-lg flex items-center justify-center">
+              <span className="text-white text-lg font-bold">P</span>
             </div>
-            <span className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-white">
-              PoseProof
-            </span>
+            <span className="text-lg font-semibold text-text">PoseProof</span>
           </Link>
 
           {/* Navigation */}
-          <nav className="flex items-center space-x-2">
+          <nav className="flex items-center gap-3">
             <Link
               href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+              className="px-4 py-2 text-sm font-medium text-text-secondary hover:text-text transition-colors"
             >
-              Login
+              Sign In
             </Link>
             <Link
               href="/editor"
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+              className="btn-pill btn-primary h-10 px-5 text-sm"
             >
               Try Free
             </Link>
@@ -38,25 +36,39 @@ export default function MarketingLayout({
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1">
-        <div className="mx-auto max-w-[1120px] px-6">{children}</div>
+      {/* Main Content - full width, pages control their own sections */}
+      <main className="flex-1 pt-14">
+        {children}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto max-w-[1120px] px-6 py-12">
-          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center space-x-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-blue-600 to-purple-600">
-                <span className="text-xs font-bold text-white">PP</span>
+      <footer className="py-10 px-4 sm:px-6 bg-surface border-t border-border safe-bottom">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Logo */}
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 bg-instagram-gradient rounded-lg flex items-center justify-center">
+                <span className="text-white text-sm font-bold">P</span>
               </div>
-              <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
-                PoseProof
-              </span>
+              <span className="text-sm font-semibold text-text">PoseProof</span>
             </div>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400">
-              &copy; {new Date().getFullYear()} PoseProof. All rights reserved.
+
+            {/* Links */}
+            <nav className="flex flex-wrap items-center justify-center gap-6 text-sm">
+              <Link href="/privacy" className="text-text-secondary hover:text-text transition-colors">
+                Privacy
+              </Link>
+              <Link href="/terms" className="text-text-secondary hover:text-text transition-colors">
+                Terms
+              </Link>
+              <a href="mailto:hello@poseproof.com" className="text-text-secondary hover:text-text transition-colors">
+                Contact
+              </a>
+            </nav>
+
+            {/* Copyright */}
+            <p className="text-sm text-text-tertiary">
+              © {new Date().getFullYear()} PoseProof
             </p>
           </div>
         </div>

@@ -81,35 +81,35 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="text-center">
-        <div className="mb-6">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="text-green-600 dark:text-green-400"
-            >
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <h1 className="mb-2 text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-            Check your email
-          </h1>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            We&apos;ve sent a confirmation link to{' '}
-            <span className="font-medium text-zinc-900 dark:text-white">{email}</span>
-          </p>
+      <div className="w-full text-center">
+        {/* Success Icon */}
+        <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-success/10 flex items-center justify-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-success"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
         </div>
 
-        <p className="mb-6 text-sm text-zinc-600 dark:text-zinc-400">
+        <h1 className="text-2xl font-bold tracking-tight text-text mb-2">
+          Check your email
+        </h1>
+        <p className="text-sm text-text-secondary mb-2">
+          We&apos;ve sent a confirmation link to
+        </p>
+        <p className="text-sm font-semibold text-text mb-6">{email}</p>
+
+        <p className="text-sm text-text-secondary mb-8">
           Click the link in the email to confirm your account and get started with PoseProof.
         </p>
 
@@ -121,38 +121,41 @@ export default function SignupPage() {
           >
             Use a different email
           </Button>
-          <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+          <p className="text-sm text-text-secondary">
             Already confirmed?{' '}
             <Link
               href="/login"
-              className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              className="font-semibold text-brand-pink hover:text-brand-pink/80 transition-colors"
             >
               Sign in
             </Link>
-          </div>
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-8 text-center">
-        <h1 className="mb-2 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    <div className="w-full">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-text mb-1">
           Create your account
         </h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-text-secondary">
           Get started with PoseProof today
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Error Message */}
         {error && (
-          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          <div className="p-4 rounded-xl bg-error/10 border border-error/20 text-sm text-error">
             {error}
           </div>
         )}
 
+        {/* Form Fields */}
         <div className="space-y-4">
           <Input
             label="Full Name"
@@ -187,7 +190,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  className="text-text-secondary hover:text-text transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -224,12 +227,13 @@ export default function SignupPage() {
                 </button>
               }
             />
-            <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+            <p className="mt-2 text-xs text-text-tertiary">
               Must be at least 8 characters
             </p>
           </div>
         </div>
 
+        {/* Submit Button */}
         <Button
           type="submit"
           className="w-full"
@@ -239,27 +243,36 @@ export default function SignupPage() {
           Create Account
         </Button>
 
-        <p className="text-center text-xs text-zinc-500 dark:text-zinc-400">
+        {/* Terms */}
+        <p className="text-xs text-text-tertiary text-center">
           By creating an account, you agree to our{' '}
-          <Link href="/terms" className="underline hover:text-zinc-700 dark:hover:text-zinc-300">
+          <Link href="/terms" className="underline hover:text-text-secondary transition-colors">
             Terms of Service
           </Link>{' '}
           and{' '}
-          <Link href="/privacy" className="underline hover:text-zinc-700 dark:hover:text-zinc-300">
+          <Link href="/privacy" className="underline hover:text-text-secondary transition-colors">
             Privacy Policy
           </Link>
         </p>
 
-        <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+        {/* Login Link */}
+        <p className="text-center text-sm text-text-secondary">
           Already have an account?{' '}
           <Link
             href="/login"
-            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="font-semibold text-brand-pink hover:text-brand-pink/80 transition-colors"
           >
             Sign in
           </Link>
-        </div>
+        </p>
       </form>
+
+      {/* Privacy Footer */}
+      <div className="mt-8 pt-6 border-t border-border">
+        <p className="text-xs text-text-tertiary text-center">
+          Your photos are processed locally and never uploaded to our servers.
+        </p>
+      </div>
     </div>
   );
 }

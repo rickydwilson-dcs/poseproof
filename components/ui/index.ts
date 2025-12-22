@@ -15,3 +15,9 @@ export type { SliderProps } from './Slider';
 
 export { Toggle } from './Toggle';
 export type { ToggleProps } from './Toggle';
+
+export { BottomSheet } from './BottomSheet';
+export type { BottomSheetProps } from './BottomSheet';
+
+export { SegmentedControl } from './SegmentedControl';
+export type { SegmentedControlProps, SegmentedControlOption } from './SegmentedControl';

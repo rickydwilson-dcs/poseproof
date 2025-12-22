@@ -2,30 +2,38 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'outline';
   size?: 'sm' | 'md' | 'lg';
   loading?: boolean;
+  fullWidth?: boolean;
   children: React.ReactNode;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', loading = false, disabled, children, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', loading = false, fullWidth = false, disabled, children, ...props }, ref) => {
+    // Instagram-style pill buttons with gradient
     const baseStyles =
-      'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50';
+      'relative inline-flex items-center justify-center font-semibold transition-all duration-200 ease-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 overflow-hidden';
 
     const variantStyles = {
+      // Gradient pill button - Instagram style
       primary:
-        'bg-[var(--brand-primary)] text-white shadow-md hover:bg-[var(--brand-primary)] hover:shadow-lg hover:scale-[1.02] focus-visible:ring-[var(--brand-primary)] active:scale-[0.98]',
+        'bg-instagram-gradient text-white rounded-full shadow-soft hover:shadow-glow active:scale-[0.98]',
+      // Gray background button
       secondary:
-        'bg-[var(--gray-200)] text-[var(--text-primary)] hover:bg-[var(--gray-300)] hover:scale-[1.02] active:scale-[0.98] dark:bg-[var(--gray-700)] dark:text-[var(--text-primary)] dark:hover:bg-[var(--gray-600)]',
+        'bg-gray-100 text-text rounded-full hover:bg-gray-200 active:scale-[0.98] dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700',
+      // Transparent with hover
       ghost:
-        'text-[var(--text-primary)] hover:bg-[var(--gray-100)] hover:text-[var(--text-primary)] dark:hover:bg-[var(--gray-800)]',
+        'bg-transparent text-text rounded-full hover:bg-gray-100 active:scale-[0.98] dark:hover:bg-gray-800',
+      // Bordered button
+      outline:
+        'bg-transparent text-text rounded-full border border-border hover:bg-gray-50 active:scale-[0.98] dark:hover:bg-gray-900',
     };
 
     const sizeStyles = {
       sm: 'h-9 px-4 text-sm gap-1.5',
-      md: 'h-11 px-6 text-base gap-2',
-      lg: 'h-14 px-8 text-lg gap-2.5',
+      md: 'h-12 px-6 text-base gap-2',
+      lg: 'h-14 px-8 text-base gap-2.5',
     };
 
     return (
@@ -36,13 +44,17 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           baseStyles,
           variantStyles[variant],
           sizeStyles[size],
+          fullWidth && 'w-full',
+          'group',
           className
         )}
-        style={{
-          transitionTimingFunction: 'var(--ease-apple)',
-        }}
         {...props}
       >
+        {/* Hover shine effect for primary */}
+        {variant === 'primary' && (
+          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-200" />
+        )}
+
         {loading && (
           <svg
             className="animate-spin h-4 w-4"
@@ -65,7 +77,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         )}
-        {children}
+        <span className="relative flex items-center gap-2">
+          {children}
+        </span>
       </button>
     );
   }

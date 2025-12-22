@@ -4,31 +4,45 @@ import { cn } from '@/lib/utils';
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   hover?: boolean;
-  padding?: 'sm' | 'md' | 'lg' | 'xl';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  variant?: 'default' | 'elevated' | 'outlined';
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, children, hover = false, padding = 'lg', ...props }, ref) => {
+  ({ className, children, hover = false, padding = 'lg', variant = 'default', ...props }, ref) => {
     const paddingStyles = {
+      none: 'p-0',
       sm: 'p-4',
-      md: 'p-6',
-      lg: 'p-8',
-      xl: 'p-10',
+      md: 'p-5',
+      lg: 'p-6',
+      xl: 'p-8',
+    };
+
+    const variantStyles = {
+      // Default - subtle shadow, no border
+      default: 'bg-surface shadow-soft',
+      // Elevated - more prominent shadow
+      elevated: 'bg-surface shadow-medium',
+      // Outlined - border, no shadow
+      outlined: 'bg-surface border border-border',
     };
 
     return (
       <div
         ref={ref}
         className={cn(
-          'rounded-2xl bg-[var(--surface-primary)] border border-[var(--border-default)]',
-          'shadow-md transition-all duration-300',
-          hover && 'hover:shadow-lg hover:-translate-y-1 cursor-pointer',
+          // Instagram-style rounded corners
+          'rounded-[24px]',
+          // Variant styles
+          variantStyles[variant],
+          // Transitions
+          'transition-all duration-200 ease-out',
+          // Hover effects
+          hover && 'hover:shadow-medium hover:-translate-y-0.5 cursor-pointer',
+          // Padding
           paddingStyles[padding],
           className
         )}
-        style={{
-          transitionTimingFunction: 'var(--ease-apple)',
-        }}
         {...props}
       >
         {children}
@@ -43,7 +57,7 @@ const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex flex-col space-y-1.5 mb-4', className)}
+      className={cn('flex flex-col space-y-1 mb-4', className)}
       {...props}
     />
   )
@@ -55,7 +69,7 @@ const CardTitle = React.forwardRef<HTMLHeadingElement, React.HTMLAttributes<HTML
   ({ className, children, ...props }, ref) => (
     <h3
       ref={ref}
-      className={cn('text-2xl font-semibold text-[var(--text-primary)] leading-tight', className)}
+      className={cn('text-xl font-semibold text-text leading-tight tracking-tight', className)}
       {...props}
     >
       {children}
@@ -71,7 +85,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn('text-sm text-[var(--text-secondary)]', className)}
+    className={cn('text-sm text-text-secondary', className)}
     {...props}
   />
 ));
@@ -90,7 +104,7 @@ const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDiv
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn('flex items-center mt-6 pt-6 border-t border-[var(--border-default)]', className)}
+      className={cn('flex items-center mt-5 pt-5 border-t border-border', className)}
       {...props}
     />
   )

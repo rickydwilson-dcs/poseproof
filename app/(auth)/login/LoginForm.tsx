@@ -78,23 +78,26 @@ export default function LoginForm() {
   };
 
   return (
-    <div>
-      <div className="mb-8 text-center">
-        <h1 className="mb-2 text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">
+    <div className="w-full">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold tracking-tight text-text mb-1">
           Welcome back
         </h1>
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        <p className="text-sm text-text-secondary">
           Sign in to your account to continue
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Error Message */}
         {error && (
-          <div className="rounded-lg bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+          <div className="p-4 rounded-xl bg-error/10 border border-error/20 text-sm text-error">
             {error}
           </div>
         )}
 
+        {/* Form Fields */}
         <div className="space-y-4">
           <Input
             label="Email"
@@ -106,7 +109,7 @@ export default function LoginForm() {
             disabled={isLoading}
           />
 
-          <div className="relative">
+          <div>
             <Input
               label="Password"
               type={showPassword ? 'text' : 'password'}
@@ -119,7 +122,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  className="text-text-secondary hover:text-text transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? (
@@ -159,15 +162,17 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <div className="flex items-center justify-end">
+        {/* Forgot Password Link */}
+        <div className="text-right">
           <Link
             href="/forgot-password"
-            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className="text-sm font-medium text-brand-pink hover:text-brand-pink/80 transition-colors"
           >
             Forgot password?
           </Link>
         </div>
 
+        {/* Submit Button */}
         <Button
           type="submit"
           className="w-full"
@@ -177,16 +182,24 @@ export default function LoginForm() {
           Sign In
         </Button>
 
-        <div className="text-center text-sm text-zinc-600 dark:text-zinc-400">
+        {/* Signup Link */}
+        <p className="text-center text-sm text-text-secondary">
           Don&apos;t have an account?{' '}
           <Link
             href="/signup"
-            className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+            className="font-semibold text-brand-pink hover:text-brand-pink/80 transition-colors"
           >
             Sign up
           </Link>
-        </div>
+        </p>
       </form>
+
+      {/* Privacy Footer */}
+      <div className="mt-8 pt-6 border-t border-border">
+        <p className="text-xs text-text-tertiary text-center">
+          Your photos are processed locally and never uploaded to our servers.
+        </p>
+      </div>
     </div>
   );
 }

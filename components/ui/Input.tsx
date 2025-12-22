@@ -15,18 +15,18 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const hasError = Boolean(error);
 
     return (
-      <div className="w-full">
+      <div className="w-full space-y-1.5">
         {label && (
           <label
             htmlFor={inputId}
-            className="block text-sm font-medium text-[var(--text-primary)] mb-2"
+            className="block text-xs font-medium text-text-secondary ml-1"
           >
             {label}
           </label>
         )}
-        <div className="relative">
+        <div className="relative group">
           {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-pink transition-colors">
               {leftIcon}
             </div>
           )}
@@ -35,26 +35,32 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             type={type}
             className={cn(
-              'flex h-11 w-full rounded-xl border bg-[var(--surface-primary)] px-4 py-2 text-base text-[var(--text-primary)] transition-all duration-200',
-              'placeholder:text-[var(--text-tertiary)]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-              'disabled:cursor-not-allowed disabled:opacity-50',
+              // Base styles - Instagram inspired
+              'flex h-12 w-full bg-surface dark:bg-surface-secondary text-base text-text transition-all duration-200 ease-out',
+              // Border radius - 12px for inputs
+              'rounded-[12px]',
+              // Borders
+              'border',
               hasError
-                ? 'border-[var(--error)] focus-visible:ring-[var(--error)]'
-                : 'border-[var(--border-default)] focus-visible:ring-[var(--border-focus)]',
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
+                ? 'border-error focus:border-error focus:ring-1 focus:ring-error'
+                : 'border-border focus:border-brand-pink focus:ring-1 focus:ring-brand-pink',
+              // Padding
+              leftIcon ? 'pl-11 pr-4' : 'px-4',
+              rightIcon && 'pr-11',
+              // Placeholder
+              'placeholder:text-text-tertiary',
+              // Focus
+              'focus:outline-none',
+              // Disabled
+              'disabled:cursor-not-allowed disabled:opacity-50',
               className
             )}
-            style={{
-              transitionTimingFunction: 'var(--ease-apple)',
-            }}
             aria-invalid={hasError}
             aria-describedby={hasError ? `${inputId}-error` : undefined}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]">
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-pink transition-colors">
               {rightIcon}
             </div>
           )}
@@ -62,7 +68,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         {error && (
           <p
             id={`${inputId}-error`}
-            className="mt-1.5 text-sm text-[var(--error)]"
+            className="text-sm text-error ml-1"
             role="alert"
           >
             {error}

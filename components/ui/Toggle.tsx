@@ -22,37 +22,28 @@ const Toggle = React.forwardRef<HTMLInputElement, ToggleProps>(
     const currentChecked = checked !== undefined ? checked : isChecked;
 
     return (
-      <div className="flex items-center justify-between gap-4">
+      <label
+        htmlFor={toggleId}
+        className={cn(
+          'flex items-center justify-between w-full cursor-pointer group',
+          props.disabled && 'opacity-50 cursor-not-allowed',
+          className
+        )}
+      >
         <div className="flex-1">
           {label && (
-            <label
-              htmlFor={toggleId}
-              className="text-sm font-medium text-[var(--text-primary)] cursor-pointer"
-            >
+            <span className="text-base text-text dark:text-gray-200">
               {label}
-            </label>
+            </span>
           )}
           {description && (
-            <p className="text-xs text-[var(--text-secondary)] mt-0.5">
+            <p className="text-xs text-text-secondary mt-0.5">
               {description}
             </p>
           )}
         </div>
-        <label
-          htmlFor={toggleId}
-          className={cn(
-            'relative inline-flex h-7 w-12 items-center rounded-full cursor-pointer transition-all duration-300',
-            'focus-within:ring-2 focus-within:ring-[var(--border-focus)] focus-within:ring-offset-2',
-            currentChecked
-              ? 'bg-[var(--brand-primary)]'
-              : 'bg-[var(--gray-300)] dark:bg-[var(--gray-600)]',
-            props.disabled && 'opacity-50 cursor-not-allowed',
-            className
-          )}
-          style={{
-            transitionTimingFunction: 'var(--ease-apple)',
-          }}
-        >
+
+        <div className="relative">
           <input
             id={toggleId}
             ref={ref}
@@ -60,20 +51,30 @@ const Toggle = React.forwardRef<HTMLInputElement, ToggleProps>(
             checked={currentChecked}
             defaultChecked={defaultChecked}
             onChange={handleChange}
-            className="sr-only"
+            className="sr-only peer"
             {...props}
           />
-          <span
+
+          {/* Track - Instagram gradient when checked */}
+          <div
             className={cn(
-              'inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-all duration-300',
-              currentChecked ? 'translate-x-6' : 'translate-x-1'
+              'w-11 h-6 rounded-full transition-all duration-300 ease-out',
+              currentChecked
+                ? 'bg-instagram-gradient'
+                : 'bg-gray-200 dark:bg-gray-700'
             )}
-            style={{
-              transitionTimingFunction: 'var(--ease-apple)',
-            }}
           />
-        </label>
-      </div>
+
+          {/* Thumb */}
+          <div
+            className={cn(
+              'absolute top-[2px] left-[2px] bg-white rounded-full h-5 w-5 shadow-sm transition-all duration-300 ease-out',
+              'border border-gray-300 dark:border-gray-600',
+              currentChecked && 'translate-x-5 border-white'
+            )}
+          />
+        </div>
+      </label>
     );
   }
 );
