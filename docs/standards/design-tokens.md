@@ -129,7 +129,7 @@ All colors automatically adapt to light/dark mode:
 You can also use CSS variables directly:
 
 ```tsx
-<div style={{ background: 'var(--surface-primary)' }}>
+<div style={{ background: "var(--surface-primary)" }}>
   {/* Direct CSS var access */}
 </div>
 ```
@@ -137,52 +137,48 @@ You can also use CSS variables directly:
 ## CSS Custom Properties Reference
 
 ### Light Mode
+
 ```css
---surface-primary: #ffffff
---surface-secondary: #f8fafc
---text-primary: #0f172a
---text-secondary: #475569
---border-default: #e2e8f0
+--surface-primary: #ffffff --surface-secondary: #f8fafc --text-primary: #0f172a
+  --text-secondary: #475569 --border-default: #e2e8f0;
 ```
 
 ### Dark Mode (.dark class or prefers-color-scheme)
+
 ```css
---surface-primary: #0f172a
---surface-secondary: #1e293b
---text-primary: #f8fafc
---text-secondary: #94a3b8
---border-default: #334155
+--surface-primary: #0f172a --surface-secondary: #1e293b --text-primary: #f8fafc
+  --text-secondary: #94a3b8 --border-default: #334155;
 ```
 
 ### Brand Colors (constant)
+
 ```css
---brand-primary: #3B82F6 (Blue)
---brand-secondary: #10B981 (Green)
---brand-accent: #F59E0B (Amber)
+--brand-primary: #3b82f6 (Blue) --brand-secondary: #10b981 (Green)
+  --brand-accent: #f59e0b (Amber);
 ```
 
 ## Typography Scale
 
-| Token | Size | Line Height | Tracking | Weight |
-|-------|------|-------------|----------|--------|
-| display-2xl | 72px (4.5rem) | 1.1 | -0.02em | 700 (bold) |
-| display-xl | 60px (3.75rem) | 1.1 | -0.02em | 700 (bold) |
-| display-lg | 48px (3rem) | 1.15 | -0.015em | 600 (semibold) |
+| Token       | Size           | Line Height | Tracking | Weight         |
+| ----------- | -------------- | ----------- | -------- | -------------- |
+| display-2xl | 72px (4.5rem)  | 1.1         | -0.02em  | 700 (bold)     |
+| display-xl  | 60px (3.75rem) | 1.1         | -0.02em  | 700 (bold)     |
+| display-lg  | 48px (3rem)    | 1.15        | -0.015em | 600 (semibold) |
 
 ## Spacing Scale
 
-| Token | Size | Use Case |
-|-------|------|----------|
-| section | 120px (7.5rem) | Standard section padding |
-| section-lg | 160px (10rem) | Large section padding |
+| Token      | Size            | Use Case                  |
+| ---------- | --------------- | ------------------------- |
+| section    | 120px (7.5rem)  | Standard section padding  |
+| section-lg | 160px (10rem)   | Large section padding     |
 | section-xl | 200px (12.5rem) | XL section padding (hero) |
 
 ## Animation Easing
 
-| Token | Cubic Bezier | Use Case |
-|-------|--------------|----------|
-| apple | cubic-bezier(0.25, 0.1, 0.25, 1) | Standard Apple easing |
-| apple-out | cubic-bezier(0.22, 1, 0.36, 1) | Slower exit animations |
+| Token     | Cubic Bezier                     | Use Case               |
+| --------- | -------------------------------- | ---------------------- |
+| apple     | cubic-bezier(0.25, 0.1, 0.25, 1) | Standard Apple easing  |
+| apple-out | cubic-bezier(0.22, 1, 0.36, 1)   | Slower exit animations |
 
 ## Example Component
 
@@ -195,7 +191,8 @@ export function HeroSection() {
           Proof of Progress
         </h1>
         <p className="text-2xl text-text-secondary max-w-2xl">
-          Transform your fitness photos into professional before/after comparisons
+          Transform your fitness photos into professional before/after
+          comparisons
         </p>
         <button className="mt-8 px-8 py-4 bg-brand-primary text-white rounded-2xl shadow-lg transition-all duration-500 ease-apple hover:scale-105">
           Get Started

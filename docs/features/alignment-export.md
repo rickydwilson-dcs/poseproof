@@ -1028,18 +1028,18 @@ ctx.stroke();
 
 **`/lib/canvas/export.ts`** (639 lines)
 
-- Lines 1-63: Algorithm documentation and key insights
-- Lines 65-82: `loadImage` utility
-- Lines 83-113: `calculateDimensions` utility
-- Lines 114-134: `getAspectRatio` helper (for Phase 4 dynamic crop)
-- Lines 136-169: `calculateCoverFit` cover-fit calculation
-- Lines 171-202: `getBodyHeight` from landmarks
-- Lines 204-245: `clampForHeadVisibility` smart clamping (Phase 3)
-- Lines 247-391: `calculateAlignedDrawParams` - **THE CORE ALGORITHM** (Phases 1, 1.5, 2, 3)
-- Lines 393-411: `drawPhotoWithParams` canvas drawing
-- Lines 413-455: `drawLabels` text rendering
-- Lines 457-624: `exportCanvas` main export function (includes Phase 4 dynamic crop)
-- Lines 626-639: `triggerDownload` browser download
+- Lines 1-13: Module header with `@see` reference to this documentation
+- Lines 59-74: `loadImage` utility
+- Lines 76-109: `calculateDimensions` utility
+- Lines 111-125: `getAspectRatio` helper (for Phase 4 dynamic crop)
+- Lines 127-165: `calculateCoverFit` cover-fit calculation
+- Lines 167-198: `getBodyHeight` from landmarks
+- Lines 200-227: `clampForHeadVisibility` smart clamping (Phase 3)
+- Lines 229-382: `calculateAlignedDrawParams` - **THE CORE ALGORITHM** (Phases 1, 1.5, 2, 3)
+- Lines 384-403: `drawPhotoWithParams` canvas drawing
+- Lines 405-446: `drawLabels` text rendering
+- Lines 448-618: `exportCanvas` main export function (includes Phase 4 dynamic crop)
+- Lines 620-639: `triggerDownload` browser download
 
 **`/lib/canvas/alignment.ts`**
 
@@ -1182,6 +1182,5 @@ This algorithm is the **foundation of PoseProof's value proposition** and must b
 
 **Related Documentation:**
 
-- `/docs/alignment-algorithm.md` - Preview alignment (CSS transforms)
-- `/docs/landmarks.md` - MediaPipe landmark reference
-- `/docs/export-formats.md` - Social media format specifications
+- [Pose Detection](./pose-detection.md) - MediaPipe integration and landmark reference
+- [Architecture Overview](../architecture/overview.md) - System design and data flow

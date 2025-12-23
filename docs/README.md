@@ -13,21 +13,34 @@ PoseProof is a fitness photo alignment SaaS that helps coaches create profession
 
 ## Quick Navigation
 
-### Architecture Documentation
+### Architecture
 
 - **[System Overview](./architecture/overview.md)** - High-level architecture, component hierarchy, and data flow
 - **[Database Schema](./architecture/database.md)** - Supabase schema, tables, RPC functions, and policies
 
-### Development Guides
+### Features
 
-- **[Tech Stack](#tech-stack)** - Framework, libraries, and tools
-- **[Getting Started](#getting-started)** - Setup and development workflow
-- **[Project Structure](#project-structure)** - Directory organization
+- **[Alignment & Export Algorithm](./features/alignment-export.md)** - Core business logic: 4-phase alignment algorithm
+- **[Pose Detection](./features/pose-detection.md)** - MediaPipe integration and landmark system
+- **[Billing](./features/billing.md)** - Stripe integration and usage tracking
 
-### Standards & Workflow
+### Development
 
-- **[Git Workflow](./workflow/git.md)** - Branching strategy (develop → staging → main)
-- **[Deployment](./workflow/deployment.md)** - Vercel deployment process
+- **[Setup Guide](./development/setup.md)** - Local development setup
+- **[State & Hooks](./development/state-hooks.md)** - Zustand stores and custom hooks
+- **[Troubleshooting](./development/troubleshooting.md)** - Common issues and solutions
+
+### Reference
+
+- **[API Reference](./api/reference.md)** - All 6 API endpoints documented
+- **[Components](./components/reference.md)** - UI and feature components
+
+### Standards
+
+- **[Git Workflow](./guides/git-workflow.md)** - Branching strategy (develop → staging → main)
+- **[Deployment](./standards/deployment.md)** - Vercel deployment process
+- **[Code Style](./standards/code-style.md)** - TypeScript, React, and Tailwind patterns
+- **[Design Tokens](./standards/design-tokens.md)** - CSS variables, colors, typography, spacing
 
 ## Tech Stack Summary
 
@@ -206,12 +219,19 @@ poseproof/
 
 ## Documentation Roadmap
 
+### Completed Documentation
+
+- [x] API Reference (`api/reference.md`)
+- [x] Component Library Guide (`components/reference.md`)
+- [x] Alignment Algorithm (`features/alignment-export.md`)
+- [x] Pose Detection (`features/pose-detection.md`)
+- [x] Billing & Usage (`features/billing.md`)
+- [x] Development Setup (`development/setup.md`)
+- [x] State Management (`development/state-hooks.md`)
+- [x] Code Style Standards (`standards/code-style.md`)
+
 ### Planned Documentation
 
-- [ ] API Reference (`api-reference.md`)
-- [ ] Component Library Guide (`components.md`)
-- [ ] Testing Guide (`testing.md`)
-- [ ] Deployment Guide (detailed)
 - [ ] Contributing Guidelines (`CONTRIBUTING.md`)
 - [ ] Security Policy (`SECURITY.md`)
 
@@ -221,7 +241,7 @@ poseproof/
 
 - **Linear Project:** [PoseProof Board](https://linear.app/rickydwilson/project/poseproof-832cc9c427e2)
 - **Claude Skills:** `~/.claude-skills/` (agents and skill packages)
-- **Design Tokens:** See `DESIGN_TOKENS.md` in project root
+- **Design Tokens:** See [standards/design-tokens.md](./standards/design-tokens.md)
 
 ### External Documentation
 
@@ -237,7 +257,7 @@ poseproof/
 - **Repository:** [GitHub](https://github.com/yourusername/poseproof)
 - **Live Site:** [poseproof.com](https://poseproof.com)
 - **Staging:** [poseproof-staging.vercel.app](https://poseproof-staging.vercel.app)
-- **Design System:** See `DESIGN_TOKENS.md`
+- **Design System:** See [Design Tokens](./standards/design-tokens.md)
 
 ---
 

@@ -1,35 +1,15 @@
 /**
  * Canvas Export Functionality
- * Handles exporting the canvas with aligned photos to different formats
  *
- * ## ALIGNMENT ALGORITHM (Three-Phase Separated Concerns)
+ * Exports side-by-side before/after photos with automatic head alignment
+ * and body scaling. Uses a three-phase algorithm:
  *
- * ### Phase 1: Assess Scaling Required
- * - Calculate bodyScale = beforeBodyHeight / afterBodyHeight
- * - Clamp to 0.8-1.25 for natural results
+ * 1. **Scale**: Match body heights (bodyScale = before/after, clamped 0.8-1.25)
+ * 2. **Constrain**: Find image with least headroom, set as alignment target
+ * 3. **Position**: Align heads at target, smart-clamp for visibility
  *
- * ### Phase 2: Assess Headroom Constraint
- * - Calculate cover-fit dimensions for both images (before at 1x, after at bodyScale)
- * - For each scaled image, calculate where head would be if aligned to top:
- *   headPixelY = headY * scaledImageHeight
- * - Find image with SMALLEST headPixelY (least headroom available)
- * - Apply min/max bounds: 5% to 20% of target height
- *
- * ### Phase 3: Position Both Images
- * - Position images so heads align at the constrained position
- * - Smart clamp that prioritizes head visibility over filling bottom
- *
- * ## KEY INSIGHT
- * Previous approach used minHeadY (normalized) which didn't account for
- * different scaled heights. The new approach calculates actual pixel
- * positions after scaling, ensuring both images can satisfy the constraint.
- *
- * ## MATH EXAMPLE
- * - Before image: head at Y=0.10, cover-fit height=1200px → head at 120px
- * - After image: head at Y=0.15, cover-fit height=1000px → head at 150px
- * - constraintHeadPixelY = min(120, 150) = 120px
- * - Clamped to bounds: max(54, min(216, 120)) = 120px (within 5-20% of 1080)
- * - Both images positioned so heads are at 120px from top
+ * @see docs/features/alignment-export.md for full algorithm documentation
+ * @see docs/architecture/overview.md for system architecture
  */
 
 import { addWatermark, type WatermarkOptions } from './watermark';

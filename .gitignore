@@ -22,7 +22,11 @@
 
 # misc
 .DS_Store
+**/.DS_Store
 *.pem
+
+# test data
+test_images/
 
 # debug
 npm-debug.log*
