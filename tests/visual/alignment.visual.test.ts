@@ -15,7 +15,6 @@ import * as path from 'path';
 import {
   exportCanvasNode,
   fileToDataUrl,
-  calculateAlignedDrawParams,
   type ExportFormat,
 } from './lib/export-adapter';
 import { compareImages, type ComparisonResult } from './lib/pixel-comparator';

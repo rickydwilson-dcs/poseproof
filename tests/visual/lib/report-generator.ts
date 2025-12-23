@@ -69,9 +69,6 @@ export function generateHtmlReport(data: ReportData): string {
   const skippedTests = results.filter(
     (r) => r.pixelComparison.passed && r.alignmentSkipped
   );
-  const passedTests = results.filter(
-    (r) => r.pixelComparison.passed && (r.alignmentValidation.passed || r.alignmentSkipped)
-  );
 
   // Group by category
   const byCategory = new Map<string, TestResult[]>();

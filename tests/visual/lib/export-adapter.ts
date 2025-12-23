@@ -8,7 +8,7 @@
  * to enable headless testing without a browser environment.
  */
 
-import { createCanvas, loadImage, type Canvas, type Image } from 'canvas';
+import { createCanvas, loadImage } from 'canvas';
 import type { Landmark } from '@/types/landmarks';
 
 // ============================================================================

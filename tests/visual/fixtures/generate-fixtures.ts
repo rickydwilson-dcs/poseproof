@@ -199,7 +199,7 @@ interface FigureParams {
 }
 
 function createFigure(params: FigureParams): TestFigure {
-  const { id, category, description, width, height, noseY, bodyHeight, visibility, backgroundColor } = params;
+  const { id, category, description, width, height, noseY, bodyHeight, visibility } = params;
   const centerX = params.centerX ?? 0.5;
 
   // Calculate landmark positions based on nose Y and body height
