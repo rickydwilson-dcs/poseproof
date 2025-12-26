@@ -2,20 +2,20 @@
 
 **Version:** 2.0.0
 **Last Updated:** 2025-12-23
-**Scope:** PoseProof branching strategy, CI/CD, and deployment
+**Scope:** Svolta branching strategy, CI/CD, and deployment
 
 ---
 
 ## Overview
 
-PoseProof uses a multi-stage deployment pipeline with **manual promotion** and **Husky-enforced quality gates**. You control when changes promote between branches, with automated checks ensuring quality at each stage.
+Svolta uses a multi-stage deployment pipeline with **manual promotion** and **Husky-enforced quality gates**. You control when changes promote between branches, with automated checks ensuring quality at each stage.
 
 ## Branch Structure
 
 ```
-main (production) ← poseproof.com
+main (production) ← svolta.app
   ↑ manual merge (Husky blocks until staging E2E passes)
-staging (preview) ← staging.poseproof.com
+staging (preview) ← staging.svolta.app
   ↑ manual merge (after develop CI passes)
 develop (development) ← preview URLs
 ```
@@ -176,8 +176,8 @@ refactor(canvas): simplify landmark rendering
 | Branch  | Environment | URL                    |
 | ------- | ----------- | ---------------------- |
 | develop | Development | Auto-generated preview |
-| staging | Preview     | staging.poseproof.com  |
-| main    | Production  | poseproof.com          |
+| staging | Preview     | staging.svolta.app     |
+| main    | Production  | svolta.app             |
 
 ---
 

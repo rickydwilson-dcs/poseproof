@@ -1,10 +1,11 @@
 # UI Primitives
 
-Core UI components for PoseProof with Apple-style design.
+Core UI components for Svolta with Apple-style design.
 
 ## Components
 
 ### Button
+
 A versatile button component with three variants and loading states.
 
 **Variants:** `primary`, `secondary`, `ghost`
@@ -23,6 +24,7 @@ import { Button } from '@/components/ui';
 ```
 
 ### Input
+
 Text input with optional label, error states, and icon support.
 
 ```tsx
@@ -41,10 +43,11 @@ import { Input } from '@/components/ui';
 ```
 
 ### Modal
+
 Accessible modal dialog using Radix UI with backdrop blur and scale animations.
 
 ```tsx
-import { Modal } from '@/components/ui';
+import { Modal } from "@/components/ui";
 
 <Modal
   open={isOpen}
@@ -53,31 +56,37 @@ import { Modal } from '@/components/ui';
   description="Are you sure you want to proceed?"
 >
   <div>Modal content goes here</div>
-</Modal>
+</Modal>;
 ```
 
 ### Card
+
 Container component with optional hover effects and flexible padding.
 
 ```tsx
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui";
 
 <Card hover padding="lg">
   <CardHeader>
     <CardTitle>Feature Title</CardTitle>
     <CardDescription>Brief description of the feature</CardDescription>
   </CardHeader>
-  <CardContent>
-    Card content goes here
-  </CardContent>
-</Card>
+  <CardContent>Card content goes here</CardContent>
+</Card>;
 ```
 
 ### Slider
+
 Range slider with optional value display and custom formatting.
 
 ```tsx
-import { Slider } from '@/components/ui';
+import { Slider } from "@/components/ui";
 
 <Slider
   label="Opacity"
@@ -86,20 +95,21 @@ import { Slider } from '@/components/ui';
   max={100}
   defaultValue={50}
   valueFormatter={(val) => `${val}%`}
-/>
+/>;
 ```
 
 ### Toggle
+
 Apple-style toggle switch with label and description support.
 
 ```tsx
-import { Toggle } from '@/components/ui';
+import { Toggle } from "@/components/ui";
 
 <Toggle
   label="Dark Mode"
   description="Enable dark theme"
   defaultChecked={false}
-/>
+/>;
 ```
 
 ## Design Tokens

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
 /**
- * Example unit test template for PoseProof
+ * Example unit test template for Svolta
  *
  * Test file naming conventions:
  * - Unit tests: *.test.ts or *.test.tsx

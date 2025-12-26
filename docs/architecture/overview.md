@@ -18,7 +18,7 @@
 
 ## High-Level Architecture
 
-PoseProof follows a **privacy-first, client-side processing** architecture where all photo manipulation happens in the browser. The backend only handles authentication, subscription management, and usage tracking.
+Svolta follows a **privacy-first, client-side processing** architecture where all photo manipulation happens in the browser. The backend only handles authentication, subscription management, and usage tracking.
 
 ```mermaid
 graph TB
@@ -233,7 +233,7 @@ flowchart TD
 
 ### Zustand Stores
 
-PoseProof uses two primary Zustand stores for state management:
+Svolta uses two primary Zustand stores for state management:
 
 #### 1. Editor Store (`stores/editor-store.ts`)
 
@@ -426,17 +426,17 @@ editorStore.alignment.scale = 1.2; // This won't trigger re-renders
 
 ```mermaid
 graph LR
-    PoseProof[PoseProof Client]
+    Svolta[Svolta Client]
 
-    PoseProof -->|Auth| Supabase
-    PoseProof -->|Payments| Stripe
-    PoseProof -->|Hosting| Vercel
-    PoseProof -->|ML Model| MediaPipe
+    Svolta -->|Auth| Supabase
+    Svolta -->|Payments| Stripe
+    Svolta -->|Hosting| Vercel
+    Svolta -->|ML Model| MediaPipe
 
     Supabase -->|Database| PostgreSQL
     Stripe -->|Webhooks| VercelAPI[Vercel API Routes]
 
-    style PoseProof fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style Svolta fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
     style Supabase fill:#c8e6c9,stroke:#388e3c
     style Stripe fill:#f3e5f5,stroke:#7b1fa2
     style Vercel fill:#fff3e0,stroke:#f57c00
@@ -458,7 +458,7 @@ graph LR
 ```mermaid
 sequenceDiagram
     actor User
-    participant App as PoseProof
+    participant App as Svolta
     participant Stripe
     participant Webhook as /api/stripe/webhook
     participant Supabase

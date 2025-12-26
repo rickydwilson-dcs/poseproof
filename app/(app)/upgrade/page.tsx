@@ -20,7 +20,7 @@ export default function UpgradePage() {
     if (planId === 'free') return;
 
     if (planId === 'team') {
-      window.location.href = 'mailto:hello@poseproof.com?subject=Team Plan Inquiry';
+      window.location.href = 'mailto:hello@svolta.app?subject=Team Plan Inquiry';
       return;
     }
 
@@ -221,7 +221,7 @@ export default function UpgradePage() {
           <p className="text-sm text-text-secondary">
             Have questions?{' '}
             <a
-              href="mailto:hello@poseproof.com"
+              href="mailto:hello@svolta.app"
               className="font-medium text-brand-pink hover:text-brand-pink/80 transition-colors"
             >
               Contact us

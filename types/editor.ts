@@ -1,5 +1,5 @@
 /**
- * Editor types for PoseProof photo alignment
+ * Editor types for Svolta photo alignment
  */
 
 import type { Landmark } from './landmarks';

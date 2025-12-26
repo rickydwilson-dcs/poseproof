@@ -1,8 +1,8 @@
-# PoseProof - Development Setup Guide
+# Svolta - Development Setup Guide
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
-**Scope:** Local development environment setup for PoseProof
+**Scope:** Local development environment setup for Svolta
 
 ## Table of Contents
 
@@ -51,12 +51,12 @@ git --version   # Should show 2.x or higher
 
 ```bash
 # HTTPS
-git clone https://github.com/YOUR_USERNAME/poseproof.git
+git clone https://github.com/YOUR_USERNAME/svolta.git
 
 # SSH
-git clone git@github.com:YOUR_USERNAME/poseproof.git
+git clone git@github.com:YOUR_USERNAME/svolta.git
 
-cd poseproof
+cd svolta
 ```
 
 ### 2. Install Dependencies
@@ -131,7 +131,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 1. Go to [supabase.com/dashboard](https://supabase.com/dashboard)
 2. Click "New project"
 3. Enter project details:
-   - Name: `poseproof-dev`
+   - Name: `svolta-dev`
    - Database password: Generate a secure password
    - Region: Choose closest to your location
 4. Wait for project to be created (2-3 minutes)
@@ -146,7 +146,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### 3. Run Database Migrations
 
-PoseProof requires specific database tables and RLS policies.
+Svolta requires specific database tables and RLS policies.
 
 ```bash
 # Install Supabase CLI (if not already installed)
@@ -213,7 +213,7 @@ AND table_name IN ('profiles', 'subscriptions', 'usage');
 1. Go to **Products** in Stripe Dashboard
 2. Click "+ Add product"
 3. Configure:
-   - Name: `PoseProof Pro - Monthly`
+   - Name: `Svolta Pro - Monthly`
    - Description: `Professional features with unlimited exports`
    - Pricing:
      - Price: `£7.99`
@@ -224,7 +224,7 @@ AND table_name IN ('profiles', 'subscriptions', 'usage');
 #### Create Pro Yearly Product
 
 1. Add another product:
-   - Name: `PoseProof Pro - Yearly`
+   - Name: `Svolta Pro - Yearly`
    - Description: `Professional features with unlimited exports (save 20%)`
    - Pricing:
      - Price: `£79` (18% savings vs monthly)
@@ -550,7 +550,7 @@ Now that your development environment is set up:
    - `/hooks` - Custom React hooks
 
 3. **Start Development**
-   - Check Linear project: [PoseProof Project](https://linear.app/rickydwilson/project/poseproof-832cc9c427e2)
+   - Check Linear project: [Svolta Project](https://linear.app/rickydwilson/project/svolta-832cc9c427e2)
    - Pick a task from the backlog
    - Create a feature branch from `develop`
    - Use Claude Skills agents for assistance
@@ -570,6 +570,6 @@ Now that your development environment is set up:
 
 **Questions or Issues?**
 
-- **Project Board:** [Linear - PoseProof](https://linear.app/rickydwilson/project/poseproof-832cc9c427e2)
+- **Project Board:** [Linear - Svolta](https://linear.app/rickydwilson/project/svolta-832cc9c427e2)
 - **Documentation:** See `docs/` directory
 - **Claude Skills:** Use `@cs-fullstack-engineer` or other agents for help

@@ -8,6 +8,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Visual regression test suite with 66 comprehensive fixtures
+  - Resolution variations (QVGA to 24MP, mismatched before/after)
+  - Aspect ratio extremes (21:9, 9:16, 3:1, 3:2, 2:3, 4:3)
+  - Off-center subject positioning (edge positions, rule of thirds, quadrant tests)
+- Shoulder alignment fallback for cropped head scenarios
+- HTML report improvements for visual regression tests
+- Framing variation test fixtures (cropped heads, tight headroom, off-center)
+
+### Changed
+
+- CI workflow now uses manual promotion (develop → staging → main) with Husky gates
+- Improved alignment UX with enhanced grid overlay
+- Updated pricing to £7.99/month and £79/year
+
+### Fixed
+
+- Removed unused variables in visual test files
+- Build errors and ESLint warnings resolved
+
+### Technical
+
+- 75 TypeScript/TSX source files (up from 57)
+- 6 custom React hooks (up from 5)
+- 66 visual test fixtures across 9 categories
+- Comprehensive 4-phase alignment algorithm with dynamic crop
+
+---
+
+## [0.2.0] - 2025-12-26
+
+### Added
+
 - Auth callback route for OAuth flow
 - Login form component with email/password authentication
 - Signup page with user registration
@@ -20,14 +53,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usage limit hook for tracking exports
 - User provider and user store for subscription state
 - UpgradePrompt UI component
+- Comprehensive documentation suite
 
 ### Changed
+
 - Updated providers index to include UserProvider
 - Enhanced editor components with export functionality
+- Simplified workflow for solo dev with direct push and quality gates
 
 ## [0.1.0] - 2025-11-30
 
 ### Added
+
 - **Phase 3: Alignment System**
   - Alignment calculation logic with pose landmark comparison
   - Real-time alignment controls UI
@@ -52,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Middleware for auth protection
 
 ### Technical
+
 - 57 TypeScript/TSX source files
 - 5 custom React hooks
 - 2 Zustand stores
@@ -61,5 +99,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/yourusername/poseproof/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yourusername/poseproof/releases/tag/v0.1.0
+[Unreleased]: https://github.com/yourusername/svolta/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/yourusername/svolta/releases/tag/v0.1.0

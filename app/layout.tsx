@@ -10,22 +10,22 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PoseProof - Proof of Progress",
+  title: "Svolta - The Turning Point",
   description: "Professional before/after fitness photo alignment using AI pose detection. Create stunning progress comparisons with perfect alignment.",
-  keywords: ["fitness", "before after", "photo alignment", "pose detection", "progress tracking"],
-  authors: [{ name: "PoseProof" }],
-  metadataBase: new URL("https://poseproof.com"),
+  keywords: ["fitness", "before after", "photo alignment", "pose detection", "progress tracking", "transformation"],
+  authors: [{ name: "Svolta" }],
+  metadataBase: new URL("https://svolta.app"),
   openGraph: {
-    title: "PoseProof - Proof of Progress",
+    title: "Svolta - The Turning Point",
     description: "Professional before/after fitness photo alignment using AI pose detection.",
-    url: "https://poseproof.com",
-    siteName: "PoseProof",
+    url: "https://svolta.app",
+    siteName: "Svolta",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "PoseProof - Proof of Progress",
+    title: "Svolta - The Turning Point",
     description: "Professional before/after fitness photo alignment using AI pose detection.",
   },
 };

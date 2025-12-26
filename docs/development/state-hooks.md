@@ -1,7 +1,7 @@
-# PoseProof - State Management & Hooks
+# Svolta - State Management & Hooks
 
 **Version:** 1.0.0
-**Last Updated:** 2025-12-22
+**Last Updated:** 2025-12-26
 **Scope:** Zustand stores and custom React hooks architecture
 
 ## Table of Contents
@@ -23,7 +23,7 @@
 
 ## Overview
 
-PoseProof uses **Zustand** for global state management and **custom hooks** for feature-specific logic. This architecture provides:
+Svolta uses **Zustand** for global state management and **custom hooks** for feature-specific logic. This architecture provides:
 
 - **Minimal boilerplate** compared to Redux
 - **TypeScript-first** with full type safety

@@ -724,6 +724,416 @@ function generateTestFixtures(): { fixtures: TestFixture[]; figures: Map<string,
     });
   }
 
+  // ========================================
+  // Category 7: Resolution Variations (10 fixtures)
+  // ========================================
+  // Test resolution extremes and mismatched before/after resolutions
+
+  // Same resolution configs (before and after same dimensions)
+  const resolutionSameConfigs = [
+    // Low resolution (mobile thumbnails, old phones)
+    { id: 'resolution-vga', w: 640, h: 480, desc: 'Low-res VGA 640×480' },
+    { id: 'resolution-qvga', w: 320, h: 240, desc: 'Very low-res QVGA 320×240' },
+    { id: 'resolution-720p-portrait', w: 720, h: 1280, desc: 'HD portrait 720×1280' },
+    // High resolution (DSLR, pro cameras)
+    { id: 'resolution-12mp', w: 3000, h: 4000, desc: 'High-res 12MP portrait' },
+    { id: 'resolution-4k', w: 3840, h: 2160, desc: '4K landscape' },
+    { id: 'resolution-6k', w: 6000, h: 4000, desc: 'Very high-res 24MP' },
+  ];
+
+  for (const config of resolutionSameConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'resolution',
+      description: `Before: ${config.desc}`,
+      width: config.w,
+      height: config.h,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'resolution',
+      description: `After: ${config.desc}`,
+      width: config.w,
+      height: config.h,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'resolution',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
+  // Mismatched resolution configs (different before/after dimensions)
+  const resolutionMixedConfigs = [
+    { id: 'resolution-mix-low-high', beforeW: 640, beforeH: 480, afterW: 3000, afterH: 4000, desc: 'VGA to 12MP' },
+    { id: 'resolution-mix-high-low', beforeW: 3840, beforeH: 2160, afterW: 720, afterH: 1280, desc: '4K to 720p' },
+    { id: 'resolution-mix-extreme', beforeW: 320, beforeH: 240, afterW: 6000, afterH: 4000, desc: 'QVGA to 24MP (extreme)' },
+    { id: 'resolution-mix-similar', beforeW: 1920, beforeH: 1080, afterW: 1080, afterH: 1920, desc: 'Same pixels, different orientation' },
+  ];
+
+  for (const config of resolutionMixedConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'resolution',
+      description: `Before: ${config.desc}`,
+      width: config.beforeW,
+      height: config.beforeH,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'resolution',
+      description: `After: ${config.desc}`,
+      width: config.afterW,
+      height: config.afterH,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'resolution',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
+  // ========================================
+  // Category 8: Aspect Ratio Extremes (10 fixtures)
+  // ========================================
+  // Test diverse and extreme aspect ratios beyond the standard ones
+
+  // Same aspect ratio configs (before and after same dimensions)
+  const aspectExtremeSameConfigs = [
+    // Ultra-wide (cinematic, panoramic)
+    { id: 'aspect-ultrawide-21-9', w: 2520, h: 1080, desc: 'Ultra-wide 21:9 cinematic' },
+    { id: 'aspect-panoramic-3-1', w: 3000, h: 1000, desc: 'Panoramic 3:1' },
+    // Phone aspect ratios
+    { id: 'aspect-16-9-land', w: 1920, h: 1080, desc: 'Phone landscape 16:9' },
+    { id: 'aspect-9-16-port', w: 1080, h: 1920, desc: 'Phone portrait 9:16' },
+    { id: 'aspect-19-9', w: 1140, h: 540, desc: 'Modern phone 19:9' },
+    // DSLR/camera aspect ratios
+    { id: 'aspect-3-2-land', w: 1800, h: 1200, desc: 'DSLR 3:2 landscape' },
+    { id: 'aspect-2-3-port', w: 1200, h: 1800, desc: 'DSLR 2:3 portrait' },
+    { id: 'aspect-4-3', w: 1600, h: 1200, desc: 'Classic 4:3' },
+  ];
+
+  for (const config of aspectExtremeSameConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'aspect-extreme',
+      description: `Before: ${config.desc}`,
+      width: config.w,
+      height: config.h,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'aspect-extreme',
+      description: `After: ${config.desc}`,
+      width: config.w,
+      height: config.h,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'aspect-extreme',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
+  // Mixed extreme aspect ratio configs
+  const aspectExtremeMixedConfigs = [
+    { id: 'aspect-mix-wide-tall', beforeW: 2520, beforeH: 1080, afterW: 1080, afterH: 1920, desc: '21:9 to 9:16' },
+    { id: 'aspect-mix-pano-square', beforeW: 3000, beforeH: 1000, afterW: 1200, afterH: 1200, desc: '3:1 to 1:1' },
+  ];
+
+  for (const config of aspectExtremeMixedConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'aspect-extreme',
+      description: `Before: ${config.desc}`,
+      width: config.beforeW,
+      height: config.beforeH,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'aspect-extreme',
+      description: `After: ${config.desc}`,
+      width: config.afterW,
+      height: config.afterH,
+      noseY: 0.15,
+      bodyHeight: 0.45,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'aspect-extreme',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
+  // ========================================
+  // Category 9: Off-Center Positions (12 fixtures)
+  // ========================================
+  // Test diverse subject positioning within the frame
+
+  // Same offset configs (both before and after have same centerX)
+  const offsetSameConfigs = [
+    // Extreme horizontal positions
+    { id: 'offset-far-left', centerX: 0.2, desc: 'Subject at 20% from left' },
+    { id: 'offset-far-right', centerX: 0.8, desc: 'Subject at 80% from left' },
+    { id: 'offset-edge-left', centerX: 0.12, desc: 'Subject near left edge (12%)' },
+    { id: 'offset-edge-right', centerX: 0.88, desc: 'Subject near right edge (88%)' },
+    // Rule of thirds positioning
+    { id: 'offset-thirds-left', centerX: 0.33, desc: 'Subject at left third line' },
+    { id: 'offset-thirds-right', centerX: 0.67, desc: 'Subject at right third line' },
+  ];
+
+  for (const config of offsetSameConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'offset',
+      description: `Before: ${config.desc}`,
+      width: 1200,
+      height: 1600,
+      noseY: 0.12,
+      bodyHeight: 0.45,
+      centerX: config.centerX,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'offset',
+      description: `After: ${config.desc}`,
+      width: 1200,
+      height: 1600,
+      noseY: 0.12,
+      bodyHeight: 0.45,
+      centerX: config.centerX,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'offset',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
+  // Asymmetric offset configs (before and after have different centerX)
+  const offsetMixedConfigs = [
+    { id: 'offset-swap-sides', beforeCenterX: 0.25, afterCenterX: 0.75, desc: 'Subject switches left to right' },
+    { id: 'offset-edge-to-center', beforeCenterX: 0.15, afterCenterX: 0.5, desc: 'Edge to center migration' },
+    { id: 'offset-center-to-edge', beforeCenterX: 0.5, afterCenterX: 0.85, desc: 'Center to edge migration' },
+  ];
+
+  for (const config of offsetMixedConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'offset',
+      description: `Before: ${config.desc}`,
+      width: 1200,
+      height: 1600,
+      noseY: 0.12,
+      bodyHeight: 0.45,
+      centerX: config.beforeCenterX,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'offset',
+      description: `After: ${config.desc}`,
+      width: 1200,
+      height: 1600,
+      noseY: 0.12,
+      bodyHeight: 0.45,
+      centerX: config.afterCenterX,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'offset',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
+  // Quadrant configs (combined horizontal + vertical positioning)
+  const offsetQuadrantConfigs = [
+    { id: 'offset-quadrant-tl', centerX: 0.25, noseY: 0.08, bodyHeight: 0.45, desc: 'Upper-left quadrant' },
+    { id: 'offset-quadrant-tr', centerX: 0.75, noseY: 0.08, bodyHeight: 0.45, desc: 'Upper-right quadrant' },
+    { id: 'offset-quadrant-bl', centerX: 0.25, noseY: 0.35, bodyHeight: 0.35, desc: 'Lower-left quadrant' },
+  ];
+
+  for (const config of offsetQuadrantConfigs) {
+    const beforeFig = createFigure({
+      id: `${config.id}-before`,
+      category: 'offset',
+      description: `Before: ${config.desc}`,
+      width: 1200,
+      height: 1600,
+      noseY: config.noseY,
+      bodyHeight: config.bodyHeight,
+      centerX: config.centerX,
+    });
+    const afterFig = createFigure({
+      id: `${config.id}-after`,
+      category: 'offset',
+      description: `After: ${config.desc}`,
+      width: 1200,
+      height: 1600,
+      noseY: config.noseY,
+      bodyHeight: config.bodyHeight,
+      centerX: config.centerX,
+    });
+
+    figures.set(beforeFig.id, beforeFig);
+    figures.set(afterFig.id, afterFig);
+
+    fixtures.push({
+      id: config.id,
+      category: 'offset',
+      description: config.desc,
+      before: {
+        imagePath: `images/${beforeFig.id}.png`,
+        width: beforeFig.imageWidth,
+        height: beforeFig.imageHeight,
+        landmarks: beforeFig.landmarks,
+      },
+      after: {
+        imagePath: `images/${afterFig.id}.png`,
+        width: afterFig.imageWidth,
+        height: afterFig.imageHeight,
+        landmarks: afterFig.landmarks,
+      },
+      expected: {
+        bodyScale: 1.0,
+        headAlignmentDelta: 0,
+      },
+    });
+  }
+
   return { fixtures, figures };
 }
 

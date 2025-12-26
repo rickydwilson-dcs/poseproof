@@ -1,6 +1,6 @@
 # Component Reference
 
-Comprehensive reference for all UI and feature components in PoseProof.
+Comprehensive reference for all UI and feature components in Svolta.
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
@@ -33,7 +33,7 @@ Comprehensive reference for all UI and feature components in PoseProof.
 
 ## Design System Overview
 
-PoseProof components follow Apple-style design principles:
+Svolta components follow Apple-style design principles:
 
 ### Visual Style
 
@@ -605,7 +605,7 @@ interface UpgradePromptProps {
 #### Trigger Messages
 
 - **limit:** "You've used all 5 free exports this month"
-- **watermark:** "Remove the PoseProof watermark"
+- **watermark:** "Remove the Svolta watermark"
 - **format:** "Unlock all export formats"
 - **logo:** "Add your own logo to exports"
 
@@ -955,6 +955,6 @@ Key landmarks for alignment:
 
 ---
 
-**Last Updated:** 2025-12-22
+**Last Updated:** 2025-12-26
 **Maintained By:** Development Team
 **Questions:** See project README or Linear board

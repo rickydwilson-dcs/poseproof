@@ -2,11 +2,11 @@
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
-**Scope:** All TypeScript, React, and CSS code in PoseProof project
+**Scope:** All TypeScript, React, and CSS code in Svolta project
 
 ## Overview
 
-This document defines coding standards for PoseProof to ensure consistency, maintainability, and quality across the codebase. Following these standards improves code readability, reduces bugs, and accelerates development.
+This document defines coding standards for Svolta to ensure consistency, maintainability, and quality across the codebase. Following these standards improves code readability, reduces bugs, and accelerates development.
 
 **Key Principles:**
 
@@ -31,7 +31,7 @@ This document defines coding standards for PoseProof to ensure consistency, main
 
 ### Strict Mode Requirements
 
-**PoseProof uses TypeScript strict mode** (`"strict": true` in tsconfig.json). This enforces:
+**Svolta uses TypeScript strict mode** (`"strict": true` in tsconfig.json). This enforces:
 
 - No implicit `any` types
 - Strict null checks
@@ -525,7 +525,7 @@ export function PhotoEditor() {
 
 ### Apple-Style Design Patterns
 
-**Rule:** Follow PoseProof's Instagram-inspired, Apple-style design system:
+**Rule:** Follow Svolta's Instagram-inspired, Apple-style design system:
 
 - **Pill buttons:** Use `rounded-full` for buttons
 - **Generous spacing:** `p-8`, `p-12`, `gap-6`
@@ -1228,4 +1228,4 @@ Use this checklist during PR reviews:
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
-**Maintainer:** PoseProof Engineering Team
+**Maintainer:** Svolta Engineering Team

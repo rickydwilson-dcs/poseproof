@@ -18,7 +18,7 @@
 
 ## Overview
 
-PoseProof uses Supabase (PostgreSQL) for data persistence with three primary tables:
+Svolta uses Supabase (PostgreSQL) for data persistence with three primary tables:
 
 | Table           | Purpose                                | Records              |
 | --------------- | -------------------------------------- | -------------------- |

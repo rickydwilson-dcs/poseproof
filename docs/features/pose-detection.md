@@ -6,7 +6,7 @@
 
 ## Scope
 
-This document describes PoseProof's **client-side pose detection system** powered by Google's MediaPipe Pose Landmarker. Pose detection is the foundational technology that enables automatic photo alignment by identifying 33 key body landmarks in fitness photos.
+This document describes Svolta's **client-side pose detection system** powered by Google's MediaPipe Pose Landmarker. Pose detection is the foundational technology that enables automatic photo alignment by identifying 33 key body landmarks in fitness photos.
 
 **Key Files:**
 
@@ -38,7 +38,7 @@ This document describes PoseProof's **client-side pose detection system** powere
 
 ### What is Pose Detection?
 
-Pose detection identifies the spatial positions of human body parts in images. PoseProof uses MediaPipe's Pose Landmarker to detect **33 key landmarks** including:
+Pose detection identifies the spatial positions of human body parts in images. Svolta uses MediaPipe's Pose Landmarker to detect **33 key landmarks** including:
 
 - Face features (nose, eyes, ears, mouth)
 - Upper body (shoulders, elbows, wrists, hands)
@@ -46,7 +46,7 @@ Pose detection identifies the spatial positions of human body parts in images. P
 
 ### Why Client-Side ML?
 
-PoseProof processes all photos **in the browser** for three critical reasons:
+Svolta processes all photos **in the browser** for three critical reasons:
 
 **Privacy First:**
 
@@ -95,13 +95,13 @@ flowchart LR
 
 ### Model Selection
 
-PoseProof uses the **Pose Landmarker Lite** model:
+Svolta uses the **Pose Landmarker Lite** model:
 
-| Model      | Size  | Speed  | Accuracy | Use Case                   |
-| ---------- | ----- | ------ | -------- | -------------------------- |
-| **Lite** ✓ | ~3MB  | Fast   | Good     | PoseProof (fitness photos) |
-| Full       | ~6MB  | Medium | Better   | Complex poses              |
-| Heavy      | ~12MB | Slow   | Best     | Production-grade           |
+| Model      | Size  | Speed  | Accuracy | Use Case                |
+| ---------- | ----- | ------ | -------- | ----------------------- |
+| **Lite** ✓ | ~3MB  | Fast   | Good     | Svolta (fitness photos) |
+| Full       | ~6MB  | Medium | Better   | Complex poses           |
+| Heavy      | ~12MB | Slow   | Best     | Production-grade        |
 
 **Why Lite?** Fitness photos typically show clear full-body poses. The lite model provides sufficient accuracy with faster load times and better mobile performance.
 
@@ -310,7 +310,7 @@ const pixelY = landmark.y * imageHeight;
 
 ### Landmarks Used in Alignment
 
-PoseProof uses 3 key landmarks for photo alignment:
+Svolta uses 3 key landmarks for photo alignment:
 
 | Index | Name         | Purpose                          |
 | ----- | ------------ | -------------------------------- |
@@ -1151,5 +1151,5 @@ import { PoseClassifier } from "@mediapipe/pose-classifier";
 ---
 
 **Document Status:** Production-ready
-**Maintainer:** PoseProof Engineering
+**Maintainer:** Svolta Engineering
 **Last Review:** 2025-12-22

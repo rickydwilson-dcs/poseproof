@@ -8,9 +8,9 @@
 
 ## Overview
 
-PoseProof uses a freemium subscription model with Stripe for payment processing and Supabase for usage tracking. The system provides:
+Svolta uses a freemium subscription model with Stripe for payment processing and Supabase for usage tracking. The system provides:
 
-- **Free Tier:** 5 exports per month with PoseProof watermark
+- **Free Tier:** 5 exports per month with Svolta watermark
 - **Pro Tier:** Unlimited exports, no watermark, custom branding (£7.99/month or £79/year)
 - **Usage Tracking:** Monthly export counting with automatic reset
 - **Webhook-Driven Sync:** Real-time subscription status updates via Stripe webhooks
@@ -27,14 +27,14 @@ PoseProof uses a freemium subscription model with Stripe for payment processing 
 
 ## Subscription Tiers
 
-| Feature            | Free               | Pro                          |
-| ------------------ | ------------------ | ---------------------------- |
-| **Price**          | £0                 | £7.99/month or £79/year      |
-| **Exports/Month**  | 5                  | Unlimited                    |
-| **Watermark**      | PoseProof branding | No watermark                 |
-| **Custom Logo**    | ❌                 | ✅                           |
-| **Export Formats** | 1:1 only           | All formats (1:1, 4:5, 9:16) |
-| **Support**        | Community          | Priority                     |
+| Feature            | Free            | Pro                          |
+| ------------------ | --------------- | ---------------------------- |
+| **Price**          | £0              | £7.99/month or £79/year      |
+| **Exports/Month**  | 5               | Unlimited                    |
+| **Watermark**      | Svolta branding | No watermark                 |
+| **Custom Logo**    | ❌              | ✅                           |
+| **Export Formats** | 1:1 only        | All formats (1:1, 4:5, 9:16) |
+| **Support**        | Community       | Priority                     |
 
 **Pricing Strategy:**
 
@@ -403,7 +403,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 ```bash
 # Set up webhook endpoint in Stripe Dashboard
-# URL: https://poseproof.com/api/stripe/webhook
+# URL: https://svolta.app/api/stripe/webhook
 # Events: checkout.session.completed, customer.subscription.*
 
 # Test locally with Stripe CLI
@@ -462,7 +462,7 @@ Fetch current month's usage statistics.
 **Request:**
 
 ```bash
-curl -X GET https://poseproof.com/api/usage \
+curl -X GET https://svolta.app/api/usage \
   -H "Authorization: Bearer <session_token>"
 ```
 
@@ -501,7 +501,7 @@ Increment export count and check limits.
 **Request:**
 
 ```bash
-curl -X POST https://poseproof.com/api/usage/increment \
+curl -X POST https://svolta.app/api/usage/increment \
   -H "Authorization: Bearer <session_token>"
 ```
 

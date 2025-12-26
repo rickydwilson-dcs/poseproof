@@ -1,15 +1,15 @@
-# PoseProof Documentation Hub
+# Svolta Documentation Hub
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
-**Project:** PoseProof - Fitness Photo Alignment SaaS
+**Project:** Svolta - Fitness Photo Alignment SaaS
 
 ## Overview
 
-PoseProof is a fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection. Photos are processed entirely client-side, ensuring user privacy while delivering powerful alignment tools.
+Svolta is a fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection. Photos are processed entirely client-side, ensuring user privacy while delivering powerful alignment tools.
 
-**Tagline:** "Proof of Progress"
-**Domain:** [poseproof.com](https://poseproof.com)
+**Tagline:** "The Turning Point"
+**Domain:** [svolta.app](https://svolta.app)
 
 ## Quick Navigation
 
@@ -92,8 +92,8 @@ PoseProof is a fitness photo alignment SaaS that helps coaches create profession
 
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/poseproof.git
-cd poseproof
+git clone https://github.com/yourusername/svolta.git
+cd svolta
 
 # Install dependencies
 npm install
@@ -140,7 +140,7 @@ npm run db:types         # Generate TypeScript types from Supabase schema
 ## Project Structure
 
 ```
-poseproof/
+svolta/
 ├── app/                      # Next.js App Router
 │   ├── (auth)/              # Auth routes (login, signup)
 │   ├── (protected)/         # Protected routes (editor, settings)
@@ -204,10 +204,10 @@ poseproof/
 
 ### Subscription Tiers
 
-| Tier     | Monthly Exports | Watermark           | Price       |
-| -------- | --------------- | ------------------- | ----------- |
-| **Free** | 5 exports       | PoseProof watermark | £0          |
-| **Pro**  | Unlimited       | No watermark        | £7.99/month |
+| Tier     | Monthly Exports | Watermark        | Price       |
+| -------- | --------------- | ---------------- | ----------- |
+| **Free** | 5 exports       | Svolta watermark | £0          |
+| **Pro**  | Unlimited       | No watermark     | £7.99/month |
 
 ### Privacy-First Design
 
@@ -249,7 +249,7 @@ poseproof/
 
 ### Internal Resources
 
-- **Linear Project:** [PoseProof Board](https://linear.app/rickydwilson/project/poseproof-832cc9c427e2)
+- **Linear Project:** [Svolta Board](https://linear.app/rickydwilson/project/svolta-832cc9c427e2)
 - **Claude Skills:** `~/.claude-skills/` (agents and skill packages)
 - **Design Tokens:** See [standards/design-tokens.md](./standards/design-tokens.md)
 
@@ -264,9 +264,9 @@ poseproof/
 
 ## Quick Links
 
-- **Repository:** [GitHub](https://github.com/yourusername/poseproof)
-- **Live Site:** [poseproof.com](https://poseproof.com)
-- **Staging:** [poseproof-staging.vercel.app](https://poseproof-staging.vercel.app)
+- **Repository:** [GitHub](https://github.com/yourusername/svolta)
+- **Live Site:** [svolta.app](https://svolta.app)
+- **Staging:** [staging.svolta.app](https://staging.svolta.app)
 - **Design System:** See [Design Tokens](./standards/design-tokens.md)
 
 ---

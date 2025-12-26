@@ -1,4 +1,4 @@
-# PoseProof - Troubleshooting Guide
+# Svolta - Troubleshooting Guide
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
@@ -1144,7 +1144,7 @@ export const DEBUG = process.env.NODE_ENV === "development";
 
 export function debug(message: string, ...args: any[]) {
   if (DEBUG) {
-    console.log(`[PoseProof Debug] ${message}`, ...args);
+    console.log(`[Svolta Debug] ${message}`, ...args);
   }
 }
 

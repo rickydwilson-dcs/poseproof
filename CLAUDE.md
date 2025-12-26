@@ -1,16 +1,16 @@
-# PoseProof - Claude Code Configuration
+# Svolta - Claude Code Configuration
 
 ## Project Overview
 
-**PoseProof** is a fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection.
+**Svolta** is a fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection.
 
-- **Domain:** poseproof.com
-- **Tagline:** "Proof of Progress"
+- **Domain:** svolta.app
+- **Tagline:** "The Turning Point"
 - **Stack:** Next.js 16, Tailwind CSS 4, Supabase, MediaPipe, Fabric.js, Stripe
 
 ## Project Management
 
-- **Linear Project:** https://linear.app/rickydwilson/project/poseproof-832cc9c427e2
+- **Linear Project:** https://linear.app/rickydwilson/project/svolta-832cc9c427e2
 
 ---
 
@@ -30,38 +30,38 @@ This project uses the Claude Skills ecosystem located at `~/.claude-skills/`.
 
 ---
 
-## Recommended Agents for PoseProof
+## Recommended Agents for Svolta
 
 ### Primary Development Agents
 
-| Agent | Use Case | Type | Execution |
-|-------|----------|------|-----------|
-| `cs-fullstack-engineer` | End-to-end feature development | Implementation (Green) | Coordinated |
-| `cs-frontend-engineer` | React/Next.js components, UI/UX | Implementation (Green) | Coordinated |
-| `cs-backend-engineer` | API routes, Supabase integration | Implementation (Green) | Coordinated |
+| Agent                   | Use Case                         | Type                   | Execution   |
+| ----------------------- | -------------------------------- | ---------------------- | ----------- |
+| `cs-fullstack-engineer` | End-to-end feature development   | Implementation (Green) | Coordinated |
+| `cs-frontend-engineer`  | React/Next.js components, UI/UX  | Implementation (Green) | Coordinated |
+| `cs-backend-engineer`   | API routes, Supabase integration | Implementation (Green) | Coordinated |
 
 ### Quality & Review Agents
 
-| Agent | Use Case | Type | Execution |
-|-------|----------|------|-----------|
-| `cs-code-reviewer` | Code quality assessment | Quality (Red) | **Sequential only** |
-| `cs-qa-engineer` | Test automation, E2E tests | Quality (Red) | **Sequential only** |
+| Agent                  | Use Case                      | Type          | Execution           |
+| ---------------------- | ----------------------------- | ------------- | ------------------- |
+| `cs-code-reviewer`     | Code quality assessment       | Quality (Red) | **Sequential only** |
+| `cs-qa-engineer`       | Test automation, E2E tests    | Quality (Red) | **Sequential only** |
 | `cs-security-engineer` | Security audits, OWASP checks | Quality (Red) | **Sequential only** |
 
 ### Architecture & Planning Agents
 
-| Agent | Use Case | Type | Execution |
-|-------|----------|------|-----------|
-| `cs-architect` | System design, patterns | Coordination (Purple) | Lightweight |
-| `cs-ui-designer` | Design tokens, component libraries | Strategic (Blue) | Parallel |
-| `cs-ux-researcher` | User flows, usability | Strategic (Blue) | Parallel |
+| Agent              | Use Case                           | Type                  | Execution   |
+| ------------------ | ---------------------------------- | --------------------- | ----------- |
+| `cs-architect`     | System design, patterns            | Coordination (Purple) | Lightweight |
+| `cs-ui-designer`   | Design tokens, component libraries | Strategic (Blue)      | Parallel    |
+| `cs-ux-researcher` | User flows, usability              | Strategic (Blue)      | Parallel    |
 
 ### Product & Strategy Agents
 
-| Agent | Use Case | Type | Execution |
-|-------|----------|------|-----------|
-| `cs-product-manager` | RICE prioritization, discovery | Strategic (Blue) | Parallel |
-| `cs-agile-product-owner` | User stories, backlog grooming | Strategic (Blue) | Parallel |
+| Agent                    | Use Case                       | Type             | Execution |
+| ------------------------ | ------------------------------ | ---------------- | --------- |
+| `cs-product-manager`     | RICE prioritization, discovery | Strategic (Blue) | Parallel  |
+| `cs-agile-product-owner` | User stories, backlog grooming | Strategic (Blue) | Parallel  |
 
 ---
 
@@ -139,15 +139,15 @@ wait
 
 Use these commands throughout development:
 
-| Command | Description |
-|---------|-------------|
-| `/commit.changes` | Commit following git workflow (develop → staging → main) |
-| `/create.pr` | Create PR with auto-generated description |
-| `/review.code` | Analyze code for quality, security, performance |
-| `/generate.tests` | Generate comprehensive test cases |
-| `/audit.security` | OWASP Top 10 scan + secrets detection |
-| `/audit.dependencies` | Check for outdated/vulnerable dependencies |
-| `/update.docs` | Auto-update README and CHANGELOG |
+| Command               | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `/commit.changes`     | Commit following git workflow (develop → staging → main) |
+| `/create.pr`          | Create PR with auto-generated description                |
+| `/review.code`        | Analyze code for quality, security, performance          |
+| `/generate.tests`     | Generate comprehensive test cases                        |
+| `/audit.security`     | OWASP Top 10 scan + secrets detection                    |
+| `/audit.dependencies` | Check for outdated/vulnerable dependencies               |
+| `/update.docs`        | Auto-update README and CHANGELOG                         |
 
 ---
 
@@ -170,6 +170,7 @@ Use `/commit.changes` to commit with proper workflow.
 ## Tech Stack Reference
 
 ### Frontend
+
 - **Framework:** Next.js 16 (App Router)
 - **Styling:** Tailwind CSS 4 with Apple-style design tokens
 - **UI:** Radix UI primitives
@@ -178,34 +179,40 @@ Use `/commit.changes` to commit with proper workflow.
 - **Canvas:** Fabric.js
 
 ### Backend
+
 - **Auth/DB:** Supabase (PostgreSQL)
 - **Payments:** Stripe (integrated)
 - **Pose Detection:** MediaPipe (client-side)
 
 ### Testing
+
 - **Unit/Integration:** Vitest
 - **E2E:** Playwright
 
 ### Deploy
+
 - **Hosting:** Vercel
-- **Domain:** poseproof.com
+- **Domain:** svolta.app
 
 ---
 
 ## Key Design Principles
 
 ### Apple-Style Design
+
 - Large display typography (72px headlines)
 - Generous whitespace (120-200px section padding)
 - Subtle animations with Apple easing curves
 - Layered shadows, generous border radius
 
 ### Privacy First
+
 - Photos processed client-side only
 - Never uploaded to servers
 - Prominent privacy messaging
 
 ### Progressive Enhancement
+
 - Free tier with watermark (5 exports/month)
 - Pro tier unlocks all features
 - Clear upgrade prompts at conversion points
@@ -214,22 +221,24 @@ Use `/commit.changes` to commit with proper workflow.
 
 ## Phase Overview
 
-| Phase | Focus | Key Deliverables | Status |
-|-------|-------|------------------|--------|
-| 1 | Foundation | Next.js setup, Tailwind config, Supabase, UI primitives | ✅ Complete |
-| 2 | Core Editor | DropZone, MediaPipe, Canvas, Landmarks, State | ✅ Complete |
-| 3 | Alignment | Calculation logic, Controls UI, Real-time preview | ✅ Complete |
-| 4 | Auth & Payments | Login/Signup, User store, Stripe, Upgrade page | 🔄 In Progress |
-| 5 | Usage & Export | Usage tracking, Export modal, Watermark, Settings | 🔄 In Progress |
-| 6 | Landing & Polish | Hero, Features, Pricing, Animations, PWA, Deploy | ⏳ Pending |
+| Phase | Focus            | Key Deliverables                                        | Status         |
+| ----- | ---------------- | ------------------------------------------------------- | -------------- |
+| 1     | Foundation       | Next.js setup, Tailwind config, Supabase, UI primitives | ✅ Complete    |
+| 2     | Core Editor      | DropZone, MediaPipe, Canvas, Landmarks, State           | ✅ Complete    |
+| 3     | Alignment        | Calculation logic, Controls UI, Real-time preview       | ✅ Complete    |
+| 4     | Auth & Payments  | Login/Signup, User store, Stripe, Upgrade page          | 🔄 In Progress |
+| 5     | Usage & Export   | Usage tracking, Export modal, Watermark, Settings       | 🔄 In Progress |
+| 6     | Landing & Polish | Hero, Features, Pricing, Animations, PWA, Deploy        | ⏳ Pending     |
 
 ## Current Scope
 
-**Source Files:** 61 TypeScript/TSX files
+**Source Files:** 75 TypeScript/TSX files
 **Custom Hooks:** 5 (useAlignment, useCanvasExport, useKeyboardShortcuts, usePoseDetection, useUsageLimit)
 **State Stores:** 2 (editor-store, user-store)
-**UI Components:** 7 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt)
-**API Routes:** 6 (stripe/checkout, stripe/webhook, usage/*, auth callback)
+**UI Components:** 9 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt, BottomSheet, SegmentedControl)
+**API Routes:** 6 (stripe/checkout, stripe/webhook, usage/\*, auth callback)
+**Test Files:** 9 test files
+**Visual Test Fixtures:** 66 fixtures across 9 categories
 **Documentation:** See `docs/` folder for technical documentation
 
 ---
@@ -237,6 +246,7 @@ Use `/commit.changes` to commit with proper workflow.
 ## Quick Reference
 
 ### Agent Locations
+
 ```
 /Users/ricky/.claude-skills/agents/engineering/cs-fullstack-engineer.md
 /Users/ricky/.claude-skills/agents/engineering/cs-frontend-engineer.md
@@ -252,6 +262,7 @@ Use `/commit.changes` to commit with proper workflow.
 ```
 
 ### Skill Packages
+
 ```
 /Users/ricky/.claude-skills/skills/engineering-team/senior-fullstack/
 /Users/ricky/.claude-skills/skills/engineering-team/senior-frontend/
@@ -267,6 +278,7 @@ Use `/commit.changes` to commit with proper workflow.
 ```
 
 ### Documentation
+
 ```
 /Users/ricky/.claude-skills/docs/USAGE.md
 /Users/ricky/.claude-skills/docs/WORKFLOW.md
@@ -275,4 +287,4 @@ Use `/commit.changes` to commit with proper workflow.
 
 ---
 
-**Last Updated:** 2025-12-01
+**Last Updated:** 2025-12-26

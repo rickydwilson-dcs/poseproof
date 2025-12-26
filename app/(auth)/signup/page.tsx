@@ -110,7 +110,7 @@ export default function SignupPage() {
         <p className="text-sm font-semibold text-text mb-6">{email}</p>
 
         <p className="text-sm text-text-secondary mb-8">
-          Click the link in the email to confirm your account and get started with PoseProof.
+          Click the link in the email to confirm your account and get started with Svolta.
         </p>
 
         <div className="space-y-3">
@@ -143,7 +143,7 @@ export default function SignupPage() {
           Create your account
         </h1>
         <p className="text-sm text-text-secondary">
-          Get started with PoseProof today
+          Get started with Svolta today
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 # Testing Standards
 
-This document outlines the testing strategy and standards for PoseProof.
+This document outlines the testing strategy and standards for Svolta.
 
 ## Testing Stack
 
@@ -130,7 +130,7 @@ See `.github/workflows/ci.yml` for details.
 
 ## Visual Regression Testing
 
-PoseProof includes a comprehensive visual regression testing suite for validating the alignment algorithm. This ensures pixel-perfect consistency across code changes.
+Svolta includes a comprehensive visual regression testing suite for validating the alignment algorithm. This ensures pixel-perfect consistency across code changes.
 
 ### Architecture
 

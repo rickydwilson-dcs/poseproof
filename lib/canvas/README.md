@@ -1,6 +1,6 @@
 # Canvas Library
 
-Canvas manipulation utilities for PoseProof photo alignment and export.
+Canvas manipulation utilities for Svolta photo alignment and export.
 
 ## Modules
 
@@ -9,6 +9,7 @@ Canvas manipulation utilities for PoseProof photo alignment and export.
 Handles exporting the aligned canvas to different formats with watermarks and labels.
 
 **Key Features:**
+
 - Multiple aspect ratios (1:1, 4:5, 9:16)
 - High resolution support (1080p, 1440p, 4K)
 - Side-by-side before/after layout
@@ -23,28 +24,28 @@ async function exportCanvas(
   beforePhoto: { dataUrl: string; width: number; height: number },
   afterPhoto: { dataUrl: string; width: number; height: number },
   alignment: { scale: number; offsetX: number; offsetY: number },
-  options: ExportOptions
-): Promise<ExportResult>
+  options: ExportOptions,
+): Promise<ExportResult>;
 ```
 
 **Usage:**
 
 ```typescript
-import { exportCanvas, triggerDownload } from '@/lib/canvas/export';
+import { exportCanvas, triggerDownload } from "@/lib/canvas/export";
 
 const result = await exportCanvas(
   { dataUrl: beforeDataUrl, width: 800, height: 1000 },
   { dataUrl: afterDataUrl, width: 800, height: 1000 },
   { scale: 1.05, offsetX: 10, offsetY: -5 },
   {
-    format: '4:5',
+    format: "4:5",
     resolution: 1080,
     includeLabels: true,
     watermark: {
       isPro: false,
     },
     quality: 0.92,
-  }
+  },
 );
 
 triggerDownload(result.blob, result.filename);
@@ -57,7 +58,8 @@ triggerDownload(result.blob, result.filename);
 Adds watermarks to exported canvas images based on user tier.
 
 **Key Features:**
-- Text watermark for free users ("PoseProof")
+
+- Text watermark for free users ("Svolta")
 - Custom logo watermark for Pro users
 - No watermark for Pro users without custom logo
 - Configurable position and opacity
@@ -70,18 +72,18 @@ async function addWatermark(
   ctx: CanvasRenderingContext2D,
   canvasWidth: number,
   canvasHeight: number,
-  options: WatermarkOptions
-): Promise<void>
+  options: WatermarkOptions,
+): Promise<void>;
 ```
 
 **Usage:**
 
 ```typescript
-import { addWatermark } from '@/lib/canvas/watermark';
+import { addWatermark } from "@/lib/canvas/watermark";
 
 await addWatermark(ctx, 2160, 1350, {
   isPro: false,
-  position: 'bottom-right',
+  position: "bottom-right",
   opacity: 0.7,
 });
 ```
@@ -93,6 +95,7 @@ await addWatermark(ctx, 2160, 1350, {
 Calculates alignment values based on pose landmarks and anchor points.
 
 **Key Features:**
+
 - Multiple anchor points (head, shoulders, hips, full body)
 - Automatic scale calculation
 - Offset computation for perfect alignment
@@ -104,8 +107,8 @@ Calculates alignment values based on pose landmarks and anchor points.
 function calculateAlignment(
   beforeLandmarks: Landmark[],
   afterLandmarks: Landmark[],
-  anchor: AlignmentAnchor
-): { scale: number; offsetX: number; offsetY: number } | null
+  anchor: AlignmentAnchor,
+): { scale: number; offsetX: number; offsetY: number } | null;
 ```
 
 ---
@@ -115,6 +118,7 @@ function calculateAlignment(
 Fabric.js canvas initialization and configuration.
 
 **Key Features:**
+
 - Optimized rendering settings
 - High-quality image smoothing
 - Proper canvas sizing
@@ -124,13 +128,13 @@ Fabric.js canvas initialization and configuration.
 
 ## Export Format Reference
 
-| Format | Ratio | Best For | Example Size (1080p) |
-|--------|-------|----------|---------------------|
-| `1:1` | Square | Instagram post | 2160 x 1080 |
-| `4:5` | Portrait | Instagram portrait | 2160 x 1350 |
-| `9:16` | Vertical | Instagram Story | 2160 x 1920 |
+| Format | Ratio    | Best For           | Example Size (1080p) |
+| ------ | -------- | ------------------ | -------------------- |
+| `1:1`  | Square   | Instagram post     | 2160 x 1080          |
+| `4:5`  | Portrait | Instagram portrait | 2160 x 1350          |
+| `9:16` | Vertical | Instagram Story    | 2160 x 1920          |
 
-*Width is doubled to accommodate side-by-side layout*
+_Width is doubled to accommodate side-by-side layout_
 
 ## Resolution Options
 
@@ -140,11 +144,11 @@ Fabric.js canvas initialization and configuration.
 
 ## Watermark Behavior
 
-| User Tier | Custom Logo | Result |
-|-----------|-------------|--------|
-| Free | N/A | "PoseProof" text watermark |
-| Pro | No | No watermark (clean export) |
-| Pro | Yes | Custom logo watermark |
+| User Tier | Custom Logo | Result                      |
+| --------- | ----------- | --------------------------- |
+| Free      | N/A         | "Svolta" text watermark     |
+| Pro       | No          | No watermark (clean export) |
+| Pro       | Yes         | Custom logo watermark       |
 
 ## Technical Details
 
