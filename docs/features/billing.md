@@ -403,7 +403,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
 ```bash
 # Set up webhook endpoint in Stripe Dashboard
-# URL: https://svolta.app/api/stripe/webhook
+# URL: https://www.svolta.app/api/stripe/webhook
 # Events: checkout.session.completed, customer.subscription.*
 
 # Test locally with Stripe CLI
@@ -462,7 +462,7 @@ Fetch current month's usage statistics.
 **Request:**
 
 ```bash
-curl -X GET https://svolta.app/api/usage \
+curl -X GET https://www.svolta.app/api/usage \
   -H "Authorization: Bearer <session_token>"
 ```
 
@@ -501,7 +501,7 @@ Increment export count and check limits.
 **Request:**
 
 ```bash
-curl -X POST https://svolta.app/api/usage/increment \
+curl -X POST https://www.svolta.app/api/usage/increment \
   -H "Authorization: Bearer <session_token>"
 ```
 

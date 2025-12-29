@@ -9,7 +9,7 @@
 Svolta is a fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection. Photos are processed entirely client-side, ensuring user privacy while delivering powerful alignment tools.
 
 **Tagline:** "The Turning Point"
-**Domain:** [svolta.app](https://svolta.app)
+**Domain:** [www.svolta.app](https://www.svolta.app)
 
 ## Quick Navigation
 
@@ -265,7 +265,7 @@ svolta/
 ## Quick Links
 
 - **Repository:** [GitHub](https://github.com/yourusername/svolta)
-- **Live Site:** [svolta.app](https://svolta.app)
+- **Live Site:** [www.svolta.app](https://www.svolta.app)
 - **Staging:** [staging.svolta.app](https://staging.svolta.app)
 - **Design System:** See [Design Tokens](./standards/design-tokens.md)
 

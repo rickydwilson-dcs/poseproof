@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
-**Base URL:** `https://svolta.app/api` (Production) | `http://localhost:3000/api` (Development)
+**Base URL:** `https://www.svolta.app/api` (Production) | `http://localhost:3000/api` (Development)
 
 ## Overview
 
@@ -614,7 +614,7 @@ async function callAPI() {
 
 ### Stripe Webhook Configuration
 
-**Endpoint:** `https://svolta.app/api/stripe/webhook`
+**Endpoint:** `https://www.svolta.app/api/stripe/webhook`
 
 **Required Events:**
 
@@ -639,7 +639,7 @@ async function callAPI() {
    ```
 
 3. **Configure webhook in Stripe Dashboard:**
-   - URL: `https://svolta.app/api/stripe/webhook`
+   - URL: `https://www.svolta.app/api/stripe/webhook`
    - Events: Select events listed above
    - API Version: Use latest
 
@@ -748,7 +748,7 @@ stripe trigger checkout.session.completed
 
 ## Support
 
-**Documentation:** https://svolta.app/docs
+**Documentation:** https://www.svolta.app/docs
 **GitHub Issues:** https://github.com/rickydwilson/Svolta/issues
 **Email:** hello@svolta.app
 

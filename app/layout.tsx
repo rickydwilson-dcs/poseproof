@@ -14,11 +14,11 @@ export const metadata: Metadata = {
   description: "Professional before/after fitness photo alignment using AI pose detection. Create stunning progress comparisons with perfect alignment.",
   keywords: ["fitness", "before after", "photo alignment", "pose detection", "progress tracking", "transformation"],
   authors: [{ name: "Svolta" }],
-  metadataBase: new URL("https://svolta.app"),
+  metadataBase: new URL("https://www.svolta.app"),
   openGraph: {
     title: "Svolta - The Turning Point",
     description: "Professional before/after fitness photo alignment using AI pose detection.",
-    url: "https://svolta.app",
+    url: "https://www.svolta.app",
     siteName: "Svolta",
     locale: "en_US",
     type: "website",

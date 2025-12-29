@@ -4,7 +4,7 @@
 
 **Svolta** is a fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection.
 
-- **Domain:** svolta.app
+- **Domain:** www.svolta.app
 - **Tagline:** "The Turning Point"
 - **Stack:** Next.js 16, Tailwind CSS 4, Supabase, MediaPipe, Fabric.js, Stripe
 
@@ -192,7 +192,7 @@ Use `/commit.changes` to commit with proper workflow.
 ### Deploy
 
 - **Hosting:** Vercel
-- **Domain:** svolta.app
+- **Domain:** www.svolta.app
 
 ---
 
@@ -226,9 +226,9 @@ Use `/commit.changes` to commit with proper workflow.
 | 1     | Foundation       | Next.js setup, Tailwind config, Supabase, UI primitives | ✅ Complete    |
 | 2     | Core Editor      | DropZone, MediaPipe, Canvas, Landmarks, State           | ✅ Complete    |
 | 3     | Alignment        | Calculation logic, Controls UI, Real-time preview       | ✅ Complete    |
-| 4     | Auth & Payments  | Login/Signup, User store, Stripe, Upgrade page          | 🔄 In Progress |
-| 5     | Usage & Export   | Usage tracking, Export modal, Watermark, Settings       | 🔄 In Progress |
-| 6     | Landing & Polish | Hero, Features, Pricing, Animations, PWA, Deploy        | ⏳ Pending     |
+| 4     | Auth & Payments  | Login/Signup, User store, Stripe, Upgrade page          | ✅ Complete    |
+| 5     | Usage & Export   | Usage tracking, Export modal, Watermark, Settings       | ✅ Complete    |
+| 6     | Landing & Polish | Hero, Features, Pricing, Animations, PWA, Deploy        | 🔄 In Progress |
 
 ## Current Scope
 

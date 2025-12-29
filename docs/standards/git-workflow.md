@@ -13,7 +13,7 @@ Svolta uses a multi-stage deployment pipeline with **manual promotion** and **Hu
 ## Branch Structure
 
 ```
-main (production) ← svolta.app
+main (production) ← www.svolta.app
   ↑ manual merge (Husky blocks until staging E2E passes)
 staging (preview) ← staging.svolta.app
   ↑ manual merge (after develop CI passes)
@@ -177,7 +177,7 @@ refactor(canvas): simplify landmark rendering
 | ------- | ----------- | ---------------------- |
 | develop | Development | Auto-generated preview |
 | staging | Preview     | staging.svolta.app     |
-| main    | Production  | svolta.app             |
+| main    | Production  | www.svolta.app         |
 
 ---
 

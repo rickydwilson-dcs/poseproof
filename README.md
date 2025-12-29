@@ -149,5 +149,5 @@ MIT
 
 ---
 
-**Domain:** svolta.app
+**Domain:** www.svolta.app
 **Last Updated:** 2025-12-26
