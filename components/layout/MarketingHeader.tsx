@@ -23,18 +23,18 @@ export function MarketingHeader() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 safe-top transition-all duration-300',
-        isScrolled ? 'header-scrolled' : 'header-gradient'
+        'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+        isScrolled ? 'header-gradient' : 'header-transparent'
       )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        {/* Logo - mono (white) on gradient, dark mode on scrolled */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+        {/* Logo - larger size, mono (white) on scroll */}
         <Link href="/" className="flex items-center">
           <SvoltaLogo
-            size={40}
-            mode={isScrolled ? 'dark' : 'mono'}
+            size={44}
+            mode={isScrolled ? 'mono' : 'dark'}
             showWordmark
-            wordmarkStyle={isScrolled ? 'gradient' : 'solid'}
+            wordmarkStyle={isScrolled ? 'solid' : 'gradient'}
           />
         </Link>
 
@@ -42,7 +42,12 @@ export function MarketingHeader() {
         <nav className="flex items-center gap-3">
           <Link
             href="/login"
-            className="px-4 py-2 text-sm font-medium text-white/90 hover:text-white transition-colors"
+            className={cn(
+              'px-4 py-2 text-sm font-medium transition-colors',
+              isScrolled
+                ? 'text-white/90 hover:text-white'
+                : 'text-text-secondary hover:text-text'
+            )}
           >
             Sign In
           </Link>
@@ -51,8 +56,8 @@ export function MarketingHeader() {
             className={cn(
               'h-10 px-5 text-sm font-medium rounded-full transition-all inline-flex items-center justify-center',
               isScrolled
-                ? 'btn-pill btn-primary'
-                : 'bg-transparent border-2 border-white text-white hover:bg-white/10'
+                ? 'bg-transparent border-2 border-white text-white hover:bg-white/10'
+                : 'btn-pill btn-primary'
             )}
           >
             Try Free
