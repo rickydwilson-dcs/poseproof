@@ -42,7 +42,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
           NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
-          NEXT_PUBLIC_APP_URL: https://poseproof.com
+          NEXT_PUBLIC_APP_URL: https://www.svolta.app
 
   # =============================================================================
   # Unit Tests: Vitest

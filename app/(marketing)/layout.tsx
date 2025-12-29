@@ -13,9 +13,9 @@ export default function MarketingLayout({
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-instagram-gradient rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg font-bold">P</span>
+              <span className="text-white text-lg font-bold">S</span>
             </div>
-            <span className="text-lg font-semibold text-text">PoseProof</span>
+            <span className="text-lg font-semibold text-text">Svolta</span>
           </Link>
 
           {/* Navigation */}
@@ -48,9 +48,9 @@ export default function MarketingLayout({
             {/* Logo */}
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 bg-instagram-gradient rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm font-bold">P</span>
+                <span className="text-white text-sm font-bold">S</span>
               </div>
-              <span className="text-sm font-semibold text-text">PoseProof</span>
+              <span className="text-sm font-semibold text-text">Svolta</span>
             </div>
 
             {/* Links */}
@@ -61,14 +61,14 @@ export default function MarketingLayout({
               <Link href="/terms" className="text-text-secondary hover:text-text transition-colors">
                 Terms
               </Link>
-              <a href="mailto:hello@poseproof.com" className="text-text-secondary hover:text-text transition-colors">
+              <a href="mailto:hello@svolta.app" className="text-text-secondary hover:text-text transition-colors">
                 Contact
               </a>
             </nav>
 
             {/* Copyright */}
             <p className="text-sm text-text-tertiary">
-              © {new Date().getFullYear()} PoseProof
+              © {new Date().getFullYear()} Svolta
             </p>
           </div>
         </div>

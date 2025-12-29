@@ -1,12 +1,12 @@
-# PoseProof API Reference
+# Svolta API Reference
 
 **Version:** 1.0.0
 **Last Updated:** 2025-12-22
-**Base URL:** `https://poseproof.com/api` (Production) | `http://localhost:3000/api` (Development)
+**Base URL:** `https://www.svolta.app/api` (Production) | `http://localhost:3000/api` (Development)
 
 ## Overview
 
-PoseProof's REST API provides endpoints for Stripe payment integration, usage tracking, and account management. All endpoints require authentication via Supabase Auth JWT tokens unless otherwise specified.
+Svolta's REST API provides endpoints for Stripe payment integration, usage tracking, and account management. All endpoints require authentication via Supabase Auth JWT tokens unless otherwise specified.
 
 **Key Features:**
 
@@ -614,7 +614,7 @@ async function callAPI() {
 
 ### Stripe Webhook Configuration
 
-**Endpoint:** `https://poseproof.com/api/stripe/webhook`
+**Endpoint:** `https://www.svolta.app/api/stripe/webhook`
 
 **Required Events:**
 
@@ -639,7 +639,7 @@ async function callAPI() {
    ```
 
 3. **Configure webhook in Stripe Dashboard:**
-   - URL: `https://poseproof.com/api/stripe/webhook`
+   - URL: `https://www.svolta.app/api/stripe/webhook`
    - Events: Select events listed above
    - API Version: Use latest
 
@@ -748,13 +748,13 @@ stripe trigger checkout.session.completed
 
 ## Support
 
-**Documentation:** https://poseproof.com/docs
-**GitHub Issues:** https://github.com/rickydwilson/PoseProof/issues
-**Email:** support@poseproof.com
+**Documentation:** https://www.svolta.app/docs
+**GitHub Issues:** https://github.com/rickydwilson/Svolta/issues
+**Email:** hello@svolta.app
 
 ---
 
-**Last Updated:** 2025-12-22
+**Last Updated:** 2025-12-26
 **API Version:** 1.0.0
 **Next.js Version:** 16
 **Supabase SDK:** Latest

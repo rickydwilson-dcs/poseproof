@@ -1,5 +1,5 @@
 /**
- * Visual Regression Tests for PoseProof Alignment Algorithm
+ * Visual Regression Tests for Svolta Alignment Algorithm
  *
  * These tests validate the export/alignment functionality by:
  * 1. Running the export algorithm with test fixtures

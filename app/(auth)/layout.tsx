@@ -12,17 +12,17 @@ export default function AuthLayout({
         <div className="mx-auto max-w-md px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-instagram-gradient rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg font-bold">P</span>
+              <span className="text-white text-lg font-bold">S</span>
             </div>
-            <span className="text-lg font-semibold text-text">PoseProof</span>
+            <span className="text-lg font-semibold text-text">Svolta</span>
           </Link>
         </div>
       </header>
 
       {/* Centered Card Content */}
       <main className="flex flex-1 items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
-        <div className="w-full max-w-md">
-          <div className="card-base p-6 sm:p-8">
+        <div className="w-full max-w-md min-w-[320px]">
+          <div className="card-base p-6 sm:p-8 w-full">
             {children}
           </div>
         </div>

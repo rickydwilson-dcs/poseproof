@@ -741,7 +741,7 @@ export async function exportCanvas(
 
   // Generate filename with timestamp
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const filename = `poseproof-export-${timestamp}.png`;
+  const filename = `svolta-export-${timestamp}.png`;
 
   return {
     blob,

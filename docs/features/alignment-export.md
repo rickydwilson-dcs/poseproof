@@ -6,7 +6,7 @@
 
 ## Scope
 
-This document describes the **core business logic** of PoseProof: the 4-step alignment algorithm that enables professional before/after photo comparisons. This algorithm transforms pose-detected landmark data into precisely aligned, cropped, and scaled export images.
+This document describes the **core business logic** of Svolta: the 4-step alignment algorithm that enables professional before/after photo comparisons. This algorithm transforms pose-detected landmark data into precisely aligned, cropped, and scaled export images.
 
 **Key Files:**
 
@@ -14,7 +14,7 @@ This document describes the **core business logic** of PoseProof: the 4-step ali
 - `/lib/canvas/alignment.ts` - Alignment calculation utilities
 - `/components/features/editor/ExportModal.tsx` - Export UI
 
-**Critical Importance:** This algorithm is the foundation of PoseProof's value proposition. Understanding it is essential for:
+**Critical Importance:** This algorithm is the foundation of Svolta's value proposition. Understanding it is essential for:
 
 - Debugging alignment issues
 - Adding new export formats
@@ -40,7 +40,7 @@ This document describes the **core business logic** of PoseProof: the 4-step ali
 
 ## Algorithm Overview
 
-PoseProof's alignment algorithm ensures that before/after photos are aligned by **head position** and scaled to match **body heights**, creating professional side-by-side comparisons.
+Svolta's alignment algorithm ensures that before/after photos are aligned by **head position** and scaled to match **body heights**, creating professional side-by-side comparisons.
 
 **Four-Phase Design Philosophy:**
 
@@ -170,7 +170,7 @@ function calculateCoverFit(
 
 ## MediaPipe Landmarks
 
-MediaPipe Pose detection provides 33 body landmarks. PoseProof uses these key landmarks:
+MediaPipe Pose detection provides 33 body landmarks. Svolta uses these key landmarks:
 
 ```mermaid
 graph TB
@@ -610,11 +610,11 @@ flowchart TD
     K --> L{Include labels?}
     L -->|Yes| M[Draw Before/After text]
     L -->|No| N[Skip labels]
-    M --> O[Add watermark<br/>Pro: custom logo<br/>Free: PoseProof branding]
+    M --> O[Add watermark<br/>Pro: custom logo<br/>Free: Svolta branding]
     N --> O
 
     O --> P[Convert canvas to PNG blob<br/>quality = 0.92]
-    P --> Q[Generate filename<br/>poseproof-export-timestamp.png]
+    P --> Q[Generate filename<br/>svolta-export-timestamp.png]
     Q --> R[Trigger browser download]
     R --> S[Clean up object URL]
 
@@ -649,7 +649,7 @@ export async function exportCanvas(
 
 ## Format Specifications
 
-PoseProof supports three export formats optimized for social media:
+Svolta supports three export formats optimized for social media:
 
 | Format   | Ratio    | Resolution Options | Dimensions (1080) | Use Case                 |
 | -------- | -------- | ------------------ | ----------------- | ------------------------ |
@@ -1157,7 +1157,7 @@ Export multiple before/after pairs at once.
 
 ## Summary
 
-The PoseProof alignment algorithm is a **four-phase, pixel-space calculation** that ensures professional before/after photo alignment with no white space:
+The Svolta alignment algorithm is a **four-phase, pixel-space calculation** that ensures professional before/after photo alignment with no white space:
 
 1. **Phase 1:** Calculate body scale to match heights (0.8-1.25 clamp)
 2. **Phase 1.5:** Normalize overflow to ensure both images have alignment flexibility
@@ -1176,7 +1176,7 @@ The PoseProof alignment algorithm is a **four-phase, pixel-space calculation** t
 - Crop equally from both sides to keep subjects centered
 - Handle edge cases gracefully with fallback strategies
 
-This algorithm is the **foundation of PoseProof's value proposition** and must be maintained with extreme care. Any modifications should be tested extensively with diverse photo types, aspect ratios, and body types.
+This algorithm is the **foundation of Svolta's value proposition** and must be maintained with extreme care. Any modifications should be tested extensively with diverse photo types, aspect ratios, and body types.
 
 ---
 

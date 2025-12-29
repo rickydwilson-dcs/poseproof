@@ -69,9 +69,9 @@ export default function EditorContent() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-instagram-gradient rounded-lg flex items-center justify-center">
-              <span className="text-white text-lg font-bold">P</span>
+              <span className="text-white text-lg font-bold">S</span>
             </div>
-            <span className="text-lg font-semibold text-text hidden sm:inline">PoseProof</span>
+            <span className="text-lg font-semibold text-text hidden sm:inline">Svolta</span>
           </Link>
 
           {/* Center Actions */}

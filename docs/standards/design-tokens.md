@@ -1,4 +1,4 @@
-# PoseProof Design Tokens
+# Svolta Design Tokens
 
 Apple-style design system configuration for Tailwind CSS v4.
 
@@ -10,7 +10,7 @@ Use for hero headlines and large display text:
 
 ```tsx
 <h1 className="text-display-2xl font-display-2xl tracking-display-2xl leading-display-2xl">
-  Proof of Progress
+  The Turning Point
 </h1>
 
 <h2 className="text-display-xl font-display-xl tracking-display-xl leading-display-xl">
@@ -188,7 +188,7 @@ export function HeroSection() {
     <section className="py-section-xl bg-surface-primary">
       <div className="container mx-auto px-6">
         <h1 className="text-display-2xl font-display-2xl tracking-display-2xl leading-display-2xl text-text-primary mb-6">
-          Proof of Progress
+          The Turning Point
         </h1>
         <p className="text-2xl text-text-secondary max-w-2xl">
           Transform your fitness photos into professional before/after

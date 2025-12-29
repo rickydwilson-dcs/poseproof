@@ -1,10 +1,10 @@
-# PoseProof
+# Svolta
 
-**Proof of Progress** - A fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection.
+**The Turning Point** - A fitness photo alignment SaaS that helps coaches create professional before/after comparisons using AI pose detection.
 
 ## Overview
 
-PoseProof enables fitness professionals and coaches to create perfectly aligned before/after comparison photos. Using AI-powered pose detection, the app automatically identifies body landmarks and provides real-time alignment guidance.
+Svolta enables fitness professionals and coaches to create perfectly aligned before/after comparison photos. Using AI-powered pose detection, the app automatically identifies body landmarks and provides real-time alignment guidance.
 
 ## Tech Stack
 
@@ -63,14 +63,14 @@ stores/             # Zustand state stores
 
 ## Current Status
 
-| Phase | Focus | Status |
-|-------|-------|--------|
-| 1 | Foundation (Next.js, Tailwind, Supabase, UI primitives) | ✅ Complete |
-| 2 | Core Editor (DropZone, MediaPipe, Canvas, Landmarks) | ✅ Complete |
-| 3 | Alignment System (Calculations, Controls, Preview) | ✅ Complete |
-| 4 | Auth & Payments (Login/Signup, User store, Stripe) | 🔄 In Progress |
-| 5 | Usage & Export (Tracking, Export modal, Watermark) | 🔄 In Progress |
-| 6 | Landing & Polish (Hero, Features, Animations, PWA) | ⏳ Pending |
+| Phase | Focus                                                   | Status         |
+| ----- | ------------------------------------------------------- | -------------- |
+| 1     | Foundation (Next.js, Tailwind, Supabase, UI primitives) | ✅ Complete    |
+| 2     | Core Editor (DropZone, MediaPipe, Canvas, Landmarks)    | ✅ Complete    |
+| 3     | Alignment System (Calculations, Controls, Preview)      | ✅ Complete    |
+| 4     | Auth & Payments (Login/Signup, User store, Stripe)      | 🔄 In Progress |
+| 5     | Usage & Export (Tracking, Export modal, Watermark)      | 🔄 In Progress |
+| 6     | Landing & Polish (Hero, Features, Animations, PWA)      | ⏳ Pending     |
 
 ## Getting Started
 
@@ -85,8 +85,8 @@ stores/             # Zustand state stores
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/poseproof.git
-cd poseproof
+git clone https://github.com/yourusername/svolta.git
+cd svolta
 
 # Install dependencies
 npm install
@@ -125,7 +125,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 ## Privacy
 
-PoseProof prioritizes user privacy:
+Svolta prioritizes user privacy:
+
 - All photo processing happens client-side
 - Images are never uploaded to servers
 - No photos are stored in our database
@@ -134,7 +135,19 @@ PoseProof prioritizes user privacy:
 
 MIT
 
+## Current Scope
+
+| Metric               | Count             |
+| -------------------- | ----------------- |
+| Source Files         | 75 TypeScript/TSX |
+| Custom Hooks         | 5                 |
+| State Stores         | 2                 |
+| UI Components        | 9                 |
+| API Routes           | 6                 |
+| Test Files           | 9                 |
+| Visual Test Fixtures | 66                |
+
 ---
 
-**Domain:** poseproof.com
-**Last Updated:** 2025-11-30
+**Domain:** www.svolta.app
+**Last Updated:** 2025-12-26
