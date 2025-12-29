@@ -21,3 +21,7 @@ export type { BottomSheetProps } from './BottomSheet';
 
 export { SegmentedControl } from './SegmentedControl';
 export type { SegmentedControlProps, SegmentedControlOption } from './SegmentedControl';
+
+export { OAuthButtons } from './OAuthButtons';
+
+export { MagicLinkForm } from './MagicLinkForm';

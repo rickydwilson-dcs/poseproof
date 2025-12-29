@@ -13,7 +13,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'primary', size = 'md', loading = false, fullWidth = false, disabled, children, ...props }, ref) => {
     // Instagram-style pill buttons with gradient
     const baseStyles =
-      'relative inline-flex items-center justify-center font-semibold transition-all duration-200 ease-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 overflow-hidden';
+      'relative inline-flex flex-row items-center justify-center font-semibold whitespace-nowrap transition-all duration-200 ease-out focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50 overflow-hidden';
 
     const variantStyles = {
       // Gradient pill button - Instagram style
