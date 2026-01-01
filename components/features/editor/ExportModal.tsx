@@ -139,14 +139,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
   };
 
   // Handle background type change
-  const handleBackgroundTypeChange = (type: string) => {
+  const handleBackgroundTypeChange = async (type: string) => {
     const newType = type as BackgroundType;
-    if (newType === 'transparent') {
-      // Trigger background removal if needed
-      if (!hasBackgroundRemoved) {
-        handleRemoveBackgrounds();
-      }
+
+    // For transparent or color backgrounds, we need to remove the background first
+    if ((newType === 'transparent' || newType === 'color') && !hasBackgroundRemoved) {
+      await handleRemoveBackgrounds();
     }
+
     setBackground(prev => ({ ...prev, type: newType }));
 
     // Update editor store background settings
@@ -159,8 +159,12 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     }
   };
 
-  // Handle color selection
-  const handleColorSelect = (color: string) => {
+  // Handle color selection - only changes color since bg is already removed when 'color' type is selected
+  const handleColorSelect = async (color: string) => {
+    // If this is the first color selection and background hasn't been removed yet, remove it first
+    if (!hasBackgroundRemoved) {
+      await handleRemoveBackgrounds();
+    }
     setBackground(prev => ({ ...prev, type: 'color', colorValue: color }));
     setBackgroundSettings({ type: 'solid', color });
   };
@@ -306,7 +310,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             className={cn(
               'fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] max-w-[448px] translate-x-[-50%] translate-y-[-50%]',
               'bg-[var(--surface-primary)] rounded-2xl shadow-[var(--shadow-lg)]',
-              'max-h-[90vh] overflow-y-auto',
+              'max-h-[90vh] overflow-hidden',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -315,6 +319,22 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
               'duration-200'
             )}
           >
+            {/* Processing Overlay - Full modal overlay */}
+            {isRemovingBackground && (
+              <div className="absolute inset-0 z-50 bg-[var(--surface-primary)]/95 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+                <div className="text-center">
+                  <div className="relative w-16 h-16 mx-auto mb-4">
+                    <div className="absolute inset-0 rounded-full border-4 border-[var(--gray-200)]" />
+                    <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[var(--brand-pink)] animate-spin" />
+                  </div>
+                  <p className="text-base font-medium text-[var(--text-primary)]">Removing backgrounds...</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">This may take a few seconds</p>
+                </div>
+              </div>
+            )}
+
+            {/* Scrollable Content */}
+            <div className="max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-[var(--border-default)]">
               <Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
@@ -351,19 +371,6 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             {displayError && (
               <div className="mx-4 mt-4 p-3 rounded-xl bg-[var(--error)]/10 border border-[var(--error)]/20">
                 <p className="text-sm text-[var(--error)]">{displayError}</p>
-              </div>
-            )}
-
-            {/* Processing Overlay */}
-            {isRemovingBackground && (
-              <div className="mx-4 mt-4 p-4 rounded-xl bg-[var(--gray-100)] border border-[var(--border-default)]">
-                <div className="flex items-center gap-3">
-                  <div className="animate-spin rounded-full h-5 w-5 border-2 border-[var(--brand-pink)] border-t-transparent" />
-                  <div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">Removing backgrounds...</p>
-                    <p className="text-xs text-[var(--text-secondary)]">This may take a few seconds</p>
-                  </div>
-                </div>
               </div>
             )}
 
@@ -825,6 +832,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
               <p className="mt-3 text-center text-xs text-[var(--text-tertiary)]">
                 {usageText}
               </p>
+            </div>
             </div>
           </Dialog.Content>
         </Dialog.Portal>
