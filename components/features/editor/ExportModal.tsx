@@ -17,6 +17,16 @@ import type { AnimationStyle } from '@/lib/canvas/export-gif';
 import type { Photo } from '@/types/editor';
 import { AlignedPreview } from './AlignedPreview';
 
+// Timeout wrapper for long-running operations
+function withTimeout<T>(promise: Promise<T>, ms: number, errorMessage: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(errorMessage)), ms)
+    ),
+  ]);
+}
+
 export interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -174,11 +184,18 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     if (!hasPhotos || !beforePhoto || !afterPhoto) return;
 
     setIsRemovingBackgrounds(true);
+    setLocalError(null);
+
+    const TIMEOUT_MS = 60000; // 60 second timeout per image
 
     try {
       // Remove background from "before" photo if not already done
       if (!beforePhoto.hasBackgroundRemoved) {
-        const beforeResult = await removeBackground(beforePhoto.dataUrl);
+        const beforeResult = await withTimeout(
+          removeBackground(beforePhoto.dataUrl),
+          TIMEOUT_MS,
+          'Background removal timed out for "Before" photo. Please try again or use a smaller image.'
+        );
         if (beforeResult) {
           const updatedBefore: Photo = {
             ...beforePhoto,
@@ -193,7 +210,11 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
       // Remove background from "after" photo if not already done
       if (!afterPhoto.hasBackgroundRemoved) {
-        const afterResult = await removeBackground(afterPhoto.dataUrl);
+        const afterResult = await withTimeout(
+          removeBackground(afterPhoto.dataUrl),
+          TIMEOUT_MS,
+          'Background removal timed out for "After" photo. Please try again or use a smaller image.'
+        );
         if (afterResult) {
           const updatedAfter: Photo = {
             ...afterPhoto,
@@ -205,6 +226,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
           setAfterPhoto(updatedAfter);
         }
       }
+    } catch (error) {
+      console.error('Background removal failed:', error);
+      setLocalError(error instanceof Error ? error.message : 'Background removal failed');
     } finally {
       setIsRemovingBackgrounds(false);
     }
