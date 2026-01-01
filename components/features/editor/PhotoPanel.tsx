@@ -18,8 +18,8 @@ interface PhotoPanelProps {
   label: string;
   photo: Photo | null;
   onPhotoChange: (photo: Photo | null) => void;
-  onLandmarksDetected: (landmarks: Landmark[] | null) => void;
-  showLandmarks: boolean;
+  onLandmarksDetected?: (landmarks: Landmark[] | null) => void;
+  showLandmarks?: boolean;
   className?: string;
 }
 
@@ -28,7 +28,7 @@ export function PhotoPanel({
   photo,
   onPhotoChange,
   onLandmarksDetected,
-  showLandmarks,
+  showLandmarks = false,
   className,
 }: PhotoPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -70,7 +70,7 @@ export function PhotoPanel({
 
       // Run pose detection
       const landmarks = await detect(newPhoto.dataUrl);
-      onLandmarksDetected(landmarks);
+      onLandmarksDetected?.(landmarks);
     },
     [detect, onPhotoChange, onLandmarksDetected]
   );
@@ -275,7 +275,7 @@ export function PhotoPanel({
                 <button
                   onClick={() => {
                     onPhotoChange(null);
-                    onLandmarksDetected(null);
+                    onLandmarksDetected?.(null);
                   }}
                   className={cn(
                     'p-2 rounded-lg',
