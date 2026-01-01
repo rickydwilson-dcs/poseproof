@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { DropZone } from './DropZone';
 import { LandmarkOverlay } from './LandmarkOverlay';
 import { usePoseDetection } from '@/hooks/usePoseDetection';
+import { useBackgroundRemoval } from '@/hooks/useBackgroundRemoval';
 import { useEditorStore } from '@/stores/editor-store';
 import type { Photo } from '@/types/editor';
 import type { Landmark } from '@/types/landmarks';
@@ -34,6 +35,12 @@ export function PhotoPanel({
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const { detect, isDetecting, error: detectionError } = usePoseDetection();
+  const {
+    processImage: removeBackground,
+    isProcessing: isRemovingBackground,
+    progress: bgRemovalProgress,
+    error: bgRemovalError,
+  } = useBackgroundRemoval();
 
   // Subscribe to alignment settings for "After" photo
   const alignment = useEditorStore((state) => state.alignment);
@@ -72,6 +79,37 @@ export function PhotoPanel({
     [detect, onPhotoChange, onLandmarksDetected]
   );
 
+  // Handle background removal
+  const handleRemoveBackground = useCallback(async () => {
+    if (!photo) return;
+
+    const result = await removeBackground(photo.dataUrl);
+    if (result) {
+      // Update photo with background removed
+      const updatedPhoto: Photo = {
+        ...photo,
+        dataUrl: result.processedDataUrl,
+        hasBackgroundRemoved: true,
+        originalDataUrl: photo.originalDataUrl || photo.dataUrl,
+        segmentationMask: result.mask,
+      };
+      onPhotoChange(updatedPhoto);
+    }
+  }, [photo, removeBackground, onPhotoChange]);
+
+  // Handle restoring original background
+  const handleRestoreBackground = useCallback(() => {
+    if (!photo || !photo.originalDataUrl) return;
+
+    const restoredPhoto: Photo = {
+      ...photo,
+      dataUrl: photo.originalDataUrl,
+      hasBackgroundRemoved: false,
+      // Keep originalDataUrl and segmentationMask for potential re-removal
+    };
+    onPhotoChange(restoredPhoto);
+  }, [photo, onPhotoChange]);
+
   // Calculate image display dimensions
   const getImageDisplaySize = () => {
     if (!photo || containerSize.width === 0) {
@@ -100,14 +138,24 @@ export function PhotoPanel({
       {/* Panel Header */}
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium text-text-primary">{label}</span>
-        {isDetecting && (
-          <span className="text-xs text-text-secondary animate-pulse">
-            Detecting pose...
-          </span>
-        )}
-        {detectionError && (
-          <span className="text-xs text-red-500">{detectionError}</span>
-        )}
+        <div className="flex items-center gap-2">
+          {isDetecting && (
+            <span className="text-xs text-text-secondary animate-pulse">
+              Detecting pose...
+            </span>
+          )}
+          {isRemovingBackground && (
+            <span className="text-xs text-text-secondary animate-pulse">
+              Removing background... {Math.round(bgRemovalProgress * 100)}%
+            </span>
+          )}
+          {detectionError && (
+            <span className="text-xs text-red-500">{detectionError}</span>
+          )}
+          {bgRemovalError && (
+            <span className="text-xs text-red-500">{bgRemovalError}</span>
+          )}
+        </div>
       </div>
 
       {/* Photo Container */}
@@ -120,7 +168,7 @@ export function PhotoPanel({
         )}
       >
         {photo ? (
-          <div className="absolute inset-0 flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center group">
             {/* Photo */}
             <div
               className="relative"
@@ -129,11 +177,27 @@ export function PhotoPanel({
                 height: displaySize.height,
               }}
             >
+              {/* Checkerboard pattern for transparent backgrounds */}
+              {photo.hasBackgroundRemoved && (
+                <div
+                  className="absolute inset-0 opacity-30"
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(45deg, #ccc 25%, transparent 25%),
+                      linear-gradient(-45deg, #ccc 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #ccc 75%),
+                      linear-gradient(-45deg, transparent 75%, #ccc 75%)
+                    `,
+                    backgroundSize: '20px 20px',
+                    backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px',
+                  }}
+                />
+              )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photo.dataUrl}
                 alt={`${label} photo`}
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain relative z-10"
                 style={
                   isAfterPhoto
                     ? {
@@ -155,7 +219,7 @@ export function PhotoPanel({
                   width={displaySize.width}
                   height={displaySize.height}
                   visible={showLandmarks}
-                  className="absolute inset-0"
+                  className="absolute inset-0 z-20"
                   style={
                     isAfterPhoto
                       ? {
@@ -169,36 +233,121 @@ export function PhotoPanel({
                 />
               )}
 
-              {/* Remove/Replace button */}
-              <button
-                onClick={() => {
-                  onPhotoChange(null);
-                  onLandmarksDetected(null);
-                }}
-                className={cn(
-                  'absolute top-3 right-3 p-2 rounded-lg',
-                  'bg-black/50 hover:bg-black/70 backdrop-blur-sm',
-                  'text-white transition-colors duration-200',
-                  'opacity-0 hover:opacity-100 focus:opacity-100',
-                  'group-hover:opacity-100'
+              {/* Background removal indicator */}
+              {photo.hasBackgroundRemoved && (
+                <div className="absolute top-3 left-3 z-30 px-2 py-1 rounded-lg bg-[var(--brand-purple)] text-white text-xs font-medium">
+                  BG Removed
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <div className="absolute top-3 right-3 z-30 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                {/* Background removal button */}
+                {!photo.hasBackgroundRemoved ? (
+                  <button
+                    onClick={handleRemoveBackground}
+                    disabled={isRemovingBackground}
+                    className={cn(
+                      'p-2 rounded-lg',
+                      'bg-[var(--brand-purple)]/90 hover:bg-[var(--brand-purple)] backdrop-blur-sm',
+                      'text-white transition-colors duration-200',
+                      isRemovingBackground && 'opacity-50 cursor-not-allowed'
+                    )}
+                    aria-label="Remove background"
+                    title="Remove background"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleRestoreBackground}
+                    className={cn(
+                      'p-2 rounded-lg',
+                      'bg-[var(--brand-orange)]/90 hover:bg-[var(--brand-orange)] backdrop-blur-sm',
+                      'text-white transition-colors duration-200'
+                    )}
+                    aria-label="Restore background"
+                    title="Restore original background"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
+                      />
+                    </svg>
+                  </button>
                 )}
-                aria-label="Remove photo"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+
+                {/* Remove photo button */}
+                <button
+                  onClick={() => {
+                    onPhotoChange(null);
+                    onLandmarksDetected(null);
+                  }}
+                  className={cn(
+                    'p-2 rounded-lg',
+                    'bg-black/50 hover:bg-black/70 backdrop-blur-sm',
+                    'text-white transition-colors duration-200'
+                  )}
+                  aria-label="Remove photo"
+                  title="Remove photo"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
+
+            {/* Processing overlay */}
+            {isRemovingBackground && (
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-40">
+                <div className="text-center text-white">
+                  <div className="relative w-16 h-16 mb-4 mx-auto">
+                    <div className="absolute inset-0 border-4 border-white/30 rounded-full"></div>
+                    <div
+                      className="absolute inset-0 border-4 border-white rounded-full border-t-transparent animate-spin"
+                      style={{
+                        transform: `rotate(${bgRemovalProgress * 360}deg)`,
+                      }}
+                    ></div>
+                  </div>
+                  <p className="font-medium">Removing background...</p>
+                  <p className="text-sm text-white/70 mt-1">
+                    {Math.round(bgRemovalProgress * 100)}%
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <DropZone

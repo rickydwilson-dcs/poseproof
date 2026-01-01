@@ -43,7 +43,7 @@ export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) 
         />
         <Dialog.Content
           className={cn(
-            'fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+            'fixed left-[50%] top-[50%] z-50 w-full max-w-[512px] translate-x-[-50%] translate-y-[-50%]',
             'bg-[var(--surface-primary)] rounded-3xl shadow-[var(--shadow-lg)]',
             'p-8 md:p-10',
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
@@ -65,7 +65,7 @@ export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) 
               'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
               'hover:bg-[var(--gray-100)] dark:hover:bg-[var(--gray-800)]',
               'transition-all duration-200',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2'
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2'
             )}
             aria-label="Close"
           >
@@ -145,7 +145,7 @@ export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) 
               or{' '}
               <Link
                 href="/upgrade"
-                className="font-medium text-[var(--brand-primary)] hover:underline"
+                className="font-medium text-[var(--brand-pink)] hover:underline"
                 onClick={onClose}
               >
                 £79/year

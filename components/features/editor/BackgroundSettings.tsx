@@ -137,7 +137,7 @@ export function BackgroundSettings({
           'border-2 transition-all duration-200',
           backgroundSettings.type === 'gradient' &&
           backgroundSettings.gradient?.id === presetId
-            ? 'border-[var(--brand-primary)] shadow-md'
+            ? 'border-[var(--brand-pink)] shadow-md'
             : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600',
           (disabled || isLocked) && 'opacity-50 cursor-not-allowed'
         )}
@@ -156,7 +156,7 @@ export function BackgroundSettings({
         {/* Selected indicator */}
         {backgroundSettings.type === 'gradient' &&
           backgroundSettings.gradient?.id === presetId && (
-            <div className="absolute top-2 right-2 w-6 h-6 bg-[var(--brand-primary)] rounded-full flex items-center justify-center">
+            <div className="absolute top-2 right-2 w-6 h-6 bg-[var(--brand-pink)] rounded-full flex items-center justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="14"
@@ -209,9 +209,9 @@ export function BackgroundSettings({
             onClick={onUpgradeClick}
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-lg',
-              'text-xs font-medium text-[var(--brand-primary)]',
-              'bg-[var(--brand-primary)]/10',
-              'hover:bg-[var(--brand-primary)]/20',
+              'text-xs font-medium text-[var(--brand-pink)]',
+              'bg-[var(--brand-pink)]/10',
+              'hover:bg-[var(--brand-pink)]/20',
               'transition-colors duration-200'
             )}
             style={{
@@ -256,7 +256,7 @@ export function BackgroundSettings({
                   'group relative w-full aspect-square rounded-xl overflow-hidden',
                   'border-2 transition-all duration-200',
                   backgroundSettings.color === preset.color
-                    ? 'border-[var(--brand-primary)] shadow-md scale-105'
+                    ? 'border-[var(--brand-pink)] shadow-md scale-105'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:scale-105',
                   (disabled || isLocked) && 'opacity-50 cursor-not-allowed'
                 )}
@@ -269,7 +269,7 @@ export function BackgroundSettings({
                 {/* Selected indicator */}
                 {backgroundSettings.color === preset.color && (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-6 h-6 bg-[var(--brand-primary)] rounded-full flex items-center justify-center shadow-lg">
+                    <div className="w-6 h-6 bg-[var(--brand-pink)] rounded-full flex items-center justify-center shadow-lg">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="14"

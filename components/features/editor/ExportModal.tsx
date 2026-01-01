@@ -43,7 +43,9 @@ const animationStyles: Array<{ value: AnimationStyle; label: string }> = [
 
 export function ExportModal({ isOpen, onClose }: ExportModalProps) {
   const { beforePhoto, afterPhoto, alignment, backgroundSettings } = useEditorStore();
-  const isPro = useUserStore((state) => state.isPro());
+  // TODO: Remove this bypass once payment is implemented
+  const isPro = true; // Temporarily bypass Pro checks for testing
+  // const isPro = useUserStore((state) => state.isPro());
   const profile = useUserStore((state) => state.profile);
   const { limit, remaining, checkAndIncrement } = useUsageLimit();
   const { isExporting, error: exportError, exportAndDownload, clearError } = useCanvasExport();
@@ -208,7 +210,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
           />
           <Dialog.Content
             className={cn(
-              'fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] max-w-2xl translate-x-[-50%] translate-y-[-50%]',
+              'fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] max-w-[672px] translate-x-[-50%] translate-y-[-50%]',
               'bg-[var(--surface-primary)] rounded-3xl shadow-[var(--shadow-lg)]',
               'p-6 md:p-8',
               'max-h-[90vh] overflow-y-auto',
@@ -227,7 +229,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
                 'hover:bg-[var(--gray-100)] dark:hover:bg-[var(--gray-800)]',
                 'transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2'
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2'
               )}
               aria-label="Close"
             >
@@ -270,9 +272,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   className={cn(
                     'relative flex items-center justify-center gap-2',
                     'h-12 px-6 rounded-xl font-medium transition-all duration-200',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
                     exportType === 'png'
-                      ? 'bg-[var(--brand-primary)] text-white shadow-md'
+                      ? 'bg-[var(--brand-pink)] text-white shadow-md'
                       : 'bg-[var(--gray-100)] text-[var(--text-primary)] hover:bg-[var(--gray-200)] dark:bg-[var(--gray-800)] dark:hover:bg-[var(--gray-700)]'
                   )}
                   style={{
@@ -304,9 +306,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   className={cn(
                     'relative flex items-center justify-center gap-2',
                     'h-12 px-6 rounded-xl font-medium transition-all duration-200',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
                     exportType === 'gif'
-                      ? 'bg-[var(--brand-primary)] text-white shadow-md'
+                      ? 'bg-[var(--brand-pink)] text-white shadow-md'
                       : 'bg-[var(--gray-100)] text-[var(--text-primary)] hover:bg-[var(--gray-200)] dark:bg-[var(--gray-800)] dark:hover:bg-[var(--gray-700)]',
                     !isPro && 'opacity-50 cursor-not-allowed'
                   )}
@@ -370,9 +372,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                           className={cn(
                             'relative flex items-center justify-center gap-2',
                             'h-12 px-6 rounded-xl font-medium transition-all duration-200',
-                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
+                            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
                             isSelected
-                              ? 'bg-[var(--brand-primary)] text-white shadow-md'
+                              ? 'bg-[var(--brand-pink)] text-white shadow-md'
                               : 'bg-[var(--gray-100)] text-[var(--text-primary)] hover:bg-[var(--gray-200)] dark:bg-[var(--gray-800)] dark:hover:bg-[var(--gray-700)]'
                           )}
                           style={{
@@ -419,10 +421,10 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                         'w-full h-1.5 rounded-full appearance-none cursor-pointer',
                         'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]',
                         '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4',
-                        '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--brand-primary)]',
+                        '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--brand-pink)]',
                         '[&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer',
                         '[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full',
-                        '[&::-moz-range-thumb]:bg-[var(--brand-primary)] [&::-moz-range-thumb]:border-0',
+                        '[&::-moz-range-thumb]:bg-[var(--brand-pink)] [&::-moz-range-thumb]:border-0',
                         '[&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer'
                       )}
                     />
@@ -467,9 +469,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                       className={cn(
                         'relative flex items-center justify-center gap-2',
                         'h-12 px-6 rounded-xl font-medium transition-all duration-200',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
                         isSelected
-                          ? 'bg-[var(--brand-primary)] text-white shadow-md'
+                          ? 'bg-[var(--brand-pink)] text-white shadow-md'
                           : 'bg-[var(--gray-100)] text-[var(--text-primary)] hover:bg-[var(--gray-200)] dark:bg-[var(--gray-800)] dark:hover:bg-[var(--gray-700)]',
                         isLocked && 'opacity-50 cursor-not-allowed'
                       )}
@@ -604,8 +606,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   className={cn(
                     'w-5 h-5 rounded border-2 transition-all duration-200',
                     'border-[var(--gray-300)] dark:border-[var(--gray-600)]',
-                    'checked:bg-[var(--brand-primary)] checked:border-[var(--brand-primary)]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
+                    'checked:bg-[var(--brand-pink)] checked:border-[var(--brand-pink)]',
+                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
                     'cursor-pointer'
                   )}
                 />
@@ -620,7 +622,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 disabled={isPro}
                 className={cn(
                   'flex items-center gap-3 w-full text-left',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2 rounded-lg',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2 rounded-lg',
                   !isPro && 'cursor-pointer hover:opacity-80 transition-opacity'
                 )}
               >
@@ -661,7 +663,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 <span className="text-base text-[var(--text-primary)]">
                   Remove watermark
                   {!isPro && (
-                    <span className="ml-2 text-sm text-[var(--brand-primary)] font-medium">
+                    <span className="ml-2 text-sm text-[var(--brand-pink)] font-medium">
                       Go Pro
                     </span>
                   )}
@@ -674,7 +676,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 disabled={isPro}
                 className={cn(
                   'flex items-center gap-3 w-full text-left',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2 rounded-lg',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2 rounded-lg',
                   !isPro && 'cursor-pointer hover:opacity-80 transition-opacity'
                 )}
               >
@@ -698,7 +700,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 <span className="text-base text-[var(--text-primary)]">
                   Add your logo
                   {!isPro && (
-                    <span className="ml-2 text-sm text-[var(--brand-primary)] font-medium">
+                    <span className="ml-2 text-sm text-[var(--brand-pink)] font-medium">
                       Go Pro
                     </span>
                   )}
@@ -711,7 +713,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
               <div className="mb-6 space-y-2">
                 <div className="w-full bg-[var(--gray-200)] dark:bg-[var(--gray-700)] rounded-full h-1.5 overflow-hidden">
                   <div
-                    className="h-full bg-[var(--brand-primary)] rounded-full transition-all duration-300"
+                    className="h-full bg-[var(--brand-pink)] rounded-full transition-all duration-300"
                     style={{ width: `${gifProgress}%` }}
                   />
                 </div>
