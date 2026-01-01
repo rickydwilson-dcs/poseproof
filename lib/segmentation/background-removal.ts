@@ -91,18 +91,30 @@ async function initializeSegmenter(): Promise<ImageSegmenter> {
 /**
  * Convert segmentation mask to ImageData
  * Creates a binary mask where person pixels are white (255) and background is black (0)
+ *
+ * Note: MediaPipe selfie segmenter's category mask uses:
+ * - 0 = background
+ * - 1 = person (hair)
+ * - 2 = body skin
+ * - 3 = face skin
+ * - 4 = clothes
+ * - 5 = others (accessories)
+ *
+ * So any non-zero value indicates part of the person.
  */
 function maskToImageData(
   mask: Uint8Array,
   width: number,
   height: number,
-  threshold: number = 0.5
+  _threshold: number = 0.5 // threshold not used for category mask
 ): ImageData {
   const imageData = new ImageData(width, height);
   const pixels = imageData.data;
 
   for (let i = 0; i < mask.length; i++) {
-    const isPerson = mask[i] / 255 > threshold;
+    // Category mask: 0 = background, non-zero = person
+    // So isPerson is true when mask value is NOT 0
+    const isPerson = mask[i] !== 0;
     const pixelIndex = i * 4;
 
     // Set RGBA values
