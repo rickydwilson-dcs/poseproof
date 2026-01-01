@@ -12,8 +12,10 @@ import { useCanvasExport } from '@/hooks/useCanvasExport';
 import { useGifExport } from '@/hooks/useGifExport';
 import { GifPreview } from './GifPreview';
 import { BackgroundSettings } from './BackgroundSettings';
+import { useBackgroundRemoval } from '@/hooks/useBackgroundRemoval';
 import type { ExportFormat as LibExportFormat } from '@/lib/canvas/export';
 import type { AnimationStyle } from '@/lib/canvas/export-gif';
+import type { Photo } from '@/types/editor';
 
 export interface ExportModalProps {
   isOpen: boolean;
@@ -42,7 +44,7 @@ const animationStyles: Array<{ value: AnimationStyle; label: string }> = [
 ];
 
 export function ExportModal({ isOpen, onClose }: ExportModalProps) {
-  const { beforePhoto, afterPhoto, alignment, backgroundSettings } = useEditorStore();
+  const { beforePhoto, afterPhoto, alignment, backgroundSettings, setBeforePhoto, setAfterPhoto } = useEditorStore();
   // TODO: Remove this bypass once payment is implemented
   const isPro = true; // Temporarily bypass Pro checks for testing
   // const isPro = useUserStore((state) => state.isPro());
@@ -56,6 +58,12 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     error: gifError,
     exportAndDownload: exportGifAndDownload,
   } = useGifExport();
+  const {
+    processImage: removeBackground,
+    isProcessing: isRemovingBackground,
+    progress: bgRemovalProgress,
+    error: bgRemovalError,
+  } = useBackgroundRemoval();
 
   const [exportType, setExportType] = React.useState<ExportType>('png');
   const [animationStyle, setAnimationStyle] = React.useState<AnimationStyle>('slider');
@@ -119,6 +127,62 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     if (!isPro) {
       setUpgradeTrigger('logo');
       setShowUpgradePrompt(true);
+    }
+  };
+
+  // Handle background removal for both photos
+  const handleRemoveBackgrounds = async () => {
+    if (!hasPhotos || !beforePhoto || !afterPhoto) return;
+
+    // Remove background from "before" photo if not already done
+    if (!beforePhoto.hasBackgroundRemoved) {
+      const beforeResult = await removeBackground(beforePhoto.dataUrl);
+      if (beforeResult) {
+        const updatedBefore: Photo = {
+          ...beforePhoto,
+          dataUrl: beforeResult.processedDataUrl,
+          hasBackgroundRemoved: true,
+          originalDataUrl: beforePhoto.originalDataUrl || beforePhoto.dataUrl,
+          segmentationMask: beforeResult.mask,
+        };
+        setBeforePhoto(updatedBefore);
+      }
+    }
+
+    // Remove background from "after" photo if not already done
+    if (!afterPhoto.hasBackgroundRemoved) {
+      const afterResult = await removeBackground(afterPhoto.dataUrl);
+      if (afterResult) {
+        const updatedAfter: Photo = {
+          ...afterPhoto,
+          dataUrl: afterResult.processedDataUrl,
+          hasBackgroundRemoved: true,
+          originalDataUrl: afterPhoto.originalDataUrl || afterPhoto.dataUrl,
+          segmentationMask: afterResult.mask,
+        };
+        setAfterPhoto(updatedAfter);
+      }
+    }
+  };
+
+  // Handle restoring backgrounds
+  const handleRestoreBackgrounds = () => {
+    if (beforePhoto?.originalDataUrl) {
+      const restoredBefore: Photo = {
+        ...beforePhoto,
+        dataUrl: beforePhoto.originalDataUrl,
+        hasBackgroundRemoved: false,
+      };
+      setBeforePhoto(restoredBefore);
+    }
+
+    if (afterPhoto?.originalDataUrl) {
+      const restoredAfter: Photo = {
+        ...afterPhoto,
+        dataUrl: afterPhoto.originalDataUrl,
+        hasBackgroundRemoved: false,
+      };
+      setAfterPhoto(restoredAfter);
     }
   };
 
@@ -194,8 +258,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
   };
 
   // Combined error display
-  const displayError = localError || exportError || gifError;
-  const isAnyExporting = isExporting || isExportingGif;
+  const displayError = localError || exportError || gifError || bgRemovalError;
+  const isAnyExporting = isExporting || isExportingGif || isRemovingBackground;
 
   return (
     <>
@@ -540,16 +604,17 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                         animationStyle={animationStyle}
                         duration={duration}
                         showLabels={showLabels}
+                        className="absolute inset-0"
                       />
                     ) : (
-                      <div className="flex h-full w-full">
+                      <div className="absolute inset-0 flex">
                         {/* Before Photo */}
-                        <div className="relative flex-1 flex items-center justify-center p-4">
+                        <div className="relative flex-1 flex items-center justify-center overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={beforePhoto.dataUrl}
                             alt="Before"
-                            className="max-w-full max-h-full object-contain"
+                            className="w-full h-full object-cover"
                           />
                           {showLabels && (
                             <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 text-white text-sm font-medium rounded-lg">
@@ -562,12 +627,12 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                         <div className="w-px bg-[var(--gray-300)] dark:bg-[var(--gray-600)]" />
 
                         {/* After Photo */}
-                        <div className="relative flex-1 flex items-center justify-center p-4">
+                        <div className="relative flex-1 flex items-center justify-center overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={afterPhoto.dataUrl}
                             alt="After"
-                            className="max-w-full max-h-full object-contain"
+                            className="w-full h-full object-cover"
                           />
                           {showLabels && (
                             <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 text-white text-sm font-medium rounded-lg">
@@ -594,6 +659,77 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                 )}
               </div>
             </div>
+
+            {/* Background Removal Section */}
+            {hasPhotos && (
+              <div className="mb-6">
+                <label className="mb-3 block text-sm font-medium text-[var(--text-secondary)]">
+                  Background
+                </label>
+                <div className="flex gap-3 flex-wrap">
+                  {!hasBackgroundRemoved ? (
+                    <button
+                      onClick={handleRemoveBackgrounds}
+                      disabled={isRemovingBackground || !isPro}
+                      className={cn(
+                        'flex items-center justify-center gap-2',
+                        'h-12 px-6 rounded-xl font-medium transition-all duration-200',
+                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
+                        'bg-[var(--brand-purple)] text-white shadow-md hover:bg-[var(--brand-purple)]/90',
+                        (isRemovingBackground || !isPro) && 'opacity-50 cursor-not-allowed'
+                      )}
+                    >
+                      {isRemovingBackground ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Removing... {Math.round(bgRemovalProgress * 100)}%</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span>Remove Background</span>
+                        </>
+                      )}
+                      {!isPro && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                      )}
+                    </button>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-purple)]/10 text-[var(--brand-purple)]">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="font-medium">Background Removed</span>
+                      </div>
+                      <button
+                        onClick={handleRestoreBackgrounds}
+                        className={cn(
+                          'flex items-center justify-center gap-2',
+                          'h-12 px-6 rounded-xl font-medium transition-all duration-200',
+                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2',
+                          'bg-[var(--gray-100)] text-[var(--text-primary)] hover:bg-[var(--gray-200)]',
+                          'dark:bg-[var(--gray-800)] dark:hover:bg-[var(--gray-700)]'
+                        )}
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        <span>Restore Original</span>
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Options */}
             <div className="mb-6 space-y-3">

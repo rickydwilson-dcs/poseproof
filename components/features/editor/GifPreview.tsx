@@ -52,7 +52,7 @@ export function GifPreview({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800',
+        'relative overflow-hidden rounded-lg bg-neutral-100 dark:bg-neutral-800 w-full h-full',
         className
       )}
       style={
@@ -62,7 +62,7 @@ export function GifPreview({
       }
     >
       {/* Animation container */}
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full min-h-[200px]">
         {animationStyle === 'slider' && (
           <SliderAnimation
             beforeImageUrl={beforeImageUrl}
