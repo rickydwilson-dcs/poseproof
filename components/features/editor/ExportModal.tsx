@@ -326,8 +326,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
           />
           <Dialog.Content
             className={cn(
-              'fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] max-w-md translate-x-[-50%] translate-y-[-50%]',
-              'bg-zinc-900 rounded-2xl shadow-2xl',
+              'fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] max-w-[448px] translate-x-[-50%] translate-y-[-50%]',
+              'bg-[var(--surface-primary)] rounded-2xl shadow-[var(--shadow-lg)]',
               'max-h-[90vh] overflow-y-auto',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -338,17 +338,17 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             )}
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-              <Dialog.Title className="text-lg font-semibold text-white">
+            <div className="flex items-center justify-between p-4 border-b border-[var(--border-default)]">
+              <Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
                 Export
               </Dialog.Title>
               <Dialog.Close
                 className={cn(
                   'rounded-lg p-1.5',
-                  'text-zinc-400 hover:text-white',
-                  'hover:bg-zinc-800',
+                  'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+                  'hover:bg-[var(--gray-100)]',
                   'transition-colors duration-150',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500'
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)]'
                 )}
                 aria-label="Close"
               >
@@ -371,8 +371,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
             {/* Error Display */}
             {displayError && (
-              <div className="mx-4 mt-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20">
-                <p className="text-sm text-red-400">{displayError}</p>
+              <div className="mx-4 mt-4 p-3 rounded-xl bg-[var(--error)]/10 border border-[var(--error)]/20">
+                <p className="text-sm text-[var(--error)]">{displayError}</p>
               </div>
             )}
 
@@ -381,7 +381,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
               <div
                 className={cn(
                   'relative rounded-xl overflow-hidden mx-auto',
-                  'bg-zinc-800',
+                  'bg-[var(--gray-100)]',
                   getPreviewAspectRatio(),
                   'max-h-[300px]'
                 )}
@@ -416,14 +416,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   </>
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <p className="text-zinc-500 text-sm">
+                    <p className="text-[var(--text-secondary)] text-sm">
                       Load photos to see preview
                     </p>
                   </div>
                 )}
 
                 {/* Export type badge - top left */}
-                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-gradient-to-r from-orange-500 to-pink-500 text-white text-xs font-medium">
+                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-instagram-gradient text-white text-xs font-medium">
                   {exportType.toUpperCase()}
                 </div>
 
@@ -436,14 +436,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
             {/* Primary Toggle - Image / Animation */}
             <div className="px-4 pb-4">
-              <div className="flex p-1 bg-zinc-800 rounded-xl">
+              <div className="flex p-1 bg-[var(--gray-100)] dark:bg-[var(--gray-800)] rounded-xl">
                 <button
                   onClick={() => handleExportTypeChange('png')}
                   className={cn(
                     'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200',
                     exportType === 'png'
-                      ? 'bg-white text-zinc-900 shadow-sm'
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   )}
                 >
                   Image
@@ -453,14 +453,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   className={cn(
                     'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200',
                     exportType === 'gif'
-                      ? 'bg-white text-zinc-900 shadow-sm'
-                      : 'text-zinc-400 hover:text-white',
+                      ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
                     !isPro && 'opacity-50'
                   )}
                 >
                   Animation
                   {!isPro && (
-                    <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">
+                    <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-[var(--brand-pink)]/10 text-[var(--brand-pink)]">
                       PRO
                     </span>
                   )}
@@ -481,7 +481,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                   <div className="px-4 pb-4 space-y-4">
                     {/* Animation Style */}
                     <div>
-                      <label className="block text-xs font-medium text-zinc-400 mb-2">
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2">
                         Style
                       </label>
                       <div className="flex gap-2">
@@ -493,8 +493,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             className={cn(
                               'flex-1 h-10 rounded-lg text-lg font-medium transition-all duration-150',
                               animationStyle === style.value
-                                ? 'bg-white text-zinc-900 shadow-sm'
-                                : 'bg-zinc-800 text-zinc-400 hover:text-white'
+                                ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                                : 'bg-[var(--gray-100)] dark:bg-[var(--gray-800)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                             )}
                           >
                             {style.label}
@@ -506,10 +506,10 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     {/* Duration/Speed Slider */}
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-medium text-zinc-400">
+                        <label className="text-xs font-medium text-[var(--text-secondary)]">
                           Speed
                         </label>
-                        <span className="text-xs font-medium text-white">
+                        <span className="text-xs font-medium text-[var(--text-primary)]">
                           {duration.toFixed(1)}s
                         </span>
                       </div>
@@ -522,12 +522,12 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                         onChange={(e) => setDuration(parseFloat(e.target.value))}
                         className={cn(
                           'w-full h-1 rounded-full appearance-none cursor-pointer',
-                          'bg-zinc-700',
+                          'bg-[var(--gray-200)]',
                           '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4',
-                          '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white',
+                          '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--brand-pink)]',
                           '[&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer',
                           '[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full',
-                          '[&::-moz-range-thumb]:bg-white [&::-moz-range-thumb]:border-0',
+                          '[&::-moz-range-thumb]:bg-[var(--brand-pink)] [&::-moz-range-thumb]:border-0',
                           '[&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer'
                         )}
                       />
@@ -538,10 +538,10 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             </AnimatePresence>
 
             {/* More Options (collapsible) */}
-            <div className="border-t border-zinc-800">
+            <div className="border-t border-[var(--border-default)]">
               <button
                 onClick={() => setIsMoreOptionsExpanded(!isMoreOptionsExpanded)}
-                className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-zinc-300 hover:text-white transition-colors"
+                className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <span>More options</span>
                 <svg
@@ -575,10 +575,10 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                     <div className="px-4 pb-4 space-y-1">
                       {/* Aspect Ratio */}
                       <div className="py-3">
-                        <label className="block text-xs font-medium text-zinc-400 mb-2">
+                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2">
                           Aspect Ratio
                         </label>
-                        <div className="flex p-1 bg-zinc-800 rounded-xl">
+                        <div className="flex p-1 bg-[var(--gray-100)] dark:bg-[var(--gray-800)] rounded-xl">
                           {(['4:5', '1:1', '9:16'] as AspectRatio[]).map((ratio) => (
                             <button
                               key={ratio}
@@ -586,8 +586,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                               className={cn(
                                 'flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200',
                                 aspectRatio === ratio
-                                  ? 'bg-white text-zinc-900 shadow-sm'
-                                  : 'text-zinc-400 hover:text-white'
+                                  ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                               )}
                             >
                               {ratio}
@@ -597,14 +597,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                       </div>
 
                       {/* Background - Expandable Row */}
-                      <div className="border-t border-zinc-800 pt-1">
+                      <div className="border-t border-[var(--border-default)] pt-1">
                         <button
                           onClick={() => setIsBackgroundExpanded(!isBackgroundExpanded)}
                           className="flex items-center justify-between w-full py-3 text-sm"
                         >
-                          <span className="text-zinc-300">Background</span>
+                          <span className="text-[var(--text-primary)]">Background</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-zinc-500">{getBackgroundLabel()}</span>
+                            <span className="text-[var(--text-tertiary)]">{getBackgroundLabel()}</span>
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
                               width="16"
@@ -616,7 +616,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                               className={cn(
-                                'text-zinc-500 transition-transform duration-200',
+                                'text-[var(--text-tertiary)] transition-transform duration-200',
                                 isBackgroundExpanded && 'rotate-180'
                               )}
                             >
@@ -636,7 +636,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                             >
                               <div className="pb-3 space-y-3">
                                 {/* Background Type Segmented Control */}
-                                <div className="flex p-1 bg-zinc-800 rounded-xl">
+                                <div className="flex p-1 bg-[var(--gray-100)] dark:bg-[var(--gray-800)] rounded-xl">
                                   {(['original', 'transparent', 'color', 'image'] as BackgroundType[]).map((type) => (
                                     <button
                                       key={type}
@@ -644,8 +644,8 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                       className={cn(
                                         'flex-1 py-2 px-2 rounded-lg text-xs font-medium transition-all duration-200 capitalize',
                                         background.type === type
-                                          ? 'bg-white text-zinc-900 shadow-sm'
-                                          : 'text-zinc-400 hover:text-white'
+                                          ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                                       )}
                                     >
                                       {type === 'transparent' ? 'None' : type === 'original' ? 'Original' : type}
@@ -664,16 +664,16 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                         className={cn(
                                           'w-10 h-10 rounded-xl transition-all duration-150',
                                           background.colorValue === preset.color
-                                            ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-zinc-900 scale-110'
+                                            ? 'ring-2 ring-[var(--brand-pink)] ring-offset-2 ring-offset-[var(--surface-primary)] scale-110'
                                             : 'hover:scale-105',
-                                          preset.color === '#ffffff' && 'border border-zinc-700'
+                                          preset.color === '#ffffff' && 'border border-[var(--border-default)]'
                                         )}
                                         style={{ backgroundColor: preset.color }}
                                       />
                                     ))}
                                     {/* Custom color picker */}
-                                    <label className="relative w-10 h-10 rounded-xl bg-zinc-800 border-2 border-dashed border-zinc-600 hover:border-zinc-500 cursor-pointer transition-colors flex items-center justify-center">
-                                      <span className="text-zinc-400 text-lg">+</span>
+                                    <label className="relative w-10 h-10 rounded-xl bg-[var(--gray-100)] border-2 border-dashed border-[var(--gray-300)] hover:border-[var(--gray-400)] cursor-pointer transition-colors flex items-center justify-center">
+                                      <span className="text-[var(--text-secondary)] text-lg">+</span>
                                       <input
                                         type="color"
                                         className="absolute inset-0 opacity-0 cursor-pointer"
@@ -692,19 +692,19 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                           key={preset.id}
                                           onClick={() => setBackground(prev => ({ ...prev, imageId: preset.id }))}
                                           className={cn(
-                                            'flex-1 h-16 rounded-xl bg-zinc-800 overflow-hidden transition-all duration-150',
+                                            'flex-1 h-16 rounded-xl bg-[var(--gray-100)] overflow-hidden transition-all duration-150',
                                             background.imageId === preset.id
-                                              ? 'ring-2 ring-orange-500 ring-offset-2 ring-offset-zinc-900'
+                                              ? 'ring-2 ring-[var(--brand-pink)] ring-offset-2 ring-offset-[var(--surface-primary)]'
                                               : 'hover:opacity-80'
                                           )}
                                         >
-                                          <div className="w-full h-full bg-zinc-700 flex items-center justify-center text-xs text-zinc-500">
+                                          <div className="w-full h-full bg-[var(--gray-200)] flex items-center justify-center text-xs text-[var(--text-secondary)]">
                                             {preset.label}
                                           </div>
                                         </button>
                                       ))}
                                     </div>
-                                    <button className="w-full h-12 rounded-xl border-2 border-dashed border-zinc-700 hover:border-zinc-600 text-zinc-500 text-sm transition-colors">
+                                    <button className="w-full h-12 rounded-xl border-2 border-dashed border-[var(--gray-300)] hover:border-[var(--gray-400)] text-[var(--text-secondary)] text-sm transition-colors">
                                       Upload image
                                     </button>
                                   </div>
@@ -712,7 +712,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
                                 {/* None helper text */}
                                 {background.type === 'transparent' && (
-                                  <p className="text-xs text-zinc-500">
+                                  <p className="text-xs text-[var(--text-tertiary)]">
                                     Background will be removed
                                   </p>
                                 )}
@@ -723,18 +723,18 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                       </div>
 
                       {/* Add Labels Toggle */}
-                      <div className="flex items-center justify-between py-3 border-t border-zinc-800">
-                        <span className="text-sm text-zinc-300">Add &ldquo;Before/After&rdquo; labels</span>
+                      <div className="flex items-center justify-between py-3 border-t border-[var(--border-default)]">
+                        <span className="text-sm text-[var(--text-primary)]">Add &ldquo;Before/After&rdquo; labels</span>
                         <button
                           onClick={() => setAddLabels(!addLabels)}
                           className={cn(
-                            'relative w-11 h-6 rounded-full transition-colors duration-200',
-                            addLabels ? 'bg-orange-500' : 'bg-zinc-700'
+                            'relative w-11 h-6 rounded-full transition-colors duration-300',
+                            addLabels ? 'bg-instagram-gradient' : 'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]'
                           )}
                         >
                           <span
                             className={cn(
-                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200',
+                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300',
                               addLabels && 'translate-x-5'
                             )}
                           />
@@ -742,11 +742,11 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                       </div>
 
                       {/* Remove Watermark Toggle */}
-                      <div className="flex items-center justify-between py-3 border-t border-zinc-800">
+                      <div className="flex items-center justify-between py-3 border-t border-[var(--border-default)]">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-zinc-300">Remove watermark</span>
+                          <span className="text-sm text-[var(--text-primary)]">Remove watermark</span>
                           {!isPro && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--brand-pink)]/10 text-[var(--brand-pink)]">
                               PRO
                             </span>
                           )}
@@ -755,14 +755,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                           onClick={handleRemoveWatermarkToggle}
                           disabled={!isPro}
                           className={cn(
-                            'relative w-11 h-6 rounded-full transition-colors duration-200',
-                            removeWatermark && isPro ? 'bg-orange-500' : 'bg-zinc-700',
+                            'relative w-11 h-6 rounded-full transition-colors duration-300',
+                            removeWatermark && isPro ? 'bg-instagram-gradient' : 'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]',
                             !isPro && 'opacity-50 cursor-not-allowed'
                           )}
                         >
                           <span
                             className={cn(
-                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200',
+                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300',
                               removeWatermark && isPro && 'translate-x-5'
                             )}
                           />
@@ -770,11 +770,11 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                       </div>
 
                       {/* Add Logo Toggle */}
-                      <div className="flex items-center justify-between py-3 border-t border-zinc-800">
+                      <div className="flex items-center justify-between py-3 border-t border-[var(--border-default)]">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm text-zinc-300">Add your logo</span>
+                          <span className="text-sm text-[var(--text-primary)]">Add your logo</span>
                           {!isPro && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-400">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--brand-pink)]/10 text-[var(--brand-pink)]">
                               PRO
                             </span>
                           )}
@@ -783,14 +783,14 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                           onClick={handleLogoToggle}
                           disabled={!isPro}
                           className={cn(
-                            'relative w-11 h-6 rounded-full transition-colors duration-200',
-                            addLogo && isPro ? 'bg-orange-500' : 'bg-zinc-700',
+                            'relative w-11 h-6 rounded-full transition-colors duration-300',
+                            addLogo && isPro ? 'bg-instagram-gradient' : 'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]',
                             !isPro && 'opacity-50 cursor-not-allowed'
                           )}
                         >
                           <span
                             className={cn(
-                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-200',
+                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300',
                               addLogo && isPro && 'translate-x-5'
                             )}
                           />
@@ -805,28 +805,28 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
             {/* GIF Export Progress (shown during GIF export) */}
             {isExportingGif && (
               <div className="px-4 pb-4 space-y-2">
-                <div className="w-full bg-zinc-800 rounded-full h-1 overflow-hidden">
+                <div className="w-full bg-[var(--gray-200)] rounded-full h-1 overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-orange-500 to-pink-500 rounded-full transition-all duration-300"
+                    className="h-full bg-instagram-gradient rounded-full transition-all duration-300"
                     style={{ width: `${gifProgress}%` }}
                   />
                 </div>
-                <p className="text-xs text-zinc-500 text-center">
+                <p className="text-xs text-[var(--text-tertiary)] text-center">
                   {gifStatus === 'frames' ? 'Generating frames...' : 'Encoding GIF...'}
                 </p>
               </div>
             )}
 
             {/* CTA Button */}
-            <div className="p-4 border-t border-zinc-800">
+            <div className="p-4 border-t border-[var(--border-default)]">
               <button
                 onClick={handleDownload}
                 disabled={!hasPhotos || isAnyExporting}
                 className={cn(
                   'w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200',
-                  'bg-gradient-to-r from-orange-500 to-pink-500',
-                  'hover:from-orange-600 hover:to-pink-600',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900',
+                  'bg-instagram-gradient',
+                  'hover:opacity-90',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-primary)]',
                   'disabled:opacity-50 disabled:cursor-not-allowed',
                   isAnyExporting && 'animate-pulse'
                 )}
@@ -839,7 +839,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
               </button>
 
               {/* Usage text */}
-              <p className="mt-3 text-center text-xs text-zinc-500">
+              <p className="mt-3 text-center text-xs text-[var(--text-tertiary)]">
                 {usageText}
               </p>
             </div>
