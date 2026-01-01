@@ -13,6 +13,7 @@ import {
   calculateAlignment,
   canCalculateAlignment,
   getAnchorDescription,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Type used for test documentation
   type AnchorType,
 } from '../alignment';
 import type { Landmark } from '@/types/landmarks';

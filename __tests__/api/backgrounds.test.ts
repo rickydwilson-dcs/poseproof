@@ -14,7 +14,6 @@ import { createClient } from '@/lib/supabase/server';
 
 describe('POST /api/backgrounds/upload', () => {
   let testUserId: string;
-  let authToken: string;
 
   beforeAll(async () => {
     // Setup: Create test user or get existing one

@@ -47,8 +47,7 @@ export function GifPreview({
   className,
   showLabels = false,
 }: GifPreviewProps) {
-  // Generate unique ID for this instance (for scoped CSS variables)
-  const instanceId = React.useId();
+  // Note: useId() could be used for scoped CSS variables if needed in the future
 
   return (
     <div

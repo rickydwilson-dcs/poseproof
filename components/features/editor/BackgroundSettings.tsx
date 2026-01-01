@@ -8,7 +8,6 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import {
   GRADIENT_PRESETS,
   SOLID_COLOR_PRESETS,
-  type BackgroundSettings as BackgroundSettingsType,
   type BackgroundType,
   createGradientBackground,
   createSolidBackground,

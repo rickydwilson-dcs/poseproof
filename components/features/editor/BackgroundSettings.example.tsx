@@ -69,7 +69,7 @@ export function ExportModalExample() {
  * The component automatically updates the editor store when settings change
  */
 export function BackgroundChangeExample() {
-  const { backgroundSettings, beforePhoto, afterPhoto } = useEditorStore();
+  const { backgroundSettings } = useEditorStore();
   
   // The backgroundSettings state is automatically updated by BackgroundSettings component
   // You can use it to apply backgrounds during export:

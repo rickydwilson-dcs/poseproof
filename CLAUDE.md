@@ -232,13 +232,14 @@ Use `/commit.changes` to commit with proper workflow.
 
 ## Current Scope
 
-**Source Files:** 63 TypeScript/TSX files
-**Custom Hooks:** 5 (useAlignment, useCanvasExport, useKeyboardShortcuts, usePoseDetection, useUsageLimit)
+**Source Files:** 95 TypeScript/TSX files
+**Custom Hooks:** 7 (useAlignment, useBackgroundRemoval, useCanvasExport, useGifExport, useKeyboardShortcuts, usePoseDetection, useUsageLimit)
 **State Stores:** 2 (editor-store, user-store)
-**UI Components:** 11 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt, BottomSheet, SegmentedControl, MagicLinkForm, OAuthButtons)
-**API Routes:** 7 (stripe/checkout, stripe/webhook, stripe/portal, usage/\*, account/delete, auth callback)
-**Test Files:** 4 test files
+**UI Components:** 12 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt, BottomSheet, SegmentedControl, MagicLinkForm, OAuthButtons, BackgroundSettings)
+**API Routes:** 8 (stripe/checkout, stripe/webhook, stripe/portal, usage/\*, account/delete, auth callback, backgrounds/upload)
+**Test Files:** 7 test files
 **Visual Test Fixtures:** 66 fixtures across 9 categories
+**New Features:** Animated GIF export (3 styles), Background removal with MediaPipe
 **Documentation:** See `docs/` folder for technical documentation
 
 ---
