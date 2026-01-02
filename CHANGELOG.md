@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - OAuth and Magic Link authentication (replacing email/password)
-- Visual regression test suite with 66 comprehensive fixtures
+- Visual regression test suite with 134 comprehensive fixtures
   - Resolution variations (QVGA to 24MP, mismatched before/after)
   - Aspect ratio extremes (21:9, 9:16, 3:1, 3:2, 2:3, 4:3)
   - Off-center subject positioning (edge positions, rule of thirds, quadrant tests)
@@ -18,26 +18,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - HTML report improvements for visual regression tests
 - Framing variation test fixtures (cropped heads, tight headroom, off-center)
 - MagicLinkForm and OAuthButtons UI components
+- Auto-alignment preview with simplified UI
+- Background removal feature using @imgly/background-removal for smooth edges
 
 ### Changed
 
 - CI workflow now uses manual promotion (develop → staging → main) with Husky gates
 - Improved alignment UX with enhanced grid overlay
 - Updated pricing to £7.99/month and £79/year
-- Increased visual test timeout for 66 fixtures
+- Redesigned export modal UI with improved preview and UX
+- Removed Grid and Landmarks toolbar from editor (simplified UI)
+- Migrated from `middleware.ts` to `proxy.ts` for Next.js 16 compatibility
+- Updated Next.js to 16.1.1
 
 ### Fixed
 
 - Removed unused variables in visual test files
 - Build errors and ESLint warnings resolved
+- Export modal centering with proper transform-based positioning
+- Background removal error handling and timeout
+- Landmark detection and display restored
+- Background colour applied to preview (British English)
+- Processing spinner centering in export modal
 
 ### Technical
 
-- 63 TypeScript/TSX source files
-- 5 custom React hooks
-- 11 UI components (up from 9)
-- 7 API routes (up from 6)
-- 66 visual test fixtures across 9 categories
+- 95 TypeScript/TSX source files
+- 7 custom React hooks
+- 12 UI components (Button, BottomSheet, Card, Input, MagicLinkForm, Modal, OAuthButtons, SegmentedControl, Slider, SvoltaLogo, Toggle, UpgradePrompt)
+- 7 API routes
+- 6 test files
+- 134 visual test fixtures
 - Comprehensive 4-phase alignment algorithm with dynamic crop
 
 ---

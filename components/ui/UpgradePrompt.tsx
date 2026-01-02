@@ -9,7 +9,7 @@ import Link from 'next/link';
 export interface UpgradePromptProps {
   isOpen: boolean;
   onClose: () => void;
-  trigger: 'limit' | 'watermark' | 'format' | 'logo';
+  trigger: 'limit' | 'watermark' | 'format' | 'logo' | 'gif' | 'background';
 }
 
 const triggerMessages: Record<UpgradePromptProps['trigger'], string> = {
@@ -17,6 +17,8 @@ const triggerMessages: Record<UpgradePromptProps['trigger'], string> = {
   watermark: 'Remove the svolta watermark',
   format: 'Unlock all export formats',
   logo: 'Add your own logo to exports',
+  gif: 'Create animated before/after GIFs',
+  background: 'Remove & replace backgrounds',
 };
 
 const proFeatures = [
@@ -24,6 +26,8 @@ const proFeatures = [
   'No watermark',
   'Your logo on exports',
   'All export formats',
+  'Animated GIF exports',
+  'Background removal & replacement',
 ];
 
 export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) {
@@ -39,7 +43,7 @@ export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) 
         />
         <Dialog.Content
           className={cn(
-            'fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%]',
+            'fixed left-[50%] top-[50%] z-50 w-full max-w-[512px] translate-x-[-50%] translate-y-[-50%]',
             'bg-[var(--surface-primary)] rounded-3xl shadow-[var(--shadow-lg)]',
             'p-8 md:p-10',
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
@@ -61,7 +65,7 @@ export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) 
               'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
               'hover:bg-[var(--gray-100)] dark:hover:bg-[var(--gray-800)]',
               'transition-all duration-200',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2'
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2'
             )}
             aria-label="Close"
           >
@@ -141,7 +145,7 @@ export function UpgradePrompt({ isOpen, onClose, trigger }: UpgradePromptProps) 
               or{' '}
               <Link
                 href="/upgrade"
-                className="font-medium text-[var(--brand-primary)] hover:underline"
+                className="font-medium text-[var(--brand-pink)] hover:underline"
                 onClick={onClose}
               >
                 £79/year

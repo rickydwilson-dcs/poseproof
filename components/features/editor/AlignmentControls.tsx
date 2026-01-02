@@ -167,8 +167,8 @@ const AlignmentControls = React.forwardRef<HTMLDivElement, AlignmentControlsProp
                   'border border-[var(--border-default)]',
                   'hover:bg-[var(--gray-100)] dark:hover:bg-[var(--gray-800)]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border-focus)] focus-visible:ring-offset-2',
-                  'data-[state=on]:bg-[var(--brand-primary)] data-[state=on]:text-white data-[state=on]:border-[var(--brand-primary)]',
-                  'data-[state=on]:shadow-md data-[state=on]:hover:bg-[var(--brand-primary)]'
+                  'data-[state=on]:bg-[var(--brand-pink)] data-[state=on]:text-white data-[state=on]:border-[var(--brand-pink)]',
+                  'data-[state=on]:shadow-md data-[state=on]:hover:bg-[var(--brand-pink)]'
                 )}
                 style={{
                   transitionTimingFunction: 'var(--ease-apple)',
@@ -465,7 +465,7 @@ const AlignmentControls = React.forwardRef<HTMLDivElement, AlignmentControlsProp
             <div className="space-y-3">
               <div className="flex gap-3">
                 <div className="w-20 shrink-0">
-                  <span className="text-sm font-medium text-[var(--brand-primary)]">Full Body</span>
+                  <span className="text-sm font-medium text-[var(--brand-pink)]">Full Body</span>
                 </div>
                 <p className="text-sm text-[var(--text-secondary)]">
                   Best for overall transformations. Aligns head to hips for the most accurate full-body comparison. <span className="text-[var(--text-primary)] font-medium">(Recommended)</span>

@@ -232,13 +232,14 @@ Use `/commit.changes` to commit with proper workflow.
 
 ## Current Scope
 
-**Source Files:** 63 TypeScript/TSX files
-**Custom Hooks:** 5 (useAlignment, useCanvasExport, useKeyboardShortcuts, usePoseDetection, useUsageLimit)
+**Source Files:** 95 TypeScript/TSX files
+**Custom Hooks:** 7 (useAlignment, useBackgroundRemoval, useCanvasExport, useGifExport, useKeyboardShortcuts, usePoseDetection, useUsageLimit)
 **State Stores:** 2 (editor-store, user-store)
-**UI Components:** 11 primitives (Button, Card, Input, Modal, Slider, Toggle, UpgradePrompt, BottomSheet, SegmentedControl, MagicLinkForm, OAuthButtons)
-**API Routes:** 7 (stripe/checkout, stripe/webhook, stripe/portal, usage/\*, account/delete, auth callback)
-**Test Files:** 4 test files
-**Visual Test Fixtures:** 66 fixtures across 9 categories
+**UI Components:** 12 primitives (Button, BottomSheet, Card, Input, MagicLinkForm, Modal, OAuthButtons, SegmentedControl, Slider, SvoltaLogo, Toggle, UpgradePrompt)
+**API Routes:** 7 (account/delete, backgrounds/upload, stripe/checkout, stripe/portal, stripe/webhook, usage, usage/increment)
+**Test Files:** 6 test files
+**Visual Test Fixtures:** 134 fixtures
+**New Features:** Animated GIF export (3 styles), Background removal with @imgly/background-removal
 **Documentation:** See `docs/` folder for technical documentation
 
 ---
@@ -287,4 +288,4 @@ Use `/commit.changes` to commit with proper workflow.
 
 ---
 
-**Last Updated:** 2025-12-29
+**Last Updated:** 2026-01-02

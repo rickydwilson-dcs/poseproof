@@ -69,7 +69,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
               '[&::-webkit-slider-thumb]:bg-white',
               '[&::-webkit-slider-thumb]:shadow-md',
               '[&::-webkit-slider-thumb]:border-2',
-              '[&::-webkit-slider-thumb]:border-[var(--brand-primary)]',
+              '[&::-webkit-slider-thumb]:border-[var(--brand-pink)]',
               '[&::-webkit-slider-thumb]:cursor-pointer',
               '[&::-webkit-slider-thumb]:transition-all',
               '[&::-webkit-slider-thumb]:duration-200',
@@ -81,7 +81,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
               '[&::-moz-range-thumb]:bg-white',
               '[&::-moz-range-thumb]:shadow-md',
               '[&::-moz-range-thumb]:border-2',
-              '[&::-moz-range-thumb]:border-[var(--brand-primary)]',
+              '[&::-moz-range-thumb]:border-[var(--brand-pink)]',
               '[&::-moz-range-thumb]:cursor-pointer',
               '[&::-moz-range-thumb]:transition-all',
               '[&::-moz-range-thumb]:duration-200',
@@ -92,7 +92,7 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
             )}
             style={{
               transitionTimingFunction: 'var(--ease-apple)',
-              background: `linear-gradient(to right, var(--brand-primary) 0%, var(--brand-primary) ${percentage}%, var(--gray-200) ${percentage}%, var(--gray-200) 100%)`,
+              background: `linear-gradient(to right, var(--brand-pink) 0%, var(--brand-pink) ${percentage}%, var(--gray-200) ${percentage}%, var(--gray-200) 100%)`,
             }}
             {...props}
           />

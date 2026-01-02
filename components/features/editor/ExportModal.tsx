@@ -2,48 +2,106 @@
 
 import * as React from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/Button';
 import { UpgradePrompt } from '@/components/ui/UpgradePrompt';
 import { useEditorStore } from '@/stores/editor-store';
 import { useUserStore } from '@/stores/user-store';
 import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { useCanvasExport } from '@/hooks/useCanvasExport';
+import { useGifExport } from '@/hooks/useGifExport';
+import { GifPreview } from './GifPreview';
+import { useBackgroundRemoval } from '@/hooks/useBackgroundRemoval';
 import type { ExportFormat as LibExportFormat } from '@/lib/canvas/export';
+import type { AnimationStyle } from '@/lib/canvas/export-gif';
+import type { Photo } from '@/types/editor';
+import { AlignedPreview } from './AlignedPreview';
+import { SvoltaLogo } from '@/components/ui/SvoltaLogo';
+
+// Timeout wrapper for long-running operations
+function withTimeout<T>(promise: Promise<T>, ms: number, errorMessage: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(errorMessage)), ms)
+    ),
+  ]);
+}
 
 export interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type ExportFormat = '1:1' | '4:5' | '9:16';
+type ExportType = 'png' | 'gif';
+type AspectRatio = '4:5' | '1:1' | '9:16';
+type BackgroundType = 'original' | 'transparent' | 'color' | 'image';
 
-interface FormatOption {
-  ratio: ExportFormat;
-  label: string;
-  isPro: boolean;
+interface BackgroundState {
+  type: BackgroundType;
+  colorValue?: string;
+  imageId?: string;
+  customImageUrl?: string;
 }
 
-const formatOptions: FormatOption[] = [
-  { ratio: '4:5', label: '4:5', isPro: false },
-  { ratio: '1:1', label: '1:1', isPro: false },
-  { ratio: '9:16', label: '9:16', isPro: true },
+// Animation style options with icons
+const animationStyleOptions = [
+  { value: 'slider', label: '↔', title: 'Slider' },
+  { value: 'crossfade', label: '◐', title: 'Fade' },
+  { value: 'toggle', label: '⇄', title: 'Toggle' },
+];
+
+// Image presets for background (placeholder IDs)
+const imagePresets = [
+  { id: 'gym', thumbnail: '/backgrounds/gym.jpg', label: 'Gym' },
+  { id: 'studio', thumbnail: '/backgrounds/studio.jpg', label: 'Studio' },
+  { id: 'outdoor', thumbnail: '/backgrounds/outdoor.jpg', label: 'Outdoor' },
 ];
 
 export function ExportModal({ isOpen, onClose }: ExportModalProps) {
-  const { beforePhoto, afterPhoto, alignment } = useEditorStore();
-  const isPro = useUserStore((state) => state.isPro());
+  const { beforePhoto, afterPhoto, alignment, backgroundSettings, setBeforePhoto, setAfterPhoto, setBackgroundSettings } = useEditorStore();
+  // TODO: Remove this bypass once payment is implemented
+  const isPro = true; // Temporarily bypass Pro checks for testing
+  // const isPro = useUserStore((state) => state.isPro());
   const profile = useUserStore((state) => state.profile);
   const { limit, remaining, checkAndIncrement } = useUsageLimit();
   const { isExporting, error: exportError, exportAndDownload, clearError } = useCanvasExport();
+  const {
+    isExporting: isExportingGif,
+    progress: gifProgress,
+    status: gifStatus,
+    error: gifError,
+    exportAndDownload: exportGifAndDownload,
+  } = useGifExport();
+  const {
+    processImage: removeBackground,
+    error: bgRemovalError,
+  } = useBackgroundRemoval();
 
-  const [selectedFormat, setSelectedFormat] = React.useState<ExportFormat>('4:5');
-  const [showLabels, setShowLabels] = React.useState(false);
+  // Primary state
+  const [exportType, setExportType] = React.useState<ExportType>('png');
+
+  // GIF-specific state
+  const [animationStyle, setAnimationStyle] = React.useState<AnimationStyle>('slider');
+  const [duration, setDuration] = React.useState(2);
+
+  // Advanced options (collapsed by default)
+  const [aspectRatio, setAspectRatio] = React.useState<AspectRatio>('4:5');
+  const [background, setBackground] = React.useState<BackgroundState>({ type: 'original' });
+  const [addLabels, setAddLabels] = React.useState(false);
+  const [removeWatermark, setRemoveWatermark] = React.useState(true);
+  const [addLogo, setAddLogo] = React.useState(false);
+
+  // UI state
+  const [isMoreOptionsExpanded, setIsMoreOptionsExpanded] = React.useState(false);
+  const [isBackgroundExpanded, setIsBackgroundExpanded] = React.useState(false);
   const [showUpgradePrompt, setShowUpgradePrompt] = React.useState(false);
-  const [upgradeTrigger, setUpgradeTrigger] = React.useState<'limit' | 'watermark' | 'format' | 'logo'>('limit');
+  const [upgradeTrigger, setUpgradeTrigger] = React.useState<'limit' | 'watermark' | 'format' | 'logo' | 'gif' | 'background'>('limit');
   const [localError, setLocalError] = React.useState<string | null>(null);
+  const [isRemovingBackgrounds, setIsRemovingBackgrounds] = React.useState(false);
 
   const hasPhotos = Boolean(beforePhoto && afterPhoto);
+  const hasBackgroundRemoved = beforePhoto?.hasBackgroundRemoved || afterPhoto?.hasBackgroundRemoved;
 
   // Clear errors when modal opens/closes
   React.useEffect(() => {
@@ -58,33 +116,122 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     if (isPro) {
       return 'Unlimited exports';
     }
-    return `Exports remaining: ${remaining} of ${limit} this month`;
+    return `${remaining} of ${limit} exports remaining`;
   }, [isPro, remaining, limit]);
 
-  // Handle format selection
-  const handleFormatSelect = (format: ExportFormat) => {
-    const option = formatOptions.find((opt) => opt.ratio === format);
-    if (option?.isPro && !isPro) {
-      setUpgradeTrigger('format');
+  // Handle export type selection
+  const handleExportTypeChange = (type: string) => {
+    if (type === 'gif' && !isPro) {
+      setUpgradeTrigger('gif');
       setShowUpgradePrompt(true);
       return;
     }
-    setSelectedFormat(format);
+    setExportType(type as ExportType);
   };
 
   // Handle watermark removal toggle (Pro only)
-  const handleRemoveWatermark = () => {
+  const handleRemoveWatermarkToggle = () => {
     if (!isPro) {
       setUpgradeTrigger('watermark');
       setShowUpgradePrompt(true);
+      return;
     }
+    setRemoveWatermark(!removeWatermark);
   };
 
-  // Handle logo addition (Pro only)
-  const handleAddLogo = () => {
+  // Handle logo toggle (Pro only)
+  const handleLogoToggle = () => {
     if (!isPro) {
       setUpgradeTrigger('logo');
       setShowUpgradePrompt(true);
+      return;
+    }
+    setAddLogo(!addLogo);
+  };
+
+  // Handle background type change
+  const handleBackgroundTypeChange = async (type: string) => {
+    const newType = type as BackgroundType;
+
+    // For transparent or colour backgrounds, we need to remove the background first
+    if ((newType === 'transparent' || newType === 'color') && !hasBackgroundRemoved) {
+      await handleRemoveBackgrounds();
+    }
+
+    setBackground(prev => ({ ...prev, type: newType }));
+
+    // Update editor store background settings
+    if (newType === 'original') {
+      setBackgroundSettings({ type: 'original' });
+    } else if (newType === 'transparent') {
+      setBackgroundSettings({ type: 'transparent' });
+    } else if (newType === 'color' && background.colorValue) {
+      setBackgroundSettings({ type: 'solid', color: background.colorValue });
+    }
+  };
+
+  // Handle colour selection - only changes colour since bg is already removed when 'colour' type is selected
+  const handleColorSelect = async (color: string) => {
+    // If this is the first colour selection and background hasn't been removed yet, remove it first
+    if (!hasBackgroundRemoved) {
+      await handleRemoveBackgrounds();
+    }
+    setBackground(prev => ({ ...prev, type: 'color', colorValue: color }));
+    setBackgroundSettings({ type: 'solid', color });
+  };
+
+  // Handle background removal for both photos
+  const handleRemoveBackgrounds = async () => {
+    if (!hasPhotos || !beforePhoto || !afterPhoto) return;
+
+    setIsRemovingBackgrounds(true);
+    setLocalError(null);
+
+    const TIMEOUT_MS = 60000; // 60 second timeout per image
+
+    try {
+      // Remove background from "before" photo if not already done
+      if (!beforePhoto.hasBackgroundRemoved) {
+        const beforeResult = await withTimeout(
+          removeBackground(beforePhoto.dataUrl),
+          TIMEOUT_MS,
+          'Background removal timed out for "Before" photo. Please try again or use a smaller image.'
+        );
+        if (beforeResult) {
+          const updatedBefore: Photo = {
+            ...beforePhoto,
+            dataUrl: beforeResult.processedDataUrl,
+            hasBackgroundRemoved: true,
+            originalDataUrl: beforePhoto.originalDataUrl || beforePhoto.dataUrl,
+            segmentationMask: beforeResult.mask,
+          };
+          setBeforePhoto(updatedBefore);
+        }
+      }
+
+      // Remove background from "after" photo if not already done
+      if (!afterPhoto.hasBackgroundRemoved) {
+        const afterResult = await withTimeout(
+          removeBackground(afterPhoto.dataUrl),
+          TIMEOUT_MS,
+          'Background removal timed out for "After" photo. Please try again or use a smaller image.'
+        );
+        if (afterResult) {
+          const updatedAfter: Photo = {
+            ...afterPhoto,
+            dataUrl: afterResult.processedDataUrl,
+            hasBackgroundRemoved: true,
+            originalDataUrl: afterPhoto.originalDataUrl || afterPhoto.dataUrl,
+            segmentationMask: afterResult.mask,
+          };
+          setAfterPhoto(updatedAfter);
+        }
+      }
+    } catch (error) {
+      console.error('Background removal failed:', error);
+      setLocalError(error instanceof Error ? error.message : 'Background removal failed');
+    } finally {
+      setIsRemovingBackgrounds(false);
     }
   };
 
@@ -106,27 +253,48 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
       }
 
       // Get custom logo URL if Pro user has one
-      // Note: logo_url would need to be added to profiles table schema
       const customLogoUrl = isPro && (profile as unknown as { logo_url?: string })?.logo_url
         ? (profile as unknown as { logo_url: string }).logo_url
         : undefined;
 
-      // Export canvas with real export function
-      const success = await exportAndDownload(
-        beforePhoto,
-        afterPhoto,
-        alignment,
-        {
-          format: selectedFormat as LibExportFormat,
-          resolution: 1080,
-          includeLabels: showLabels,
-          watermark: {
-            isPro,
-            customLogoUrl,
-          },
-          quality: 0.92,
-        }
-      );
+      let success = false;
+
+      if (exportType === 'gif') {
+        // Export as GIF
+        success = await exportGifAndDownload(
+          beforePhoto,
+          afterPhoto,
+          {
+            format: aspectRatio as LibExportFormat,
+            animationStyle,
+            duration,
+            includeLabels: addLabels,
+            watermark: {
+              isPro: isPro && removeWatermark,
+              customLogoUrl: addLogo ? customLogoUrl : undefined,
+            },
+            backgroundSettings: hasBackgroundRemoved ? backgroundSettings : undefined,
+          }
+        );
+      } else {
+        // Export as PNG
+        success = await exportAndDownload(
+          beforePhoto,
+          afterPhoto,
+          alignment,
+          {
+            format: aspectRatio as LibExportFormat,
+            resolution: 1080,
+            includeLabels: addLabels,
+            watermark: {
+              isPro: isPro && removeWatermark,
+              customLogoUrl: addLogo ? customLogoUrl : undefined,
+            },
+            quality: 0.92,
+            backgroundSettings: hasBackgroundRemoved ? backgroundSettings : undefined,
+          }
+        );
+      }
 
       if (success) {
         // Success - close modal
@@ -138,8 +306,25 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     }
   };
 
+  // Get background label for display
+  const getBackgroundLabel = () => {
+    switch (background.type) {
+      case 'original':
+        return 'Original';
+      case 'transparent':
+        return 'None';
+      case 'color':
+        return background.colorValue ? background.colorValue.toUpperCase() : 'Colour';
+      case 'image':
+        return imagePresets.find(p => p.id === background.imageId)?.label || 'Custom';
+      default:
+        return 'Original';
+    }
+  };
+
   // Combined error display
-  const displayError = localError || exportError;
+  const displayError = localError || exportError || gifError || bgRemovalError;
+  const isAnyExporting = isExporting || isExportingGif || isRemovingBackgrounds;
 
   return (
     <>
@@ -154,351 +339,535 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
           />
           <Dialog.Content
             className={cn(
-              'fixed left-[50%] top-[50%] z-50 w-full max-w-2xl translate-x-[-50%] translate-y-[-50%]',
-              'bg-[var(--surface-primary)] rounded-3xl shadow-[var(--shadow-lg)]',
-              'p-8 md:p-10',
-              'max-h-[90vh] overflow-y-auto',
+              'fixed left-[50%] top-[50%] z-50 w-[calc(100%-2rem)] max-w-[448px] translate-x-[-50%] translate-y-[-50%]',
+              'bg-[var(--surface-primary)] rounded-2xl shadow-[var(--shadow-lg)]',
+              'max-h-[90vh] overflow-hidden',
               'data-[state=open]:animate-in data-[state=closed]:animate-out',
               'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
               'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
               'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
               'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
-              'duration-200',
-              'mx-4'
+              'duration-200'
             )}
-            style={{
-              transitionTimingFunction: 'var(--ease-apple)',
-            }}
           >
-            {/* Close Button */}
-            <Dialog.Close
-              className={cn(
-                'absolute right-4 top-4 rounded-lg p-2',
-                'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
-                'hover:bg-[var(--gray-100)] dark:hover:bg-[var(--gray-800)]',
-                'transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2'
-              )}
-              aria-label="Close"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </Dialog.Close>
+            {/* Processing Overlay - Full modal overlay */}
+            {isRemovingBackgrounds && (
+              <div className="absolute inset-0 z-50 bg-[var(--surface-primary)]/95 backdrop-blur-sm flex items-center justify-center rounded-2xl">
+                <div className="text-center">
+                  <div className="relative w-16 h-16 mx-auto mb-4">
+                    <div className="absolute inset-0 rounded-full border-4 border-[var(--gray-200)]" />
+                    <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-[var(--brand-pink)] animate-spin" />
+                  </div>
+                  <p className="text-base font-medium text-[var(--text-primary)]">Removing backgrounds...</p>
+                  <p className="text-sm text-[var(--text-secondary)] mt-1">This may take a few seconds</p>
+                </div>
+              </div>
+            )}
 
+            {/* Scrollable Content */}
+            <div className="max-h-[90vh] overflow-y-auto">
             {/* Header */}
-            <Dialog.Title className="mb-6 text-2xl font-bold text-[var(--text-primary)]">
-              Export Image
-            </Dialog.Title>
+            <div className="flex items-center justify-between p-4 border-b border-[var(--border-default)]">
+              <Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
+                Export
+              </Dialog.Title>
+              <Dialog.Close
+                className={cn(
+                  'rounded-lg p-1.5',
+                  'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+                  'hover:bg-[var(--gray-100)]',
+                  'transition-colors duration-150',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)]'
+                )}
+                aria-label="Close"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </Dialog.Close>
+            </div>
 
             {/* Error Display */}
             {displayError && (
-              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <p className="text-sm text-red-700 dark:text-red-300">{displayError}</p>
+              <div className="mx-4 mt-4 p-3 rounded-xl bg-[var(--error)]/10 border border-[var(--error)]/20">
+                <p className="text-sm text-[var(--error)]">{displayError}</p>
               </div>
             )}
 
-            {/* Format Selection */}
-            <div className="mb-6">
-              <label className="mb-3 block text-sm font-medium text-[var(--text-secondary)]">
-                Format
-              </label>
-              <div className="flex gap-3">
-                {formatOptions.map((option) => {
-                  const isLocked = option.isPro && !isPro;
-                  const isSelected = selectedFormat === option.ratio;
-
-                  return (
-                    <button
-                      key={option.ratio}
-                      onClick={() => handleFormatSelect(option.ratio)}
-                      disabled={isLocked}
-                      className={cn(
-                        'relative flex items-center justify-center gap-2',
-                        'h-12 px-6 rounded-xl font-medium transition-all duration-200',
-                        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
-                        isSelected
-                          ? 'bg-[var(--brand-primary)] text-white shadow-md'
-                          : 'bg-[var(--gray-100)] text-[var(--text-primary)] hover:bg-[var(--gray-200)] dark:bg-[var(--gray-800)] dark:hover:bg-[var(--gray-700)]',
-                        isLocked && 'opacity-50 cursor-not-allowed'
-                      )}
-                      style={{
-                        transitionTimingFunction: 'var(--ease-apple)',
-                      }}
-                    >
-                      <span>{option.label}</span>
-                      {isSelected && !isLocked && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <circle cx="12" cy="12" r="3" fill="currentColor" />
-                        </svg>
-                      )}
-                      {isLocked && (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Preview Area */}
-            <div className="mb-6">
-              <label className="mb-3 block text-sm font-medium text-[var(--text-secondary)]">
-                Preview
-              </label>
+            <div className="p-4">
               <div
                 className={cn(
-                  'relative rounded-2xl overflow-hidden',
-                  'bg-[var(--gray-50)] dark:bg-[var(--gray-900)]',
-                  'border-2 border-[var(--gray-200)] dark:border-[var(--gray-700)]',
-                  'aspect-square'
+                  'relative rounded-xl overflow-hidden mx-auto',
+                  'bg-[var(--gray-100)]',
+                  'w-full min-h-[280px]'
                 )}
               >
                 {hasPhotos && beforePhoto && afterPhoto ? (
-                  <div className="flex h-full w-full">
-                    {/* Before Photo */}
-                    <div className="relative flex-1 flex items-center justify-center p-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={beforePhoto.dataUrl}
-                        alt="Before"
-                        className="max-w-full max-h-full object-contain"
+                  <>
+                    {exportType === 'gif' && isPro ? (
+                      <GifPreview
+                        beforePhoto={beforePhoto}
+                        afterPhoto={afterPhoto}
+                        animationStyle={animationStyle}
+                        duration={duration}
+                        showLabels={addLabels}
+                        format={aspectRatio}
+                        className="absolute inset-0"
                       />
-                      {showLabels && (
-                        <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 text-white text-sm font-medium rounded-lg">
-                          Before
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Divider */}
-                    <div className="w-px bg-[var(--gray-300)] dark:bg-[var(--gray-600)]" />
-
-                    {/* After Photo */}
-                    <div className="relative flex-1 flex items-center justify-center p-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={afterPhoto.dataUrl}
-                        alt="After"
-                        className="max-w-full max-h-full object-contain"
+                    ) : (
+                      <AlignedPreview
+                        beforePhoto={beforePhoto}
+                        afterPhoto={afterPhoto}
+                        format={aspectRatio}
+                        showLabels={addLabels}
+                        backgroundSettings={hasBackgroundRemoved ? backgroundSettings : undefined}
+                        className="absolute inset-0"
                       />
-                      {showLabels && (
-                        <div className="absolute top-2 left-2 px-3 py-1 bg-black/60 text-white text-sm font-medium rounded-lg">
-                          After
+                    )}
+
+                    {/* Watermark (Free users only) */}
+                    {(!isPro || !removeWatermark) && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="px-6 py-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg">
+                          <SvoltaLogo size={48} mode="light" showWordmark wordmarkStyle="gradient" />
                         </div>
-                      )}
-                    </div>
-                  </div>
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div className="flex items-center justify-center h-full">
-                    <p className="text-[var(--text-secondary)]">
+                    <p className="text-[var(--text-secondary)] text-sm">
                       Load photos to see preview
                     </p>
                   </div>
                 )}
 
-                {/* Watermark (Free users only) */}
-                {!isPro && hasPhotos && (
-                  <div className="absolute bottom-4 right-4 px-4 py-2 bg-white/90 dark:bg-black/90 text-[var(--text-primary)] text-sm font-light tracking-tight rounded-lg backdrop-blur-sm">
-                    svolta
-                  </div>
-                )}
+                {/* Export type badge - top left */}
+                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-instagram-gradient text-white text-xs font-medium">
+                  {exportType.toUpperCase()}
+                </div>
+
+                {/* Aspect ratio badge - bottom right */}
+                <div className="absolute bottom-3 left-3 px-2 py-1 rounded-md bg-black/60 text-white text-xs font-medium backdrop-blur-sm">
+                  {aspectRatio}
+                </div>
               </div>
             </div>
 
-            {/* Options */}
-            <div className="mb-6 space-y-3">
-              {/* Show Labels Toggle */}
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={showLabels}
-                  onChange={(e) => setShowLabels(e.target.checked)}
+            {/* Primary Toggle - Image / Animation */}
+            <div className="px-4 pb-4">
+              <div className="flex p-1 bg-[var(--gray-100)] dark:bg-[var(--gray-800)] rounded-xl">
+                <button
+                  onClick={() => handleExportTypeChange('png')}
                   className={cn(
-                    'w-5 h-5 rounded border-2 transition-all duration-200',
-                    'border-[var(--gray-300)] dark:border-[var(--gray-600)]',
-                    'checked:bg-[var(--brand-primary)] checked:border-[var(--brand-primary)]',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2',
-                    'cursor-pointer'
+                    'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200',
+                    exportType === 'png'
+                      ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                   )}
-                />
-                <span className="text-base text-[var(--text-primary)] group-hover:text-[var(--text-primary)]">
-                  Add &ldquo;Before/After&rdquo; labels
-                </span>
-              </label>
-
-              {/* Remove Watermark (Pro only) */}
-              <button
-                onClick={handleRemoveWatermark}
-                disabled={isPro}
-                className={cn(
-                  'flex items-center gap-3 w-full text-left',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2 rounded-lg',
-                  !isPro && 'cursor-pointer hover:opacity-80 transition-opacity'
-                )}
-              >
-                <div className="flex items-center justify-center w-5 h-5">
-                  {isPro ? (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-[var(--success)]"
-                    >
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="text-[var(--text-secondary)]"
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
+                >
+                  Image
+                </button>
+                <button
+                  onClick={() => handleExportTypeChange('gif')}
+                  className={cn(
+                    'flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200',
+                    exportType === 'gif'
+                      ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]',
+                    !isPro && 'opacity-50'
                   )}
-                </div>
-                <span className="text-base text-[var(--text-primary)]">
-                  Remove watermark
+                >
+                  Animation
                   {!isPro && (
-                    <span className="ml-2 text-sm text-[var(--brand-primary)] font-medium">
-                      Go Pro
+                    <span className="ml-1.5 text-[10px] px-1.5 py-0.5 rounded bg-[var(--brand-pink)]/10 text-[var(--brand-pink)]">
+                      PRO
                     </span>
                   )}
-                </span>
-              </button>
-
-              {/* Add Logo (Pro only) */}
-              <button
-                onClick={handleAddLogo}
-                disabled={isPro}
-                className={cn(
-                  'flex items-center gap-3 w-full text-left',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-primary)] focus-visible:ring-offset-2 rounded-lg',
-                  !isPro && 'cursor-pointer hover:opacity-80 transition-opacity'
-                )}
-              >
-                <div className="flex items-center justify-center w-5 h-5">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-[var(--text-secondary)]"
-                  >
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </div>
-                <span className="text-base text-[var(--text-primary)]">
-                  Add your logo
-                  {!isPro && (
-                    <span className="ml-2 text-sm text-[var(--brand-primary)] font-medium">
-                      Go Pro
-                    </span>
-                  )}
-                </span>
-              </button>
+                </button>
+              </div>
             </div>
 
-            {/* Usage Indicator */}
-            <div
-              className={cn(
-                'mb-6 p-4 rounded-xl',
-                'bg-[var(--gray-50)] dark:bg-[var(--gray-900)]',
-                'border border-[var(--gray-200)] dark:border-[var(--gray-700)]'
+            {/* GIF-specific controls (conditional) */}
+            <AnimatePresence>
+              {exportType === 'gif' && isPro && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4 space-y-4">
+                    {/* Animation Style */}
+                    <div>
+                      <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2">
+                        Style
+                      </label>
+                      <div className="flex gap-2">
+                        {animationStyleOptions.map((style) => (
+                          <button
+                            key={style.value}
+                            onClick={() => setAnimationStyle(style.value as AnimationStyle)}
+                            title={style.title}
+                            className={cn(
+                              'flex-1 h-10 rounded-lg text-lg font-medium transition-all duration-150',
+                              animationStyle === style.value
+                                ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                                : 'bg-[var(--gray-100)] dark:bg-[var(--gray-800)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                            )}
+                          >
+                            {style.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Duration/Speed Slider */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-medium text-[var(--text-secondary)]">
+                          Speed
+                        </label>
+                        <span className="text-xs font-medium text-[var(--text-primary)]">
+                          {duration.toFixed(1)}s
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="4"
+                        step="0.5"
+                        value={duration}
+                        onChange={(e) => setDuration(parseFloat(e.target.value))}
+                        className={cn(
+                          'w-full h-1 rounded-full appearance-none cursor-pointer',
+                          'bg-[var(--gray-200)]',
+                          '[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4',
+                          '[&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[var(--brand-pink)]',
+                          '[&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer',
+                          '[&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full',
+                          '[&::-moz-range-thumb]:bg-[var(--brand-pink)] [&::-moz-range-thumb]:border-0',
+                          '[&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer'
+                        )}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
               )}
-            >
-              <p className="text-sm text-[var(--text-secondary)]">{usageText}</p>
+            </AnimatePresence>
+
+            {/* More Options (collapsible) */}
+            <div className="border-t border-[var(--border-default)]">
+              <button
+                onClick={() => setIsMoreOptionsExpanded(!isMoreOptionsExpanded)}
+                className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-[var(--text-primary)] hover:text-[var(--text-primary)] transition-colors"
+              >
+                <span>More options</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={cn(
+                    'transition-transform duration-200',
+                    isMoreOptionsExpanded && 'rotate-180'
+                  )}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+
+              <AnimatePresence>
+                {isMoreOptionsExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4 space-y-1">
+                      {/* Aspect Ratio */}
+                      <div className="py-3">
+                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2">
+                          Aspect Ratio
+                        </label>
+                        <div className="flex p-1 bg-[var(--gray-100)] dark:bg-[var(--gray-800)] rounded-xl">
+                          {(['4:5', '1:1', '9:16'] as AspectRatio[]).map((ratio) => (
+                            <button
+                              key={ratio}
+                              onClick={() => setAspectRatio(ratio)}
+                              className={cn(
+                                'flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-200',
+                                aspectRatio === ratio
+                                  ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                              )}
+                            >
+                              {ratio}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Background - Expandable Row */}
+                      <div className="border-t border-[var(--border-default)] pt-1">
+                        <button
+                          onClick={() => setIsBackgroundExpanded(!isBackgroundExpanded)}
+                          className="flex items-center justify-between w-full py-3 text-sm"
+                        >
+                          <span className="text-[var(--text-primary)]">Background</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[var(--text-tertiary)]">{getBackgroundLabel()}</span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className={cn(
+                                'text-[var(--text-tertiary)] transition-transform duration-200',
+                                isBackgroundExpanded && 'rotate-180'
+                              )}
+                            >
+                              <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                          </div>
+                        </button>
+
+                        <AnimatePresence>
+                          {isBackgroundExpanded && (
+                            <motion.div
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pb-3 space-y-3">
+                                {/* Background Type Segmented Control */}
+                                <div className="flex p-1 bg-[var(--gray-100)] dark:bg-[var(--gray-800)] rounded-xl">
+                                  {(['original', 'transparent', 'color', 'image'] as BackgroundType[]).map((type) => (
+                                    <button
+                                      key={type}
+                                      onClick={() => handleBackgroundTypeChange(type)}
+                                      className={cn(
+                                        'flex-1 py-2 px-2 rounded-lg text-xs font-medium transition-all duration-200 capitalize',
+                                        background.type === type
+                                          ? 'bg-[var(--surface-primary)] text-[var(--text-primary)] shadow-sm'
+                                          : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                                      )}
+                                    >
+                                      {type === 'transparent' ? 'None' : type === 'original' ? 'Original' : type === 'color' ? 'Colour' : type}
+                                    </button>
+                                  ))}
+                                </div>
+
+                                {/* Colour Picker (conditional) */}
+                                {background.type === 'color' && (
+                                  <div className="flex items-center gap-3">
+                                    <label className="relative flex-shrink-0">
+                                      <div
+                                        className="w-12 h-12 rounded-xl cursor-pointer border-2 border-[var(--border-default)] hover:border-[var(--brand-pink)] transition-colors"
+                                        style={{ backgroundColor: background.colorValue || '#ffffff' }}
+                                      />
+                                      <input
+                                        type="color"
+                                        value={background.colorValue || '#ffffff'}
+                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                        onChange={(e) => handleColorSelect(e.target.value)}
+                                      />
+                                    </label>
+                                    <div className="flex-1">
+                                      <p className="text-sm text-[var(--text-primary)]">Pick a colour</p>
+                                      <p className="text-xs text-[var(--text-tertiary)] uppercase">{background.colorValue || '#ffffff'}</p>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Image Presets (conditional) */}
+                                {background.type === 'image' && (
+                                  <div className="space-y-2">
+                                    <div className="flex gap-2">
+                                      {imagePresets.map((preset) => (
+                                        <button
+                                          key={preset.id}
+                                          onClick={() => setBackground(prev => ({ ...prev, imageId: preset.id }))}
+                                          className={cn(
+                                            'flex-1 h-16 rounded-xl bg-[var(--gray-100)] overflow-hidden transition-all duration-150',
+                                            background.imageId === preset.id
+                                              ? 'ring-2 ring-[var(--brand-pink)] ring-offset-2 ring-offset-[var(--surface-primary)]'
+                                              : 'hover:opacity-80'
+                                          )}
+                                        >
+                                          <div className="w-full h-full bg-[var(--gray-200)] flex items-center justify-center text-xs text-[var(--text-secondary)]">
+                                            {preset.label}
+                                          </div>
+                                        </button>
+                                      ))}
+                                    </div>
+                                    <button className="w-full h-12 rounded-xl border-2 border-dashed border-[var(--gray-300)] hover:border-[var(--gray-400)] text-[var(--text-secondary)] text-sm transition-colors">
+                                      Upload image
+                                    </button>
+                                  </div>
+                                )}
+
+                                {/* None helper text */}
+                                {background.type === 'transparent' && (
+                                  <p className="text-xs text-[var(--text-tertiary)]">
+                                    Background will be removed
+                                  </p>
+                                )}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      {/* Add Labels Toggle */}
+                      <div className="flex items-center justify-between py-3 border-t border-[var(--border-default)]">
+                        <span className="text-sm text-[var(--text-primary)]">Add &ldquo;Before/After&rdquo; labels</span>
+                        <button
+                          onClick={() => setAddLabels(!addLabels)}
+                          className={cn(
+                            'relative w-11 h-6 rounded-full transition-colors duration-300',
+                            addLabels ? 'bg-instagram-gradient' : 'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]'
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300',
+                              addLabels && 'translate-x-5'
+                            )}
+                          />
+                        </button>
+                      </div>
+
+                      {/* Remove Watermark Toggle */}
+                      <div className="flex items-center justify-between py-3 border-t border-[var(--border-default)]">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-[var(--text-primary)]">Remove watermark</span>
+                          {!isPro && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--brand-pink)]/10 text-[var(--brand-pink)]">
+                              PRO
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={handleRemoveWatermarkToggle}
+                          disabled={!isPro}
+                          className={cn(
+                            'relative w-11 h-6 rounded-full transition-colors duration-300',
+                            removeWatermark && isPro ? 'bg-instagram-gradient' : 'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]',
+                            !isPro && 'opacity-50 cursor-not-allowed'
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300',
+                              removeWatermark && isPro && 'translate-x-5'
+                            )}
+                          />
+                        </button>
+                      </div>
+
+                      {/* Add Logo Toggle */}
+                      <div className="flex items-center justify-between py-3 border-t border-[var(--border-default)]">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-[var(--text-primary)]">Add your logo</span>
+                          {!isPro && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--brand-pink)]/10 text-[var(--brand-pink)]">
+                              PRO
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={handleLogoToggle}
+                          disabled={!isPro}
+                          className={cn(
+                            'relative w-11 h-6 rounded-full transition-colors duration-300',
+                            addLogo && isPro ? 'bg-instagram-gradient' : 'bg-[var(--gray-200)] dark:bg-[var(--gray-700)]',
+                            !isPro && 'opacity-50 cursor-not-allowed'
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300',
+                              addLogo && isPro && 'translate-x-5'
+                            )}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* Download Button */}
-            <Button
-              variant="primary"
-              size="lg"
-              onClick={handleDownload}
-              disabled={!hasPhotos || isExporting}
-              loading={isExporting}
-              className="w-full mb-6"
-            >
-              {isExporting ? 'Exporting...' : 'Download PNG'}
-            </Button>
-
-            {/* Upgrade Prompt for Free Users */}
-            {!isPro && (
-              <>
-                <div className="border-t border-[var(--gray-200)] dark:border-[var(--gray-700)] my-6" />
-                <div className="text-center">
-                  <p className="mb-4 text-base text-[var(--text-secondary)]">
-                    Want unlimited exports & your logo?
-                  </p>
-                  <Button
-                    variant="secondary"
-                    size="lg"
-                    onClick={() => {
-                      setUpgradeTrigger('limit');
-                      setShowUpgradePrompt(true);
-                    }}
-                    className="w-full"
-                  >
-                    Upgrade to Pro — £7.99/mo
-                  </Button>
+            {/* GIF Export Progress (shown during GIF export) */}
+            {isExportingGif && (
+              <div className="px-4 pb-4 space-y-2">
+                <div className="w-full bg-[var(--gray-200)] rounded-full h-1 overflow-hidden">
+                  <div
+                    className="h-full bg-instagram-gradient rounded-full transition-all duration-300"
+                    style={{ width: `${gifProgress}%` }}
+                  />
                 </div>
-              </>
+                <p className="text-xs text-[var(--text-tertiary)] text-center">
+                  {gifStatus === 'frames' ? 'Generating frames...' : 'Encoding GIF...'}
+                </p>
+              </div>
             )}
+
+            {/* CTA Button */}
+            <div className="p-4 border-t border-[var(--border-default)]">
+              <button
+                onClick={handleDownload}
+                disabled={!hasPhotos || isAnyExporting}
+                className={cn(
+                  'w-full py-3.5 rounded-xl font-semibold text-white transition-all duration-200',
+                  'bg-instagram-gradient',
+                  'hover:opacity-90',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand-pink)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--surface-primary)]',
+                  'disabled:opacity-50 disabled:cursor-not-allowed',
+                  isAnyExporting && 'animate-pulse'
+                )}
+              >
+                {isAnyExporting
+                  ? exportType === 'gif'
+                    ? 'Exporting GIF...'
+                    : 'Exporting...'
+                  : `Download ${exportType.toUpperCase()}`}
+              </button>
+
+              {/* Usage text */}
+              <p className="mt-3 text-center text-xs text-[var(--text-tertiary)]">
+                {usageText}
+              </p>
+            </div>
+            </div>
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
