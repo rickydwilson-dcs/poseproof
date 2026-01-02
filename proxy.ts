@@ -4,8 +4,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-export async function middleware(request: NextRequest) {
-  // Skip middleware if Supabase is not configured
+export async function proxy(request: NextRequest) {
+  // Skip proxy if Supabase is not configured
   if (!supabaseUrl || !supabaseAnonKey || !supabaseUrl.startsWith('http')) {
     return NextResponse.next();
   }

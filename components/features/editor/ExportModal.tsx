@@ -16,6 +16,7 @@ import type { ExportFormat as LibExportFormat } from '@/lib/canvas/export';
 import type { AnimationStyle } from '@/lib/canvas/export-gif';
 import type { Photo } from '@/types/editor';
 import { AlignedPreview } from './AlignedPreview';
+import { SvoltaLogo } from '@/components/ui/SvoltaLogo';
 
 // Timeout wrapper for long-running operations
 function withTimeout<T>(promise: Promise<T>, ms: number, errorMessage: string): Promise<T> {
@@ -438,8 +439,10 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
 
                     {/* Watermark (Free users only) */}
                     {(!isPro || !removeWatermark) && (
-                      <div className="absolute bottom-3 right-3 px-3 py-1.5 bg-white/90 text-zinc-900 text-xs font-light tracking-tight rounded-md backdrop-blur-sm">
-                        svolta
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="px-6 py-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg">
+                          <SvoltaLogo size={48} mode="light" showWordmark wordmarkStyle="gradient" />
+                        </div>
                       </div>
                     )}
                   </>

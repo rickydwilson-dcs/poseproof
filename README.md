@@ -43,11 +43,13 @@ components/
 └── ui/             # Reusable UI primitives
 
 hooks/              # Custom React hooks
-├── useAlignment.ts      # Alignment calculations
-├── useCanvasExport.ts   # Canvas export functionality
+├── useAlignment.ts           # Alignment calculations
+├── useBackgroundRemoval.ts   # Background removal with @imgly
+├── useCanvasExport.ts        # Canvas export functionality
+├── useGifExport.ts           # Animated GIF export
 ├── useKeyboardShortcuts.ts
-├── usePoseDetection.ts  # MediaPipe integration
-└── useUsageLimit.ts     # Usage limit tracking
+├── usePoseDetection.ts       # MediaPipe integration
+└── useUsageLimit.ts          # Usage limit tracking
 
 lib/
 ├── canvas/         # Canvas utilities & watermark
@@ -119,6 +121,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 - **AI Pose Detection** - Automatic body landmark detection using MediaPipe
 - **Real-time Alignment** - Live alignment guides and feedback
+- **Background Removal** - AI-powered background removal with smooth edges
+- **Animated GIF Export** - Create before/after animations with 3 styles
 - **Client-side Processing** - Photos never leave your device
 - **Professional Export** - High-quality image exports with optional watermark
 - **Usage Tracking** - Free tier with 5 exports/month, Pro unlimited
@@ -139,15 +143,15 @@ MIT
 
 | Metric               | Count             |
 | -------------------- | ----------------- |
-| Source Files         | 63 TypeScript/TSX |
-| Custom Hooks         | 5                 |
+| Source Files         | 95 TypeScript/TSX |
+| Custom Hooks         | 7                 |
 | State Stores         | 2                 |
-| UI Components        | 11                |
+| UI Components        | 12                |
 | API Routes           | 7                 |
-| Test Files           | 4                 |
-| Visual Test Fixtures | 66                |
+| Test Files           | 6                 |
+| Visual Test Fixtures | 134               |
 
 ---
 
 **Domain:** www.svolta.app
-**Last Updated:** 2025-12-29
+**Last Updated:** 2026-01-02
