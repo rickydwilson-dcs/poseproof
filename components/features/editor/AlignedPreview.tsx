@@ -9,12 +9,14 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 import type { Photo } from '@/types/editor';
 import type { Landmark } from '@/types/landmarks';
+import type { BackgroundSettings } from '@/lib/segmentation/backgrounds';
 
 export interface AlignedPreviewProps {
   beforePhoto: Photo;
   afterPhoto: Photo;
   format: '1:1' | '4:5' | '9:16';
   showLabels?: boolean;
+  backgroundSettings?: BackgroundSettings;
   className?: string;
 }
 
@@ -301,6 +303,7 @@ export function AlignedPreview({
   afterPhoto,
   format,
   showLabels = false,
+  backgroundSettings,
   className,
 }: AlignedPreviewProps) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -349,9 +352,27 @@ export function AlignedPreview({
     canvas.width = targetWidth;
     canvas.height = targetHeight;
 
-    // Clear canvas
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, targetWidth, targetHeight);
+    // Determine background colour based on settings
+    const getBackgroundColour = (): string | null => {
+      if (!backgroundSettings) return '#ffffff';
+      if (backgroundSettings.type === 'solid' && backgroundSettings.color) {
+        return backgroundSettings.color;
+      }
+      if (backgroundSettings.type === 'transparent') {
+        return null; // Transparent - no fill
+      }
+      return '#ffffff'; // Default white
+    };
+
+    const bgColour = getBackgroundColour();
+
+    // Clear canvas with background
+    if (bgColour) {
+      ctx.fillStyle = bgColour;
+      ctx.fillRect(0, 0, targetWidth, targetHeight);
+    } else {
+      ctx.clearRect(0, 0, targetWidth, targetHeight);
+    }
 
     // Load images
     const loadImage = (dataUrl: string): Promise<HTMLImageElement> => {
@@ -392,9 +413,13 @@ export function AlignedPreview({
         canvas.width = finalWidth;
         canvas.height = finalHeight;
 
-        // Clear with white background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, finalWidth, finalHeight);
+        // Clear with background colour
+        if (bgColour) {
+          ctx.fillStyle = bgColour;
+          ctx.fillRect(0, 0, finalWidth, finalHeight);
+        } else {
+          ctx.clearRect(0, 0, finalWidth, finalHeight);
+        }
 
         // Calculate width trim
         const widthTrimPerSide = (halfWidth - finalHalfWidth) / 2;
@@ -460,7 +485,7 @@ export function AlignedPreview({
         console.error('Failed to render aligned preview:', error);
         setIsRendering(false);
       });
-  }, [beforePhoto, afterPhoto, format, showLabels]);
+  }, [beforePhoto, afterPhoto, format, showLabels, backgroundSettings]);
 
   return (
     <div ref={containerRef} className={cn('flex items-center justify-center', className)}>

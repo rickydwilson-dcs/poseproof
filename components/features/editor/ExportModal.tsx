@@ -152,7 +152,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
   const handleBackgroundTypeChange = async (type: string) => {
     const newType = type as BackgroundType;
 
-    // For transparent or color backgrounds, we need to remove the background first
+    // For transparent or colour backgrounds, we need to remove the background first
     if ((newType === 'transparent' || newType === 'color') && !hasBackgroundRemoved) {
       await handleRemoveBackgrounds();
     }
@@ -169,9 +169,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
     }
   };
 
-  // Handle color selection - only changes color since bg is already removed when 'color' type is selected
+  // Handle colour selection - only changes colour since bg is already removed when 'colour' type is selected
   const handleColorSelect = async (color: string) => {
-    // If this is the first color selection and background hasn't been removed yet, remove it first
+    // If this is the first colour selection and background hasn't been removed yet, remove it first
     if (!hasBackgroundRemoved) {
       await handleRemoveBackgrounds();
     }
@@ -313,7 +313,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
       case 'transparent':
         return 'None';
       case 'color':
-        return background.colorValue ? background.colorValue.toUpperCase() : 'Custom';
+        return background.colorValue ? background.colorValue.toUpperCase() : 'Colour';
       case 'image':
         return imagePresets.find(p => p.id === background.imageId)?.label || 'Custom';
       default:
@@ -431,6 +431,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                         afterPhoto={afterPhoto}
                         format={aspectRatio}
                         showLabels={addLabels}
+                        backgroundSettings={hasBackgroundRemoved ? backgroundSettings : undefined}
                         className="absolute inset-0"
                       />
                     )}
@@ -676,12 +677,12 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                                       )}
                                     >
-                                      {type === 'transparent' ? 'None' : type === 'original' ? 'Original' : type}
+                                      {type === 'transparent' ? 'None' : type === 'original' ? 'Original' : type === 'color' ? 'Colour' : type}
                                     </button>
                                   ))}
                                 </div>
 
-                                {/* Color Picker (conditional) */}
+                                {/* Colour Picker (conditional) */}
                                 {background.type === 'color' && (
                                   <div className="flex items-center gap-3">
                                     <label className="relative flex-shrink-0">
@@ -697,7 +698,7 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
                                       />
                                     </label>
                                     <div className="flex-1">
-                                      <p className="text-sm text-[var(--text-primary)]">Pick a color</p>
+                                      <p className="text-sm text-[var(--text-primary)]">Pick a colour</p>
                                       <p className="text-xs text-[var(--text-tertiary)] uppercase">{background.colorValue || '#ffffff'}</p>
                                     </div>
                                   </div>
