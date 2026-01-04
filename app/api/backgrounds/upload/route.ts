@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { rateLimiters } from '@/lib/utils/rate-limit';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
 
 /**
  * POST /api/backgrounds/upload
@@ -12,7 +12,7 @@ import { rateLimiters } from '@/lib/utils/rate-limit';
  * - User must have Pro subscription
  * - File size: max 2MB
  * - Allowed formats: JPG, PNG, WebP
- * - Rate limited: 10 uploads per 15 minutes
+ * - Rate limited: 10 uploads per 15 minutes (Supabase-backed)
  *
  * Response format:
  * {
@@ -22,38 +22,19 @@ import { rateLimiters } from '@/lib/utils/rate-limit';
  * }
  */
 export async function POST(request: NextRequest) {
-  try {
-    const supabase = await createClient();
+  return withRateLimit(request, 'backgrounds-upload', async () => {
+    try {
+      const supabase = await createClient();
 
-    // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+      // Verify user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Apply rate limiting (10 uploads per 15 minutes per user)
-    const rateLimit = rateLimiters.upload(user.id);
-    if (rateLimit.limited) {
-      const retryAfter = Math.ceil((rateLimit.resetTime - Date.now()) / 1000);
-      return NextResponse.json(
-        {
-          error: 'Rate limit exceeded',
-          message: `Too many uploads. Please try again in ${Math.ceil(retryAfter / 60)} minutes.`,
-        },
-        {
-          status: 429,
-          headers: {
-            'Retry-After': String(retryAfter),
-            'X-RateLimit-Remaining': String(rateLimit.remaining),
-            'X-RateLimit-Reset': String(rateLimit.resetTime),
-          },
-        }
-      );
-    }
+      if (authError || !user) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
 
     // Verify user has Pro subscription
     const { data: profile } = await supabase
@@ -187,19 +168,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      url: publicUrl,
-      message: 'Custom background uploaded successfully'
-    });
+      return NextResponse.json({
+        success: true,
+        url: publicUrl,
+        message: 'Custom background uploaded successfully'
+      });
 
-  } catch (error) {
-    console.error('Background upload API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+    } catch (error) {
+      console.error('Background upload API error:', error);
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      );
+    }
+  });
 }
 
 /**
@@ -207,26 +189,28 @@ export async function POST(request: NextRequest) {
  *
  * Removes the user's custom background image.
  *
+ * Rate limited: 10 requests per 15 minutes (shared with POST)
+ *
  * Response format:
  * {
  *   success: boolean,
  *   message: string
  * }
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export async function DELETE(_request: NextRequest) {
-  try {
-    const supabase = await createClient();
+export async function DELETE(request: NextRequest) {
+  return withRateLimit(request, 'backgrounds-upload', async () => {
+    try {
+      const supabase = await createClient();
 
-    // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+      // Verify user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
+      if (authError || !user) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
 
     // Get current background URL from profile
     const { data: profile } = await supabase
@@ -290,16 +274,17 @@ export async function DELETE(_request: NextRequest) {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Custom background removed successfully'
-    });
+      return NextResponse.json({
+        success: true,
+        message: 'Custom background removed successfully'
+      });
 
-  } catch (error) {
-    console.error('Background delete API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+    } catch (error) {
+      console.error('Background delete API error:', error);
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      );
+    }
+  });
 }

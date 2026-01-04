@@ -1,35 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe/server';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
+import { validateRequest, CreateCheckoutSchema } from '@/lib/validation/api-schemas';
 
 /**
  * POST /api/stripe/checkout
  *
  * Creates a Stripe Checkout session for upgrading to Pro or Team.
+ *
+ * Rate limited: 5 requests per 5 minutes
  */
 export async function POST(request: NextRequest) {
-  try {
-    // Verify user is authenticated
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+  return withRateLimit(request, 'stripe-checkout', async () => {
+    // Validate request body
+    const validation = await validateRequest(request, CreateCheckoutSchema);
 
-    if (authError || !user) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Parse request body
-    const body = await request.json();
-    const { priceId } = body;
-
-    if (!priceId) {
-      return NextResponse.json(
-        { error: 'Price ID is required' },
+        { error: validation.error },
         { status: 400 }
       );
     }
+
+    const { priceId } = validation.data;
+
+    try {
+      // Verify user is authenticated
+      const supabase = await createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
 
     // Check if user already has a Stripe customer ID
     const { data: profile } = await supabase
@@ -73,22 +79,23 @@ export async function POST(request: NextRequest) {
       allow_promotion_codes: true,
     });
 
-    return NextResponse.json({ url: session.url });
+      return NextResponse.json({ url: session.url });
 
-  } catch (error) {
-    console.error('Checkout error:', error);
+    } catch (error) {
+      console.error('Checkout error:', error);
 
-    // Handle specific Stripe errors
-    if (error instanceof Error) {
+      // Handle specific Stripe errors
+      if (error instanceof Error) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Failed to create checkout session' },
         { status: 500 }
       );
     }
-
-    return NextResponse.json(
-      { error: 'Failed to create checkout session' },
-      { status: 500 }
-    );
-  }
+  });
 }

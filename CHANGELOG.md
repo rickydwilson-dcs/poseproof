@@ -5,7 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.1] - 2026-01-05
+
+### Fixed
+
+- Security code review remediation (P0, P1, P2 priority fixes)
+- Export modal: British English usage and background colour applied to preview
+- Export modal: Error handling and timeout for background removal
+- Export modal: Improved preview and UX
+- Export modal: Center processing spinner and remove on color change
+- Export modal: Use local state to track background removal progress
+- Editor: Restore landmark detection and display
+
+### Added
+
+- Debug feature: Toggleable alignment debug logging with file output
+
+### Changed
+
+- Updated Next.js to 16.1.1
+- Migrated middleware to proxy architecture
+- Cleaned documentation structure
+- Refactored editor: Removed Grid and Landmarks toolbar
+
+---
+
+## [0.3.0] - 2026-01-04
 
 ### Security (P0 - Critical)
 
@@ -76,12 +101,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Technical
 
-- 97 TypeScript/TSX source files
+- 113 TypeScript/TSX source files
 - 7 custom React hooks
 - 13 UI components (Button, BottomSheet, Card, ErrorBoundary, Input, MagicLinkForm, Modal, OAuthButtons, SegmentedControl, Slider, SvoltaLogo, Toggle, UpgradePrompt)
 - 8 API routes (added debug endpoint)
-- 9 test files (added API tests)
-- 134 visual test fixtures
+- 8 test files (API tests, hooks tests, visual tests)
+- 170 visual test fixtures
 - Comprehensive 4-phase alignment algorithm with dynamic crop
 - Debug logging infrastructure for alignment troubleshooting
 - Webhook idempotency via database-backed event tracking
@@ -151,5 +176,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/yourusername/svolta/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yourusername/svolta/releases/tag/v0.1.0
+[0.3.0]: https://github.com/rickydwilson/svolta/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/rickydwilson/svolta/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/rickydwilson/svolta/releases/tag/v0.1.0

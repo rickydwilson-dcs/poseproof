@@ -1,7 +1,7 @@
 # Svolta Documentation Hub
 
-**Version:** 1.0.0
-**Last Updated:** 2025-12-29
+**Version:** 1.1.0
+**Last Updated:** 2026-01-05
 **Project:** Svolta - Fitness Photo Alignment SaaS
 
 ## Overview
@@ -32,7 +32,7 @@ Svolta is a fitness photo alignment SaaS that helps coaches create professional 
 
 ### Reference
 
-- **[API Reference](./api/reference.md)** - All 6 API endpoints documented
+- **[API Reference](./api/reference.md)** - All 8 API endpoints documented
 - **[Components](./components/reference.md)** - UI and feature components
 
 ### Standards
@@ -53,7 +53,7 @@ Svolta is a fitness photo alignment SaaS that helps coaches create professional 
 | **Radix UI**      | Accessible UI primitives                             | Latest  |
 | **Framer Motion** | Animation library                                    | Latest  |
 | **Fabric.js**     | Canvas manipulation for photo alignment              | Latest  |
-| **MediaPipe**     | Client-side pose detection (Google)                  | Latest  |
+| **MediaPipe**     | Client-side pose detection (Google)                  | 0.10.22 |
 
 ### State Management
 
@@ -155,7 +155,9 @@ svolta/
 │
 ├── hooks/                   # Custom React hooks
 │   ├── useAlignment.ts      # Alignment calculation logic
+│   ├── useBackgroundRemoval.ts # AI background removal
 │   ├── useCanvasExport.ts   # Canvas export with watermark
+│   ├── useGifExport.ts      # Animated GIF export
 │   ├── useKeyboardShortcuts.ts
 │   ├── usePoseDetection.ts  # MediaPipe pose detection
 │   └── useUsageLimit.ts     # Export limit enforcement
@@ -271,4 +273,4 @@ svolta/
 
 ---
 
-**Note:** This documentation is living and continuously updated as the project evolves. Last major update: 2025-12-29.
+**Note:** This documentation is living and continuously updated as the project evolves. Last major update: 2026-01-04.

@@ -1,7 +1,7 @@
 # Svolta - State Management & Hooks
 
-**Version:** 1.0.0
-**Last Updated:** 2025-12-26
+**Version:** 1.1.0
+**Last Updated:** 2026-01-04
 **Scope:** Zustand stores and custom React hooks architecture
 
 ## Table of Contents
@@ -12,7 +12,9 @@
   - [User Store](#user-store)
 - [Custom Hooks](#custom-hooks)
   - [useAlignment](#usealignment)
+  - [useBackgroundRemoval](#usebackgroundremoval)
   - [useCanvasExport](#usecanvasexport)
+  - [useGifExport](#usegifexport)
   - [useKeyboardShortcuts](#usekeyboardshortcuts)
   - [usePoseDetection](#useposedetection)
   - [useUsageLimit](#useusagelimit)
@@ -42,7 +44,9 @@ graph TB
 
     subgraph "Hook Layer"
         UA[useAlignment]
+        UBR[useBackgroundRemoval]
         UCE[useCanvasExport]
+        UGE[useGifExport]
         UKS[useKeyboardShortcuts]
         UPD[usePoseDetection]
         UUL[useUsageLimit]
@@ -405,6 +409,60 @@ function AlignmentControls() {
 
 ---
 
+### useBackgroundRemoval
+
+**Location:** `/hooks/useBackgroundRemoval.ts`
+
+AI-powered background removal using @imgly/background-removal for smooth edge detection.
+
+#### Interface
+
+```typescript
+interface UseBackgroundRemovalReturn {
+  isRemoving: boolean;
+  error: string | null;
+  removeBackground: (dataUrl: string) => Promise<string | null>;
+  clearError: () => void;
+}
+```
+
+#### Usage Example
+
+```typescript
+import { useBackgroundRemoval } from '@/hooks/useBackgroundRemoval';
+
+function BackgroundOptions() {
+  const { isRemoving, error, removeBackground, clearError } = useBackgroundRemoval();
+
+  const handleRemoveBackground = async (photoDataUrl: string) => {
+    const resultDataUrl = await removeBackground(photoDataUrl);
+
+    if (resultDataUrl) {
+      // Use the image with removed background
+      setProcessedImage(resultDataUrl);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={() => handleRemoveBackground(photo)} disabled={isRemoving}>
+        {isRemoving ? 'Removing...' : 'Remove Background'}
+      </button>
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+}
+```
+
+#### Features
+
+- **AI-powered:** Uses @imgly/background-removal for high-quality edge detection
+- **Client-side:** All processing happens in browser, no server upload
+- **Async with timeout:** Includes timeout handling for long-running operations
+- **Error handling:** Graceful error states with user-friendly messages
+
+---
+
 ### useCanvasExport
 
 **Location:** `/hooks/useCanvasExport.ts`
@@ -502,6 +560,91 @@ sequenceDiagram
 | `high`   | 2400x1600  | ~2-3 MB   | Print quality, professional use |
 | `medium` | 1800x1200  | ~1-1.5 MB | Social media, web use           |
 | `low`    | 1200x800   | ~500 KB   | Quick preview, email            |
+
+---
+
+### useGifExport
+
+**Location:** `/hooks/useGifExport.ts`
+
+Animated GIF export with multiple transition styles for before/after comparisons.
+
+#### Interface
+
+```typescript
+interface UseGifExportReturn {
+  isExporting: boolean;
+  progress: number; // 0-100
+  error: string | null;
+  exportGif: (options: GifExportOptions) => Promise<Blob | null>;
+  clearError: () => void;
+}
+
+interface GifExportOptions {
+  beforePhoto: Photo;
+  afterPhoto: Photo;
+  alignment: AlignmentSettings;
+  style: "fade" | "slide" | "wipe";
+  duration: number; // Frame duration in ms
+  quality: "high" | "medium" | "low";
+  includeWatermark: boolean;
+}
+```
+
+#### Usage Example
+
+```typescript
+import { useGifExport } from '@/hooks/useGifExport';
+
+function ExportModal() {
+  const { isExporting, progress, error, exportGif, clearError } = useGifExport();
+
+  const handleGifExport = async () => {
+    const blob = await exportGif({
+      beforePhoto,
+      afterPhoto,
+      alignment,
+      style: 'fade',
+      duration: 1000,
+      quality: 'high',
+      includeWatermark: false
+    });
+
+    if (blob) {
+      // Trigger download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'comparison.gif';
+      a.click();
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleGifExport} disabled={isExporting}>
+        {isExporting ? `Exporting... ${progress}%` : 'Export GIF'}
+      </button>
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+}
+```
+
+#### Animation Styles
+
+| Style   | Description                                    |
+| ------- | ---------------------------------------------- |
+| `fade`  | Cross-fade transition between before and after |
+| `slide` | Horizontal slide revealing after image         |
+| `wipe`  | Vertical wipe transition                       |
+
+#### Features
+
+- **Three animation styles:** Fade, slide, and wipe transitions
+- **Progress tracking:** Real-time progress updates during export
+- **Quality options:** High, medium, low quality presets
+- **Client-side generation:** All processing in browser using gif.js
 
 ---
 

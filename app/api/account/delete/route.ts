@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { getStripe } from '@/lib/stripe/server';
+import { logAuditEvent } from '@/lib/audit/logger';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
+import { validateRequest, DeleteAccountSchema } from '@/lib/validation/api-schemas';
 
 /**
  * Create admin client for deletion operations (bypasses RLS)
@@ -22,22 +25,48 @@ function getSupabaseAdmin() {
  * DELETE /api/account/delete
  *
  * Permanently deletes the user's account and all associated data.
+ *
+ * Rate limited: 2 requests per hour (prevents accidental cascading deletes)
  */
-export async function DELETE() {
-  try {
-    // Verify user is authenticated
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+export async function DELETE(request: Request) {
+  return withRateLimit(request, 'account-delete', async () => {
+    // Validate request body
+    const validation = await validateRequest(request, DeleteAccountSchema);
 
-    if (authError || !user) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: validation.error },
+        { status: 400 }
       );
     }
 
+    try {
+      // Verify user is authenticated
+      const supabase = await createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
+
     const userId = user.id;
+    const userEmail = user.email;
     const supabaseAdmin = getSupabaseAdmin();
+
+    // Log audit event before deletion
+    await logAuditEvent(
+      userId,
+      {
+        action: 'account.delete',
+        resourceType: 'user',
+        resourceId: userId,
+        metadata: { email: userEmail }
+      },
+      request
+    );
 
     // Get user's Stripe customer ID before deletion
     const { data: profile } = await supabaseAdmin
@@ -124,16 +153,17 @@ export async function DELETE() {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Account deleted successfully',
-    });
+      return NextResponse.json({
+        success: true,
+        message: 'Account deleted successfully',
+      });
 
-  } catch (error) {
-    console.error('Account deletion error:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete account' },
-      { status: 500 }
-    );
-  }
+    } catch (error) {
+      console.error('Account deletion error:', error);
+      return NextResponse.json(
+        { error: 'Failed to delete account' },
+        { status: 500 }
+      );
+    }
+  });
 }

@@ -1,26 +1,31 @@
-# Component Reference
+# Component API Reference
 
-Comprehensive reference for all UI and feature components in Svolta.
+Comprehensive API documentation for all UI and feature components in Svolta.
 
-**Version:** 1.0.0
-**Last Updated:** 2025-12-22
-**Scope:** All UI primitives and editor feature components
+**Version:** 1.2.0
+**Last Updated:** 2026-01-04
+**Scope:** UI primitives and editor feature components
+
+> **Design System:** See [brand-guidelines.md](../standards/brand-guidelines.md) and [design-tokens.md](../standards/design-tokens.md) for visual style, colors, and spacing tokens.
 
 ---
 
 ## Table of Contents
 
-- [Design System Overview](#design-system-overview)
 - [Component Patterns](#component-patterns)
 - [UI Components](#ui-components)
   - [Button](#button)
-  - [Card](#card)
-  - [Input](#input)
-  - [Modal](#modal)
-  - [Slider](#slider)
-  - [Toggle](#toggle)
-  - [SegmentedControl](#segmentedcontrol)
   - [BottomSheet](#bottomsheet)
+  - [Card](#card)
+  - [ErrorBoundary](#errorboundary)
+  - [Input](#input)
+  - [MagicLinkForm](#magiclinkform)
+  - [Modal](#modal)
+  - [OAuthButtons](#oauthbuttons)
+  - [SegmentedControl](#segmentedcontrol)
+  - [Slider](#slider)
+  - [SvoltaLogo](#svoltalogo)
+  - [Toggle](#toggle)
   - [UpgradePrompt](#upgradeprompt)
 - [Feature Components](#feature-components)
   - [DropZone](#dropzone)
@@ -28,41 +33,10 @@ Comprehensive reference for all UI and feature components in Svolta.
   - [AlignmentControls](#alignmentcontrols)
   - [PhotoPanel](#photopanel)
   - [LandmarkOverlay](#landmarkoverlay)
-
----
-
-## Design System Overview
-
-Svolta components follow Apple-style design principles:
-
-### Visual Style
-
-- **Border Radius:** Large rounded corners (12px inputs, 24px cards)
-- **Shadows:** Layered soft shadows for depth
-- **Gradients:** Instagram-inspired gradient for primary actions
-- **Typography:** System fonts with clear hierarchy
-- **Spacing:** Generous padding and margins
-
-### Color System
-
-- **Brand Colors:** Instagram gradient (pink to orange)
-- **Surface Colors:** Light/dark theme support
-- **Text Colors:** Primary, secondary, tertiary hierarchy
-- **Semantic Colors:** Success (green), error (red), warning (yellow)
-
-### Animation
-
-- **Easing:** Apple easing curves (`cubic-bezier(0.4, 0, 0.2, 1)`)
-- **Duration:** 200ms for UI interactions
-- **Transforms:** Scale and translate for feedback
-- **Transitions:** Smooth property changes
-
-### Accessibility
-
-- **ARIA Labels:** All interactive elements labeled
-- **Keyboard Navigation:** Full keyboard support
-- **Focus Indicators:** Clear focus rings
-- **Screen Readers:** Semantic HTML structure
+  - [AlignedPreview](#alignedpreview)
+  - [BackgroundSettings](#backgroundsettings)
+  - [GifPreview](#gifpreview)
+  - [MediaPipeLoader](#mediapipeloader)
 
 ---
 
@@ -239,6 +213,60 @@ import {
 
 ---
 
+### ErrorBoundary
+
+React error boundary component with retry functionality for graceful error handling.
+
+#### Props
+
+```tsx
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  fallback?: React.ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+  onReset?: () => void;
+}
+```
+
+#### Props Table
+
+| Prop       | Type                                           | Required | Default | Description        |
+| ---------- | ---------------------------------------------- | -------- | ------- | ------------------ |
+| `children` | `React.ReactNode`                              | Yes      | -       | Protected content  |
+| `fallback` | `React.ReactNode`                              | No       | -       | Custom fallback UI |
+| `onError`  | `(error: Error, errorInfo: ErrorInfo) => void` | No       | -       | Error callback     |
+| `onReset`  | `() => void`                                   | No       | -       | Reset callback     |
+
+#### Usage
+
+```tsx
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
+
+// Basic usage
+<ErrorBoundary>
+  <ProblematicComponent />
+</ErrorBoundary>
+
+// With custom fallback and error handling
+<ErrorBoundary
+  fallback={<div>Something went wrong</div>}
+  onError={(error) => console.error('Caught error:', error)}
+  onReset={() => window.location.reload()}
+>
+  <App />
+</ErrorBoundary>
+```
+
+#### Features
+
+- Catches JavaScript errors in child component tree
+- Displays fallback UI when error occurs
+- Retry button to attempt recovery
+- Error logging callback for monitoring
+- Reset callback for cleanup
+
+---
+
 ### Input
 
 Text input field with label, error states, and icon support.
@@ -299,6 +327,52 @@ import { Input } from '@/components/ui/Input';
 - Error announced to screen readers via aria-describedby
 - Error state indicated via aria-invalid
 - Keyboard navigation support
+
+---
+
+### MagicLinkForm
+
+Email-based magic link authentication form for passwordless login.
+
+#### Props
+
+```tsx
+interface MagicLinkFormProps {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+  redirectTo?: string;
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop         | Type                     | Required | Default | Description            |
+| ------------ | ------------------------ | -------- | ------- | ---------------------- |
+| `onSuccess`  | `() => void`             | No       | -       | Success callback       |
+| `onError`    | `(error: Error) => void` | No       | -       | Error callback         |
+| `redirectTo` | `string`                 | No       | -       | Post-auth redirect URL |
+| `className`  | `string`                 | No       | -       | Additional CSS classes |
+
+#### Usage
+
+```tsx
+import { MagicLinkForm } from "@/components/ui/MagicLinkForm";
+
+<MagicLinkForm
+  onSuccess={() => toast.success("Check your email!")}
+  onError={(error) => toast.error(error.message)}
+  redirectTo="/editor"
+/>;
+```
+
+#### Features
+
+- Email input with validation
+- Loading state during submission
+- Success message after sending link
+- Error handling with user feedback
+- Integrates with Supabase Auth
 
 ---
 
@@ -365,6 +439,55 @@ const [isOpen, setIsOpen] = useState(false);
 
 ---
 
+### OAuthButtons
+
+Social login buttons for OAuth authentication providers.
+
+#### Props
+
+```tsx
+interface OAuthButtonsProps {
+  providers?: ("google" | "apple" | "github")[];
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+  redirectTo?: string;
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop         | Type                                  | Required | Default               | Description             |
+| ------------ | ------------------------------------- | -------- | --------------------- | ----------------------- |
+| `providers`  | `('google' \| 'apple' \| 'github')[]` | No       | `['google', 'apple']` | OAuth providers to show |
+| `onSuccess`  | `() => void`                          | No       | -                     | Success callback        |
+| `onError`    | `(error: Error) => void`              | No       | -                     | Error callback          |
+| `redirectTo` | `string`                              | No       | -                     | Post-auth redirect URL  |
+| `className`  | `string`                              | No       | -                     | Additional CSS classes  |
+
+#### Usage
+
+```tsx
+import { OAuthButtons } from "@/components/ui/OAuthButtons";
+
+<OAuthButtons
+  providers={["google", "apple"]}
+  onError={(error) => toast.error(error.message)}
+  redirectTo="/editor"
+/>;
+```
+
+#### Features
+
+- Google OAuth integration
+- Apple Sign-In integration
+- Provider-specific icons and styling
+- Loading states during auth flow
+- Error handling
+- Integrates with Supabase Auth
+
+---
+
 ### Slider
 
 Range input slider for numeric value adjustment.
@@ -420,6 +543,61 @@ import { Slider } from '@/components/ui/Slider';
   valueFormatter={(val) => `${(val * 100).toFixed(0)}%`}
 />
 ```
+
+---
+
+### SvoltaLogo
+
+Brand logo component with size variants and optional text.
+
+#### Props
+
+```tsx
+interface SvoltaLogoProps {
+  size?: "sm" | "md" | "lg" | "xl";
+  showText?: boolean;
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop        | Type                           | Required | Default | Description            |
+| ----------- | ------------------------------ | -------- | ------- | ---------------------- |
+| `size`      | `'sm' \| 'md' \| 'lg' \| 'xl'` | No       | `'md'`  | Logo size              |
+| `showText`  | `boolean`                      | No       | `true`  | Show "Svolta" text     |
+| `className` | `string`                       | No       | -       | Additional CSS classes |
+
+#### Size Variants
+
+| Size | Icon Size | Use Case              |
+| ---- | --------- | --------------------- |
+| `sm` | 24px      | Navbar, compact areas |
+| `md` | 32px      | Default, headers      |
+| `lg` | 48px      | Hero sections         |
+| `xl` | 64px      | Landing page          |
+
+#### Usage
+
+```tsx
+import { SvoltaLogo } from '@/components/ui/SvoltaLogo';
+
+// Default with text
+<SvoltaLogo />
+
+// Large icon only
+<SvoltaLogo size="lg" showText={false} />
+
+// Small in navbar
+<SvoltaLogo size="sm" />
+```
+
+#### Features
+
+- SVG-based for crisp rendering at all sizes
+- Instagram gradient brand colors
+- Optional text with custom font
+- Dark mode support
 
 ---
 
@@ -946,6 +1124,195 @@ Key landmarks for alignment:
 
 ---
 
+### AlignedPreview
+
+Combined before/after preview component with side-by-side or split view modes.
+
+#### Props
+
+```tsx
+interface AlignedPreviewProps {
+  beforePhoto: Photo | null;
+  afterPhoto: Photo | null;
+  alignment: AlignmentSettings;
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop          | Type                | Required | Default | Description             |
+| ------------- | ------------------- | -------- | ------- | ----------------------- |
+| `beforePhoto` | `Photo \| null`     | Yes      | -       | Before photo            |
+| `afterPhoto`  | `Photo \| null`     | Yes      | -       | After photo             |
+| `alignment`   | `AlignmentSettings` | Yes      | -       | Alignment configuration |
+| `className`   | `string`            | No       | -       | Additional CSS classes  |
+
+#### Usage
+
+```tsx
+import { AlignedPreview } from "@/components/features/editor/AlignedPreview";
+
+<AlignedPreview
+  beforePhoto={beforePhoto}
+  afterPhoto={afterPhoto}
+  alignment={alignment}
+/>;
+```
+
+#### Features
+
+- Side-by-side comparison view
+- Synchronized zoom and pan
+- Alignment transformation applied
+- Responsive layout
+
+---
+
+### BackgroundSettings
+
+Background removal and custom background controls with image upload.
+
+#### Props
+
+```tsx
+interface BackgroundSettingsProps {
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop        | Type     | Required | Default | Description            |
+| ----------- | -------- | -------- | ------- | ---------------------- |
+| `className` | `string` | No       | -       | Additional CSS classes |
+
+#### Usage
+
+```tsx
+import { BackgroundSettings } from "@/components/features/editor/BackgroundSettings";
+
+<BackgroundSettings />;
+```
+
+#### Features
+
+- Toggle background removal on/off
+- Custom background image upload
+- Background color picker
+- Pro feature gating
+- Integrates with @imgly/background-removal
+- State managed via useEditorStore
+
+#### State Integration
+
+Connects to `useEditorStore`:
+
+- `removeBackground` - Background removal toggle
+- `customBackground` - Custom background image/color
+- `setRemoveBackground()` - Toggle handler
+- `setCustomBackground()` - Background setter
+
+---
+
+### GifPreview
+
+Animated GIF preview component with style selection and export controls.
+
+#### Props
+
+```tsx
+interface GifPreviewProps {
+  beforePhoto: Photo | null;
+  afterPhoto: Photo | null;
+  alignment: AlignmentSettings;
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop          | Type                | Required | Default | Description             |
+| ------------- | ------------------- | -------- | ------- | ----------------------- |
+| `beforePhoto` | `Photo \| null`     | Yes      | -       | Before photo            |
+| `afterPhoto`  | `Photo \| null`     | Yes      | -       | After photo             |
+| `alignment`   | `AlignmentSettings` | Yes      | -       | Alignment configuration |
+| `className`   | `string`            | No       | -       | Additional CSS classes  |
+
+#### Usage
+
+```tsx
+import { GifPreview } from "@/components/features/editor/GifPreview";
+
+<GifPreview
+  beforePhoto={beforePhoto}
+  afterPhoto={afterPhoto}
+  alignment={alignment}
+/>;
+```
+
+#### Features
+
+- 3 animation styles: Fade, Slide, Flip
+- Real-time GIF preview
+- Export to animated GIF
+- Pro feature gating
+- Integrates with useGifExport hook
+
+#### Animation Styles
+
+- **Fade:** Cross-fade transition between photos
+- **Slide:** Horizontal slide transition
+- **Flip:** 3D flip effect
+
+---
+
+### MediaPipeLoader
+
+Loading state component for MediaPipe initialization with progress indication.
+
+#### Props
+
+```tsx
+interface MediaPipeLoaderProps {
+  isLoading: boolean;
+  error?: string | null;
+  onRetry?: () => void;
+  className?: string;
+}
+```
+
+#### Props Table
+
+| Prop        | Type             | Required | Default | Description            |
+| ----------- | ---------------- | -------- | ------- | ---------------------- |
+| `isLoading` | `boolean`        | Yes      | -       | Loading state          |
+| `error`     | `string \| null` | No       | -       | Error message          |
+| `onRetry`   | `() => void`     | No       | -       | Retry callback         |
+| `className` | `string`         | No       | -       | Additional CSS classes |
+
+#### Usage
+
+```tsx
+import { MediaPipeLoader } from "@/components/features/editor/MediaPipeLoader";
+
+<MediaPipeLoader
+  isLoading={isLoadingMediaPipe}
+  error={mediaPipeError}
+  onRetry={handleRetry}
+/>;
+```
+
+#### Features
+
+- Loading spinner with message
+- Error state with retry button
+- Progress indication
+- Self-hosting status display
+- Integrates with MediaPipeProvider
+
+---
+
 ## Related Documentation
 
 - [Architecture Overview](/docs/architecture/README.md)
@@ -955,6 +1322,6 @@ Key landmarks for alignment:
 
 ---
 
-**Last Updated:** 2025-12-26
+**Last Updated:** 2026-01-04
 **Maintained By:** Development Team
 **Questions:** See project README or Linear board

@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { FREE_EXPORT_LIMIT } from '@/lib/stripe/plans';
 import { getCurrentBillingPeriod } from '@/lib/utils/billing-period';
+import { logAuditEvent } from '@/lib/audit/logger';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
+import { validateRequest, IncrementUsageSchema } from '@/lib/validation/api-schemas';
 
 /**
  * POST /api/usage/increment
@@ -12,6 +15,8 @@ import { getCurrentBillingPeriod } from '@/lib/utils/billing-period';
  * For Free users: Checks if limit is reached before incrementing.
  * For Pro users: Always allows increment (unlimited).
  *
+ * Rate limit: 100 requests per minute
+ *
  * Response format:
  * {
  *   success: boolean,
@@ -21,12 +26,23 @@ import { getCurrentBillingPeriod } from '@/lib/utils/billing-period';
  *   limit_reached: boolean
  * }
  */
-export async function POST() {
-  try {
-    const supabase = await createClient();
+export async function POST(request: Request) {
+  return withRateLimit(request, 'usage-increment', async () => {
+    // Validate request body
+    const validation = await validateRequest(request, IncrementUsageSchema);
 
-    // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: validation.error },
+        { status: 400 }
+      );
+    }
+
+    try {
+      const supabase = await createClient();
+
+      // Verify user is authenticated
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
@@ -102,6 +118,22 @@ export async function POST() {
     const canExport = isPro || newCount < FREE_EXPORT_LIMIT;
     const limitReached = !isPro && newCount >= FREE_EXPORT_LIMIT;
 
+    // Log audit event for successful export
+    await logAuditEvent(
+      user.id,
+      {
+        action: 'usage.incremented',
+        resourceType: 'usage',
+        resourceId: currentMonth,
+        metadata: {
+          exports_count: newCount,
+          tier: isPro ? 'pro' : 'free',
+          limit_reached: limitReached
+        }
+      },
+      request
+    );
+
     return NextResponse.json({
       success: true,
       exports_count: newCount,
@@ -110,11 +142,12 @@ export async function POST() {
       limit_reached: limitReached,
     });
 
-  } catch (error) {
-    console.error('Usage increment API error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
+    } catch (error) {
+      console.error('Usage increment API error:', error);
+      return NextResponse.json(
+        { error: 'Internal server error' },
+        { status: 500 }
+      );
+    }
+  });
 }

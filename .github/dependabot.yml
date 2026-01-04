@@ -1,0 +1,39 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/Los_Angeles"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "security"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    reviewers:
+      - "rickydwilson"
+    # Group updates for related packages
+    groups:
+      next-ecosystem:
+        patterns:
+          - "next"
+          - "react"
+          - "react-dom"
+      supabase-ecosystem:
+        patterns:
+          - "@supabase/*"
+      stripe-ecosystem:
+        patterns:
+          - "stripe"
+          - "@stripe/*"
+      testing-tools:
+        patterns:
+          - "vitest"
+          - "@vitest/*"
+          - "playwright"
+          - "@playwright/*"

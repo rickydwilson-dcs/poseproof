@@ -1,6 +1,7 @@
 /**
  * MediaPipe Pose Landmarker Singleton
  * Provides efficient pose detection with GPU acceleration and CPU fallback
+ * Self-hosted assets with CDN fallback for reliability
  */
 
 import {
@@ -17,26 +18,71 @@ import {
   PoseDetectionErrorType,
 } from '@/types/landmarks';
 
+import { useMediaPipeLoading } from './loading-store';
+
 // Pinned version for stability
 const MEDIAPIPE_VERSION = '0.10.22';
-const MEDIAPIPE_CDN_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/wasm`;
-const MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+
+// Local assets (self-hosted, copied during build)
+const LOCAL_WASM_PATH = '/mediapipe/wasm';
+const LOCAL_MODEL_PATH = '/mediapipe/models/pose_landmarker_lite.task';
+
+// CDN fallback (if local assets unavailable)
+const CDN_WASM_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MEDIAPIPE_VERSION}/wasm`;
+const CDN_MODEL_URL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
 
 // Singleton instance
 let poseLandmarker: PoseLandmarker | null = null;
 let initializationPromise: Promise<PoseLandmarker> | null = null;
 let usingCpuFallback = false;
+let usingLocalAssets = false;
+
+/**
+ * Check if local MediaPipe assets are available
+ * Performs a lightweight HEAD request to avoid downloading
+ */
+async function checkLocalAssets(): Promise<boolean> {
+  try {
+    // Check if the WASM loader exists locally
+    const response = await fetch(`${LOCAL_WASM_PATH}/vision_wasm_internal.js`, {
+      method: 'HEAD',
+      cache: 'no-cache',
+    });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Get asset paths based on availability
+ * Prefers local assets, falls back to CDN
+ */
+async function getAssetPaths(): Promise<{ wasmPath: string; modelPath: string }> {
+  const hasLocalAssets = await checkLocalAssets();
+
+  if (hasLocalAssets) {
+    console.log('✓ Using self-hosted MediaPipe assets');
+    usingLocalAssets = true;
+    return { wasmPath: LOCAL_WASM_PATH, modelPath: LOCAL_MODEL_PATH };
+  }
+
+  console.warn('⚠ Local MediaPipe assets not found, using CDN fallback');
+  usingLocalAssets = false;
+  return { wasmPath: CDN_WASM_URL, modelPath: CDN_MODEL_URL };
+}
 
 /**
  * Create PoseLandmarker with specified delegate
  */
 async function createPoseLandmarker(
   vision: Awaited<ReturnType<typeof FilesetResolver.forVisionTasks>>,
+  modelPath: string,
   delegate: 'GPU' | 'CPU'
 ): Promise<PoseLandmarker> {
   return PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: MODEL_URL,
+      modelAssetPath: modelPath,
       delegate,
     },
     runningMode: 'IMAGE',
@@ -49,6 +95,7 @@ async function createPoseLandmarker(
 
 /**
  * Initialize the PoseLandmarker singleton
+ * Attempts local assets first, then CDN fallback
  * Attempts GPU first, falls back to CPU if unavailable
  */
 export async function initializePoseDetector(): Promise<PoseLandmarker> {
@@ -64,25 +111,45 @@ export async function initializePoseDetector(): Promise<PoseLandmarker> {
 
   // Start new initialization
   initializationPromise = (async () => {
+    const { setLoading, setProgress, setError } = useMediaPipeLoading.getState();
+
+    setLoading(true);
+    setProgress(0);
+
     try {
+      setProgress(10);
+
+      // Get asset paths (local or CDN)
+      const { wasmPath, modelPath } = await getAssetPaths();
+      setProgress(30);
+
       // Load the vision tasks WASM files
-      const vision = await FilesetResolver.forVisionTasks(MEDIAPIPE_CDN_URL);
+      const vision = await FilesetResolver.forVisionTasks(wasmPath);
+      setProgress(60);
 
       // Try GPU first, fall back to CPU if it fails
       try {
-        poseLandmarker = await createPoseLandmarker(vision, 'GPU');
+        poseLandmarker = await createPoseLandmarker(vision, modelPath, 'GPU');
         usingCpuFallback = false;
+        console.log('✓ Pose detector initialized with GPU acceleration');
       } catch (gpuError) {
-        console.warn('GPU initialization failed, falling back to CPU:', gpuError);
-        poseLandmarker = await createPoseLandmarker(vision, 'CPU');
+        console.warn('⚠ GPU initialization failed, falling back to CPU:', gpuError);
+        poseLandmarker = await createPoseLandmarker(vision, modelPath, 'CPU');
         usingCpuFallback = true;
+        console.log('✓ Pose detector initialized with CPU');
       }
+
+      setProgress(100);
+      setLoading(false);
 
       return poseLandmarker;
     } catch (error) {
       // Reset state on failure
       poseLandmarker = null;
       initializationPromise = null;
+
+      const message = error instanceof Error ? error.message : 'Failed to initialize pose detector';
+      setError(message);
 
       throw new PoseDetectionError(
         PoseDetectionErrorType.INITIALIZATION_FAILED,
@@ -100,6 +167,13 @@ export async function initializePoseDetector(): Promise<PoseLandmarker> {
  */
 export function isUsingCpuFallback(): boolean {
   return usingCpuFallback;
+}
+
+/**
+ * Check if pose detector is using local assets (vs CDN)
+ */
+export function isUsingLocalAssets(): boolean {
+  return usingLocalAssets;
 }
 
 /**

@@ -1,24 +1,39 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getStripe } from '@/lib/stripe/server';
+import { withRateLimit } from '@/lib/middleware/rate-limit';
+import { validateRequest, CreatePortalSchema } from '@/lib/validation/api-schemas';
 
 /**
  * POST /api/stripe/portal
  *
  * Creates a Stripe Customer Portal session for managing subscriptions.
+ *
+ * Rate limited: 10 requests per minute
  */
-export async function POST() {
-  try {
-    // Verify user is authenticated
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+export async function POST(request: Request) {
+  return withRateLimit(request, 'stripe-portal', async () => {
+    // Validate request body
+    const validation = await validateRequest(request, CreatePortalSchema);
 
-    if (authError || !user) {
+    if (!validation.success) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: validation.error },
+        { status: 400 }
       );
     }
+
+    try {
+      // Verify user is authenticated
+      const supabase = await createClient();
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
 
     // Get user's Stripe customer ID
     const { data: profile } = await supabase
@@ -43,21 +58,22 @@ export async function POST() {
       return_url: `${appUrl}/settings`,
     });
 
-    return NextResponse.json({ url: portalSession.url });
+      return NextResponse.json({ url: portalSession.url });
 
-  } catch (error) {
-    console.error('Portal error:', error);
+    } catch (error) {
+      console.error('Portal error:', error);
 
-    if (error instanceof Error) {
+      if (error instanceof Error) {
+        return NextResponse.json(
+          { error: error.message },
+          { status: 500 }
+        );
+      }
+
       return NextResponse.json(
-        { error: error.message },
+        { error: 'Failed to create portal session' },
         { status: 500 }
       );
     }
-
-    return NextResponse.json(
-      { error: 'Failed to create portal session' },
-      { status: 500 }
-    );
-  }
+  });
 }

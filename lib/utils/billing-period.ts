@@ -3,6 +3,21 @@
  *
  * Provides consistent billing period calculations across the application.
  * Uses UTC timezone to ensure consistency across all server and client environments.
+ *
+ * ## Design Decision: Calendar Months vs Stripe Billing Cycles
+ *
+ * Usage tracking (export limits) is based on **calendar months** (UTC), NOT on
+ * Stripe subscription billing cycles. This is intentional:
+ *
+ * 1. **Simplicity:** Calendar months are predictable - users know limits reset on the 1st
+ * 2. **Independence:** Usage limits are a product feature, separate from payment timing
+ * 3. **Consistency:** Avoids edge cases with prorations, trial extensions, or plan changes
+ *
+ * If business requirements change to align with Stripe billing cycles, use:
+ * - `subscription.current_period_start` from Stripe subscription objects
+ * - Store billing period boundaries in the subscriptions table
+ *
+ * @see https://stripe.com/docs/billing/subscriptions/billing-cycle
  */
 
 /**

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type Stripe from 'stripe';
-import { constructWebhookEvent } from '@/lib/stripe/server';
+import { constructWebhookEvent, getStripe } from '@/lib/stripe/server';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { resolveTierFromPriceId } from '@/lib/stripe/tier-resolver';
 
@@ -90,7 +90,12 @@ export async function POST(request: NextRequest) {
         console.log('Event already being processed by another worker:', event.id);
         return NextResponse.json({ received: true, duplicate: true });
       }
+      // Any other error - fail fast, let Stripe retry
       console.error('Failed to record webhook event:', insertError);
+      return NextResponse.json(
+        { error: 'Database error recording webhook event' },
+        { status: 500 }
+      );
     }
 
     // Handle events
@@ -154,16 +159,22 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     return;
   }
 
-  console.log('Checkout completed for user:', userId);
+  // Fetch line items to get the price ID
+  const stripe = getStripe();
+  const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 1 });
+  const priceId = lineItems.data[0]?.price?.id;
+  const tier = resolveTierFromPriceId(priceId);
 
-  // Upsert subscription record
+  console.log('Checkout completed for user:', userId, 'tier:', tier);
+
+  // Upsert subscription record with resolved tier
   const { error } = await getSupabaseAdmin()
     .from('subscriptions')
     .upsert({
       user_id: userId,
       stripe_subscription_id: subscriptionId,
       stripe_customer_id: customerId,
-      tier: 'pro',
+      tier,
       status: 'active',
       updated_at: new Date().toISOString(),
     }, {

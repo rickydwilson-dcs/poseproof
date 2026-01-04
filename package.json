@@ -21,6 +21,8 @@
     "test:visual:generate": "npx tsx tests/visual/fixtures/generate-fixtures.ts",
     "test:visual:report": "open tests/visual/report.html",
     "validate": "npm run type-check && npm run lint && npm run test run",
+    "copy-mediapipe": "node scripts/copy-mediapipe-assets.js",
+    "postinstall": "npm run copy-mediapipe",
     "prepare": "husky"
   },
   "dependencies": {
@@ -43,6 +45,7 @@
     "react-dom": "^19.2.3",
     "stripe": "^20.0.0",
     "tailwind-merge": "^3.4.0",
+    "zod": "^4.3.5",
     "zustand": "^5.0.9"
   },
   "devDependencies": {

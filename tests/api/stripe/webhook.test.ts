@@ -37,10 +37,20 @@ vi.mock('@supabase/supabase-js', () => ({
   })),
 }));
 
-// Mock Stripe webhook verification
+// Mock Stripe webhook verification and client
 const mockConstructWebhookEvent = vi.fn();
+const mockListLineItems = vi.fn();
+const mockGetStripe = vi.fn(() => ({
+  checkout: {
+    sessions: {
+      listLineItems: mockListLineItems,
+    },
+  },
+}));
+
 vi.mock('@/lib/stripe/server', () => ({
   constructWebhookEvent: mockConstructWebhookEvent,
+  getStripe: mockGetStripe,
 }));
 
 describe('Stripe Webhook API', () => {
@@ -62,6 +72,11 @@ describe('Stripe Webhook API', () => {
     mockSupabaseInsert.mockResolvedValue({ error: null });
     mockSupabaseUpdate.mockReturnValue({
       eq: vi.fn().mockResolvedValue({ error: null }),
+    });
+
+    // Default Stripe line items response
+    mockListLineItems.mockResolvedValue({
+      data: [{ price: { id: 'price_pro_monthly' } }],
     });
   });
 
