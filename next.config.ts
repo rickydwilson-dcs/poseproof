@@ -4,6 +4,9 @@ import type { NextConfig } from "next";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://nnmhozkcvisufhtjlboq.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ubWhvemtjdmlzdWZodGpsYm9xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODkxMTIsImV4cCI6MjA4MDE2NTExMn0.l6vZG6iHQQlL0VPRww7WUi4wIKeMfPo62XptjqjNHK8';
 
+// Environment-specific CSP: Allow inline scripts in dev for Next.js tooling (Turbopack, Vercel Live)
+const isDev = process.env.NODE_ENV === 'development';
+
 const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_SUPABASE_URL: supabaseUrl,
@@ -46,8 +49,11 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              // Script: Only allow specific domains + unsafe-eval for Fabric.js
-              "script-src 'self' 'unsafe-eval' https://js.stripe.com https://*.supabase.co https://cdn.jsdelivr.net",
+              // Script: Development allows inline scripts for Next.js dev tools (Turbopack, Vercel Live)
+              // Production blocks inline scripts for security. Both keep unsafe-eval for Fabric.js
+              isDev
+                ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.supabase.co https://cdn.jsdelivr.net"
+                : "script-src 'self' 'unsafe-eval' https://js.stripe.com https://*.supabase.co https://cdn.jsdelivr.net",
               // Style: Allow inline for Tailwind + Google Fonts
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
