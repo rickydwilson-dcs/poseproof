@@ -12,7 +12,10 @@ import { validateRequest, CreatePortalSchema } from '@/lib/validation/api-schema
  * Rate limited: 10 requests per minute
  */
 export async function POST(request: Request) {
-  return withRateLimit(request, 'stripe-portal', async () => {
+  return withRateLimit<{ error: string } | { url: string }>(
+    request,
+    'stripe-portal',
+    async () => {
     // Validate request body
     const validation = await validateRequest(request, CreatePortalSchema);
 

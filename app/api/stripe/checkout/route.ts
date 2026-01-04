@@ -12,7 +12,10 @@ import { validateRequest, CreateCheckoutSchema } from '@/lib/validation/api-sche
  * Rate limited: 5 requests per 5 minutes
  */
 export async function POST(request: NextRequest) {
-  return withRateLimit(request, 'stripe-checkout', async () => {
+  return withRateLimit<{ error: string } | { url: string | null }>(
+    request,
+    'stripe-checkout',
+    async () => {
     // Validate request body
     const validation = await validateRequest(request, CreateCheckoutSchema);
 

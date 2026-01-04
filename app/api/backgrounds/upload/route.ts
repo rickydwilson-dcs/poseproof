@@ -22,7 +22,9 @@ import { withRateLimit } from '@/lib/middleware/rate-limit';
  * }
  */
 export async function POST(request: NextRequest) {
-  return withRateLimit(request, 'backgrounds-upload', async () => {
+  return withRateLimit<
+    { error: string } | { success: boolean; url: string; message: string }
+  >(request, 'backgrounds-upload', async () => {
     try {
       const supabase = await createClient();
 
@@ -198,7 +200,10 @@ export async function POST(request: NextRequest) {
  * }
  */
 export async function DELETE(request: NextRequest) {
-  return withRateLimit(request, 'backgrounds-upload', async () => {
+  return withRateLimit<{ error: string } | { success: boolean; message: string }>(
+    request,
+    'backgrounds-upload',
+    async () => {
     try {
       const supabase = await createClient();
 

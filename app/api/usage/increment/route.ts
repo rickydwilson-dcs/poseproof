@@ -27,7 +27,16 @@ import { validateRequest, IncrementUsageSchema } from '@/lib/validation/api-sche
  * }
  */
 export async function POST(request: Request) {
-  return withRateLimit(request, 'usage-increment', async () => {
+  return withRateLimit<
+    | { error: string }
+    | {
+        success: boolean;
+        exports_count: number;
+        remaining: number;
+        can_export: boolean;
+        limit_reached: boolean;
+      }
+  >(request, 'usage-increment', async () => {
     // Validate request body
     const validation = await validateRequest(request, IncrementUsageSchema);
 

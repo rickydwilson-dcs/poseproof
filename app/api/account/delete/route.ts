@@ -29,7 +29,10 @@ function getSupabaseAdmin() {
  * Rate limited: 2 requests per hour (prevents accidental cascading deletes)
  */
 export async function DELETE(request: Request) {
-  return withRateLimit(request, 'account-delete', async () => {
+  return withRateLimit<{ error: string } | { success: boolean; message: string }>(
+    request,
+    'account-delete',
+    async () => {
     // Validate request body
     const validation = await validateRequest(request, DeleteAccountSchema);
 
