@@ -116,6 +116,7 @@ export function createMockSupabaseClient() {
   const mockUpsert = vi.fn().mockReturnThis();
   const mockInsert = vi.fn().mockReturnThis();
   const mockUpdate = vi.fn().mockReturnThis();
+  const mockRpc = vi.fn();
 
   return {
     auth: {
@@ -129,6 +130,7 @@ export function createMockSupabaseClient() {
       insert: mockInsert,
       update: mockUpdate,
     })),
+    rpc: mockRpc,
     _mocks: {
       select: mockSelect,
       eq: mockEq,
@@ -136,6 +138,7 @@ export function createMockSupabaseClient() {
       upsert: mockUpsert,
       insert: mockInsert,
       update: mockUpdate,
+      rpc: mockRpc,
     },
   };
 }

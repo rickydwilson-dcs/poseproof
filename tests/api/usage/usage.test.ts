@@ -23,6 +23,7 @@ const mockSupabaseSelect = vi.fn().mockReturnThis();
 const mockSupabaseEq = vi.fn().mockReturnThis();
 const mockSupabaseSingle = vi.fn();
 const mockSupabaseUpsert = vi.fn().mockReturnThis();
+const mockSupabaseRpc = vi.fn();
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(() => Promise.resolve({
@@ -33,6 +34,7 @@ vi.mock('@/lib/supabase/server', () => ({
       single: mockSupabaseSingle,
       upsert: mockSupabaseUpsert,
     }),
+    rpc: mockSupabaseRpc,
   })),
 }));
 
@@ -147,6 +149,12 @@ describe('Usage API - POST /api/usage/increment', () => {
       error: null,
     });
 
+    // Mock rate limit check
+    mockSupabaseRpc.mockResolvedValue({
+      data: { success: true, count: 1, limit: 100, remaining: 99, reset: Date.now() / 1000 + 60 },
+      error: null,
+    });
+
     const currentCount = 2;
 
     // Mock subscription and current usage
@@ -186,6 +194,12 @@ describe('Usage API - POST /api/usage/increment', () => {
       error: null,
     });
 
+    // Mock rate limit check
+    mockSupabaseRpc.mockResolvedValue({
+      data: { success: true, count: 1, limit: 100, remaining: 99, reset: Date.now() / 1000 + 60 },
+      error: null,
+    });
+
     // Mock subscription and usage at limit
     mockSupabaseSingle.mockResolvedValueOnce({
       data: mockFreeSubscription,
@@ -210,6 +224,12 @@ describe('Usage API - POST /api/usage/increment', () => {
   it('should always allow increment for pro user', async () => {
     mockSupabaseAuth.getUser.mockResolvedValue({
       data: { user: mockProUser },
+      error: null,
+    });
+
+    // Mock rate limit check
+    mockSupabaseRpc.mockResolvedValue({
+      data: { success: true, count: 1, limit: 100, remaining: 99, reset: Date.now() / 1000 + 60 },
       error: null,
     });
 
@@ -248,6 +268,12 @@ describe('Usage API - POST /api/usage/increment', () => {
       error: null,
     });
 
+    // Mock rate limit check
+    mockSupabaseRpc.mockResolvedValue({
+      data: { success: true, count: 1, limit: 100, remaining: 99, reset: Date.now() / 1000 + 60 },
+      error: null,
+    });
+
     // Mock subscription and usage at limit - 1
     mockSupabaseSingle.mockResolvedValueOnce({
       data: mockFreeSubscription,
@@ -282,6 +308,12 @@ describe('Usage API - POST /api/usage/increment', () => {
   it('should create usage record for first export', async () => {
     mockSupabaseAuth.getUser.mockResolvedValue({
       data: { user: mockUser },
+      error: null,
+    });
+
+    // Mock rate limit check
+    mockSupabaseRpc.mockResolvedValue({
+      data: { success: true, count: 1, limit: 100, remaining: 99, reset: Date.now() / 1000 + 60 },
       error: null,
     });
 
