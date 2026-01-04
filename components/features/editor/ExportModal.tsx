@@ -369,6 +369,9 @@ export function ExportModal({ isOpen, onClose }: ExportModalProps) {
               <Dialog.Title className="text-lg font-semibold text-[var(--text-primary)]">
                 Export
               </Dialog.Title>
+              <Dialog.Description className="sr-only">
+                Configure and export your aligned before/after comparison as an image or animated GIF
+              </Dialog.Description>
               <Dialog.Close
                 className={cn(
                   'rounded-lg p-1.5',

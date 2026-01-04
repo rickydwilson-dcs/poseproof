@@ -185,7 +185,21 @@ export async function detectPose(
   const detector = await initializePoseDetector();
 
   try {
-    const result: PoseLandmarkerResult = detector.detect(imageSource);
+    // Extract image dimensions for proper landmark projection
+    const width = 'width' in imageSource ? imageSource.width :
+                  'naturalWidth' in imageSource ? imageSource.naturalWidth : 0;
+    const height = 'height' in imageSource ? imageSource.height :
+                   'naturalHeight' in imageSource ? imageSource.naturalHeight : 0;
+
+    // Detect pose with image dimensions to prevent NORM_RECT warning
+    const result: PoseLandmarkerResult = detector.detect(imageSource, {
+      regionOfInterest: {
+        left: 0,
+        top: 0,
+        right: width,
+        bottom: height,
+      },
+    });
 
     if (!result.landmarks || result.landmarks.length === 0) {
       throw new PoseDetectionError(

@@ -47,11 +47,14 @@ const Modal = ({ open, onOpenChange, children, title, description, className }: 
                   {title}
                 </Dialog.Title>
               )}
-              {description && (
-                <Dialog.Description className="text-sm text-[var(--text-secondary)]">
-                  {description}
-                </Dialog.Description>
-              )}
+              <Dialog.Description
+                className={cn(
+                  "text-sm text-[var(--text-secondary)]",
+                  !description && "sr-only"
+                )}
+              >
+                {description || "Dialog content"}
+              </Dialog.Description>
             </div>
           )}
           {children}
