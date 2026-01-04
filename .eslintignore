@@ -1,0 +1,3 @@
+# MediaPipe WASM files (generated, not our code)
+public/mediapipe/**/*.js
+public/mediapipe/**/*.wasm
