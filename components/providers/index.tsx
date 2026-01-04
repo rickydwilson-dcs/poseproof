@@ -2,7 +2,6 @@
 
 import { ThemeProvider } from './ThemeProvider';
 import { UserProvider } from './UserProvider';
-import { MediaPipeProvider } from './MediaPipeProvider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -12,9 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <UserProvider>
-        <MediaPipeProvider>{children}</MediaPipeProvider>
-      </UserProvider>
+      <UserProvider>{children}</UserProvider>
     </ThemeProvider>
   );
 }
