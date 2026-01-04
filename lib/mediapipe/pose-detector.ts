@@ -186,10 +186,12 @@ export async function detectPose(
 
   try {
     // Extract image dimensions for proper landmark projection
-    const width = 'width' in imageSource ? imageSource.width :
-                  'naturalWidth' in imageSource ? imageSource.naturalWidth : 0;
-    const height = 'height' in imageSource ? imageSource.height :
-                   'naturalHeight' in imageSource ? imageSource.naturalHeight : 0;
+    const width = imageSource instanceof HTMLImageElement
+      ? (imageSource.naturalWidth || imageSource.width)
+      : imageSource.width;
+    const height = imageSource instanceof HTMLImageElement
+      ? (imageSource.naturalHeight || imageSource.height)
+      : imageSource.height;
 
     // Detect pose with image dimensions to prevent NORM_RECT warning
     const result: PoseLandmarkerResult = detector.detect(imageSource, {
