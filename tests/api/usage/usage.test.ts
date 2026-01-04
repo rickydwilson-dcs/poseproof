@@ -178,7 +178,8 @@ describe('Usage API - POST /api/usage/increment', () => {
 
     vi.resetModules();
     const { POST } = await import('@/app/api/usage/increment/route');
-    const response = await POST();
+    const request = new Request('http://localhost:3000/api/usage/increment', { method: 'POST' });
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -212,7 +213,8 @@ describe('Usage API - POST /api/usage/increment', () => {
 
     vi.resetModules();
     const { POST } = await import('@/app/api/usage/increment/route');
-    const response = await POST();
+    const request = new Request('http://localhost:3000/api/usage/increment', { method: 'POST' });
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(403);
@@ -254,7 +256,8 @@ describe('Usage API - POST /api/usage/increment', () => {
 
     vi.resetModules();
     const { POST } = await import('@/app/api/usage/increment/route');
-    const response = await POST();
+    const request = new Request('http://localhost:3000/api/usage/increment', { method: 'POST' });
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -295,7 +298,8 @@ describe('Usage API - POST /api/usage/increment', () => {
 
     vi.resetModules();
     const { POST } = await import('@/app/api/usage/increment/route');
-    const response = await POST();
+    const request = new Request('http://localhost:3000/api/usage/increment', { method: 'POST' });
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
@@ -338,7 +342,8 @@ describe('Usage API - POST /api/usage/increment', () => {
 
     vi.resetModules();
     const { POST } = await import('@/app/api/usage/increment/route');
-    const response = await POST();
+    const request = new Request('http://localhost:3000/api/usage/increment', { method: 'POST' });
+    const response = await POST(request);
     const data = await response.json();
 
     expect(response.status).toBe(200);
