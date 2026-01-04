@@ -4,8 +4,7 @@
  * Tests for /api/usage and /api/usage/increment endpoints
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { NextRequest } from 'next/server';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   mockUser,
   mockProUser,

@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // MediaPipe WASM files (generated, not our code):
     "public/mediapipe/**",
+    // Node.js scripts using CommonJS:
+    "scripts/**/*.js",
   ]),
 ]);
 
