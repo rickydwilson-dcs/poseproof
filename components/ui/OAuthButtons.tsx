@@ -1,8 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from './Button';
+
+const HAS_SIGNED_IN_KEY = 'svolta_has_signed_in';
+
+function getHasSignedIn() {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem(HAS_SIGNED_IN_KEY) === 'true';
+}
+
+function subscribeToStorage(callback: () => void) {
+  window.addEventListener('storage', callback);
+  return () => window.removeEventListener('storage', callback);
+}
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -15,13 +27,14 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-function AppleIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-    </svg>
-  );
-}
+// Apple OAuth icon - kept for future use when Apple provider is configured
+// function AppleIcon({ className }: { className?: string }) {
+//   return (
+//     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+//       <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+//     </svg>
+//   );
+// }
 
 interface OAuthButtonsProps {
   redirectTo?: string;
@@ -29,10 +42,18 @@ interface OAuthButtonsProps {
 
 export function OAuthButtons({ redirectTo = '/editor' }: OAuthButtonsProps) {
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const isReturningUser = useSyncExternalStore(
+    subscribeToStorage,
+    getHasSignedIn,
+    () => false
+  );
 
   const signInWithOAuth = async (provider: 'google' | 'apple') => {
     setLoadingProvider(provider);
     const supabase = createClient();
+
+    // Mark that user has signed in (will be set on successful auth)
+    localStorage.setItem(HAS_SIGNED_IN_KEY, 'true');
 
     await supabase.auth.signInWithOAuth({
       provider,
@@ -41,6 +62,8 @@ export function OAuthButtons({ redirectTo = '/editor' }: OAuthButtonsProps) {
       },
     });
   };
+
+  const actionText = isReturningUser ? 'Sign in' : 'Sign up';
 
   return (
     <div className="space-y-3">
@@ -53,19 +76,9 @@ export function OAuthButtons({ redirectTo = '/editor' }: OAuthButtonsProps) {
         disabled={!!loadingProvider}
       >
         <GoogleIcon className="h-5 w-5" />
-        Continue with Google
+        {actionText} with Google
       </Button>
-      <Button
-        variant="secondary"
-        size="lg"
-        className="w-full"
-        onClick={() => signInWithOAuth('apple')}
-        loading={loadingProvider === 'apple'}
-        disabled={!!loadingProvider}
-      >
-        <AppleIcon className="h-5 w-5" />
-        Continue with Apple
-      </Button>
+      {/* Apple OAuth - hidden until Supabase Apple provider is configured */}
     </div>
   );
 }
