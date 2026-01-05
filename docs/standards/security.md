@@ -392,7 +392,7 @@ async headers() {
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
             "font-src 'self' data: https://fonts.gstatic.com",
             "img-src 'self' data: blob: https:",
-            "connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.stripe.com wss://*.supabase.co https://cdn.jsdelivr.net https://vercel.live",
+            "connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.stripe.com wss://*.supabase.co https://cdn.jsdelivr.net https://storage.googleapis.com https://vercel.live",
             "frame-src https://js.stripe.com https://checkout.stripe.com https://vercel.live",
             "worker-src 'self' blob:",
             "object-src 'none'",
@@ -427,6 +427,7 @@ async headers() {
 - **Supabase domains**: Required for auth and database
 - **`blob:`**: Required for client-side image processing
 - **`worker-src 'self' blob:`**: Required for Web Workers (MediaPipe)
+- **`storage.googleapis.com`**: CDN fallback for MediaPipe pose model
 
 ### Verification
 
