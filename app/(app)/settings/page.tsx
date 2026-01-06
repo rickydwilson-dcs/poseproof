@@ -24,6 +24,8 @@ export default function SettingsPage() {
   const user = useUserStore((state) => state.user);
   const profile = useUserStore((state) => state.profile);
   const usage = useUserStore((state) => state.usage);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const subscription = useUserStore((state) => state.subscription); // Subscribe to trigger re-render
   const isPro = useUserStore((state) => state.isPro);
   const exportsRemaining = useUserStore((state) => state.exportsRemaining);
   const exportLimit = useUserStore((state) => state.exportLimit);
@@ -65,9 +67,13 @@ export default function SettingsPage() {
   const remaining = exportsRemaining();
   const usagePercentage = limit === Infinity ? 100 : (usageCount / limit) * 100;
 
-  // Initialize state from profile
+  // Set mounted state
   useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Initialize state from profile
+  useEffect(() => {
     if (profile) {
       setDisplayName(profile.full_name || '');
       // Load existing logo from profile

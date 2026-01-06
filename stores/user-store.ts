@@ -3,7 +3,6 @@ import { User } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile, Subscription, Usage } from '@/types/database';
 import { FREE_EXPORT_LIMIT } from '@/lib/stripe/plans';
-import { getCurrentBillingPeriod } from '@/lib/utils/billing-period';
 
 // localStorage keys for anonymous user exports
 const ANON_EXPORTS_KEY = 'svolta_anon_exports';
@@ -199,22 +198,20 @@ export const useUserStore = create<UserState>((set, get) => ({
     const { user } = get();
     if (!user) return;
 
-    const supabase = createClient();
-
     try {
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .single();
+      // Fetch via API route to bypass RLS issues
+      const response = await fetch('/api/account/subscription');
 
-      if (error) {
-        // Subscription might not exist yet
-        console.warn('Error fetching subscription:', error.message);
+      if (!response.ok) {
+        console.warn('Error fetching subscription:', response.status);
         return;
       }
 
-      set({ subscription: data });
+      const data = await response.json();
+
+      if (data.subscription) {
+        set({ subscription: data.subscription });
+      }
     } catch (error) {
       console.error('Error fetching subscription:', error);
     }
@@ -224,24 +221,17 @@ export const useUserStore = create<UserState>((set, get) => ({
     const { user } = get();
     if (!user) return;
 
-    const supabase = createClient();
-    const currentMonth = getCurrentBillingPeriod();
-
     try {
-      const { data, error } = await supabase
-        .from('usage')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('month', currentMonth)
-        .single();
+      // Fetch via API route to bypass RLS issues
+      const response = await fetch('/api/account/usage');
 
-      if (error && error.code !== 'PGRST116') {
-        // PGRST116 is "no rows returned" - that's fine, user just hasn't exported yet
-        console.warn('Error fetching usage:', error.message);
+      if (!response.ok) {
+        console.warn('Error fetching usage:', response.status);
         return;
       }
 
-      set({ usage: data ?? null });
+      const data = await response.json();
+      set({ usage: data.usage ?? null });
     } catch (error) {
       console.error('Error fetching usage:', error);
     }
