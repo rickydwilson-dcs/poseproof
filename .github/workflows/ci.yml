@@ -12,6 +12,7 @@ env:
 jobs:
   # =============================================================================
   # Quality Checks: Lint, Type Check, Build
+  # Runs on: develop (fast feedback), staging (pre-prod validation), main (deployment gate)
   # =============================================================================
   quality:
     name: Quality Checks
@@ -46,10 +47,12 @@ jobs:
 
   # =============================================================================
   # Unit Tests: Vitest
+  # Runs on: develop only (fast feedback on code changes)
   # =============================================================================
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop' || (github.event_name == 'pull_request' && github.base_ref == 'develop')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,10 +71,12 @@ jobs:
 
   # =============================================================================
   # Visual Regression Tests: Alignment algorithm validation
+  # Runs on: staging only (comprehensive pre-prod validation)
   # =============================================================================
   visual-regression:
     name: Visual Regression Tests
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -195,18 +200,40 @@ jobs:
 
   # =============================================================================
   # Gate Check: Summarizes required checks for branch protection
+  # develop: quality + test + smoke
+  # staging: quality + visual-regression + e2e
+  # main: quality only (tests already validated in staging)
   # =============================================================================
   gate:
     name: Gate Check
     runs-on: ubuntu-latest
-    needs: [quality, test, visual-regression]
+    needs: [quality, test, visual-regression, smoke, e2e]
     if: always()
     steps:
-      - name: Check required jobs
+      - name: Check required jobs (develop)
+        if: github.ref == 'refs/heads/develop' || (github.event_name == 'pull_request' && github.base_ref == 'develop')
         run: |
-          if [[ "${{ needs.quality.result }}" != "success" ]] || [[ "${{ needs.test.result }}" != "success" ]] || [[ "${{ needs.visual-regression.result }}" != "success" ]]; then
-            echo "Required checks failed"
+          if [[ "${{ needs.quality.result }}" != "success" ]] || [[ "${{ needs.test.result }}" != "success" ]] || [[ "${{ needs.smoke.result }}" != "success" ]]; then
+            echo "Required checks failed for develop"
             exit 1
           fi
-          echo "All required checks passed"
+          echo "All required checks passed for develop"
+
+      - name: Check required jobs (staging)
+        if: github.ref == 'refs/heads/staging' || (github.event_name == 'pull_request' && github.base_ref == 'staging')
+        run: |
+          if [[ "${{ needs.quality.result }}" != "success" ]] || [[ "${{ needs.visual-regression.result }}" != "success" ]] || [[ "${{ needs.e2e.result }}" != "success" ]]; then
+            echo "Required checks failed for staging"
+            exit 1
+          fi
+          echo "All required checks passed for staging"
+
+      - name: Check required jobs (main)
+        if: github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && github.base_ref == 'main')
+        run: |
+          if [[ "${{ needs.quality.result }}" != "success" ]]; then
+            echo "Required checks failed for main"
+            exit 1
+          fi
+          echo "All required checks passed for main"
 

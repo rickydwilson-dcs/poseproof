@@ -43,6 +43,14 @@ export default function SettingsPage() {
   const [logoMessage, setLogoMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  // Background upload state
+  const [background, setBackground] = useState<string | null>(null);
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [isUploadingBackground, setIsUploadingBackground] = useState(false);
+  const [isDraggingBackground, setIsDraggingBackground] = useState(false);
+  const [backgroundMessage, setBackgroundMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const backgroundInputRef = useRef<HTMLInputElement>(null);
+
   // Preferences state
   const [defaultFormat, setDefaultFormat] = useState<ExportFormat>('1:1');
 
@@ -62,8 +70,14 @@ export default function SettingsPage() {
     setMounted(true);
     if (profile) {
       setDisplayName(profile.full_name || '');
-      // Note: logo_url and default_export_format would need to be added to profile schema
-      // For now, these are placeholders
+      // Load existing logo from profile
+      if (profile.logo_url) {
+        setLogo(profile.logo_url);
+      }
+      // Load existing background from profile
+      if (profile.custom_background_url) {
+        setBackground(profile.custom_background_url);
+      }
     }
   }, [profile]);
 
@@ -126,7 +140,7 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  // Upload logo to Supabase Storage
+  // Upload logo via API route
   const handleUploadLogo = async () => {
     if (!logoFile || !user) return;
 
@@ -134,37 +148,19 @@ export default function SettingsPage() {
     setLogoMessage(null);
 
     try {
-      // Upload to Supabase Storage
-      const fileExt = logoFile.name.split('.').pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `logos/${fileName}`;
+      const formData = new FormData();
+      formData.append('file', logoFile);
 
-      const { error: uploadError } = await supabase.storage
-        .from('logos')
-        .upload(filePath, logoFile, {
-          cacheControl: '3600',
-          upsert: false,
-        });
+      const response = await fetch('/api/logos/upload', {
+        method: 'POST',
+        body: formData,
+      });
 
-      if (uploadError) throw uploadError;
+      const data = await response.json();
 
-      // Get public URL (unused until logo_url field is added to schema)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { data: { publicUrl: _publicUrl } } = supabase.storage
-        .from('logos')
-        .getPublicUrl(filePath);
-
-      // Update profile with logo URL
-      // Note: logo_url field would need to be added to profiles table
-      const { error: updateError } = await supabase
-        .from('profiles')
-        .update({
-          // logo_url: _publicUrl, // Uncomment when field is added to schema
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', user.id);
-
-      if (updateError) throw updateError;
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Failed to upload logo');
+      }
 
       await fetchProfile();
       setLogoMessage({ type: 'success', text: 'Logo uploaded successfully' });
@@ -174,17 +170,40 @@ export default function SettingsPage() {
       setTimeout(() => setLogoMessage(null), 3000);
     } catch (error) {
       console.error('Error uploading logo:', error);
-      setLogoMessage({ type: 'error', text: 'Failed to upload logo' });
+      setLogoMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to upload logo' });
     } finally {
       setIsUploadingLogo(false);
     }
   };
 
   // Remove logo
-  const handleRemoveLogo = () => {
+  const handleRemoveLogo = async () => {
+    // If there's an existing logo in the profile, delete it via API
+    if (profile?.logo_url) {
+      setIsUploadingLogo(true);
+      try {
+        const response = await fetch('/api/logos/upload', {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || data.error || 'Failed to remove logo');
+        }
+
+        await fetchProfile();
+        setLogoMessage({ type: 'success', text: 'Logo removed successfully' });
+        setTimeout(() => setLogoMessage(null), 3000);
+      } catch (error) {
+        console.error('Error removing logo:', error);
+        setLogoMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to remove logo' });
+      } finally {
+        setIsUploadingLogo(false);
+      }
+    }
+
     setLogo(null);
     setLogoFile(null);
-    setLogoMessage(null);
   };
 
   // Drag and drop handlers
@@ -223,6 +242,140 @@ export default function SettingsPage() {
     const reader = new FileReader();
     reader.onload = (e) => {
       setLogo(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle background file selection
+  const handleBackgroundFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setBackgroundMessage({ type: 'error', text: 'Please select an image file' });
+      return;
+    }
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      setBackgroundMessage({ type: 'error', text: 'Image must be less than 2MB' });
+      return;
+    }
+
+    setBackgroundFile(file);
+    setBackgroundMessage(null);
+
+    // Preview image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setBackground(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Upload background via API route
+  const handleUploadBackground = async () => {
+    if (!backgroundFile || !user) return;
+
+    setIsUploadingBackground(true);
+    setBackgroundMessage(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', backgroundFile);
+
+      const response = await fetch('/api/backgrounds/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error || 'Failed to upload background');
+      }
+
+      await fetchProfile();
+      setBackgroundMessage({ type: 'success', text: 'Background uploaded successfully' });
+      setBackgroundFile(null);
+
+      // Clear message after 3 seconds
+      setTimeout(() => setBackgroundMessage(null), 3000);
+    } catch (error) {
+      console.error('Error uploading background:', error);
+      setBackgroundMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to upload background' });
+    } finally {
+      setIsUploadingBackground(false);
+    }
+  };
+
+  // Remove background
+  const handleRemoveBackground = async () => {
+    // If there's an existing background in the profile, delete it via API
+    if (profile?.custom_background_url) {
+      setIsUploadingBackground(true);
+      try {
+        const response = await fetch('/api/backgrounds/upload', {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.message || data.error || 'Failed to remove background');
+        }
+
+        await fetchProfile();
+        setBackgroundMessage({ type: 'success', text: 'Background removed successfully' });
+        setTimeout(() => setBackgroundMessage(null), 3000);
+      } catch (error) {
+        console.error('Error removing background:', error);
+        setBackgroundMessage({ type: 'error', text: error instanceof Error ? error.message : 'Failed to remove background' });
+      } finally {
+        setIsUploadingBackground(false);
+      }
+    }
+
+    setBackground(null);
+    setBackgroundFile(null);
+  };
+
+  // Background drag and drop handlers
+  const handleBackgroundDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingBackground(true);
+  };
+
+  const handleBackgroundDragLeave = () => {
+    setIsDraggingBackground(false);
+  };
+
+  const handleBackgroundDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingBackground(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setBackgroundMessage({ type: 'error', text: 'Please select an image file' });
+      return;
+    }
+
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+      setBackgroundMessage({ type: 'error', text: 'Image must be less than 2MB' });
+      return;
+    }
+
+    setBackgroundFile(file);
+    setBackgroundMessage(null);
+
+    // Preview image
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setBackground(e.target?.result as string);
     };
     reader.readAsDataURL(file);
   };
@@ -617,6 +770,178 @@ export default function SettingsPage() {
                   </p>
                   <p className="text-sm text-[var(--text-secondary)] mb-4">
                     Brand your exports with a custom logo and create professional before/after comparisons.
+                  </p>
+                  <Button onClick={() => router.push('/upgrade')}>
+                    Upgrade to Pro
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Custom Background Section (Pro Only) */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Custom Background</CardTitle>
+                  <CardDescription>
+                    Set a default background for your exports
+                  </CardDescription>
+                </div>
+                {!userIsPro && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[var(--brand-primary)]/10 text-[var(--brand-primary)]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    Pro Only
+                  </span>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {userIsPro ? (
+                <div className="space-y-4">
+                  {/* Background Upload Dropzone */}
+                  <div
+                    onDragOver={handleBackgroundDragOver}
+                    onDragLeave={handleBackgroundDragLeave}
+                    onDrop={handleBackgroundDrop}
+                    className={cn(
+                      'relative border-2 border-dashed rounded-xl p-8 transition-all duration-200',
+                      isDraggingBackground
+                        ? 'border-[var(--brand-primary)] bg-[var(--brand-primary)]/5'
+                        : 'border-[var(--border-default)] hover:border-[var(--border-focus)]',
+                      'cursor-pointer'
+                    )}
+                    onClick={() => backgroundInputRef.current?.click()}
+                  >
+                    <input
+                      ref={backgroundInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/jpg,image/webp"
+                      onChange={handleBackgroundFileChange}
+                      className="hidden"
+                    />
+
+                    {background ? (
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="relative w-48 h-32 rounded-xl overflow-hidden bg-[var(--gray-100)] dark:bg-[var(--gray-800)] border border-[var(--border-default)]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={background}
+                            alt="Background preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <p className="text-sm text-[var(--text-secondary)]">
+                          {backgroundFile?.name || 'Custom background'}
+                        </p>
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveBackground();
+                          }}
+                        >
+                          Remove Background
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 text-center">
+                        <div className="w-12 h-12 rounded-xl bg-[var(--gray-100)] dark:bg-[var(--gray-800)] flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="text-[var(--text-secondary)]"
+                          >
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-[var(--text-primary)] mb-1">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs text-[var(--text-secondary)]">
+                            PNG, JPG, or WebP (max 2MB)
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {backgroundMessage && (
+                    <div
+                      className={cn(
+                        'p-3 rounded-xl text-sm',
+                        backgroundMessage.type === 'success'
+                          ? 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+                          : 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                      )}
+                    >
+                      {backgroundMessage.text}
+                    </div>
+                  )}
+
+                  {backgroundFile && (
+                    <Button
+                      onClick={handleUploadBackground}
+                      loading={isUploadingBackground}
+                      className="w-full"
+                    >
+                      Upload Background
+                    </Button>
+                  )}
+
+                  <p className="text-xs text-[var(--text-secondary)]">
+                    This background will be available as a quick option when using background removal on your photos.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--gray-100)] dark:bg-[var(--gray-800)] mb-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="32"
+                      height="32"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="text-[var(--text-secondary)]"
+                    >
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <p className="text-base font-medium text-[var(--text-primary)] mb-2">
+                    Upgrade for custom backgrounds
+                  </p>
+                  <p className="text-sm text-[var(--text-secondary)] mb-4">
+                    Upload your own background images to use with background removal.
                   </p>
                   <Button onClick={() => router.push('/upgrade')}>
                     Upgrade to Pro

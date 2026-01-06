@@ -112,14 +112,14 @@ function drawLabel(
       break;
   }
 
-  // Text shadow for better visibility
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 2;
+  // White stroke/outline for visibility on any background
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.lineWidth = Math.round(fontSize * 0.15);
+  ctx.lineJoin = 'round';
 
-  // Draw label
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  // Draw label with stroke then fill for contrast
+  ctx.strokeText(label, x, padding);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
   ctx.fillText(label, x, padding);
 
   // Restore context state

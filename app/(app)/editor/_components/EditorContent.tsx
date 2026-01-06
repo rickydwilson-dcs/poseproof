@@ -6,9 +6,11 @@
  * Instagram-inspired design system
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTheme } from 'next-themes';
 import { useEditorStore } from '@/stores/editor-store';
+import { useUsageLimit } from '@/hooks/useUsageLimit';
 import { PhotoPanel, ExportModal } from '@/components/features/editor';
 import { Button } from '@/components/ui';
 import { SvoltaLogo } from '@/components/ui/SvoltaLogo';
@@ -24,7 +26,17 @@ export default function EditorContent() {
     reset,
   } = useEditorStore();
 
+  const { used, limit, isPro } = useUsageLimit();
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
   const [showExportModal, setShowExportModal] = useState(false);
+
+  // Prevent hydration mismatch for theme - standard Next.js pattern
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Required for hydration safety
+    setMounted(true);
+  }, []);
 
   const hasPhotos = beforePhoto || afterPhoto;
   const hasBothPhotos = beforePhoto && afterPhoto;
@@ -54,20 +66,49 @@ export default function EditorContent() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* Usage Counter */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
-              <span className="text-sm text-text-secondary">Exports:</span>
-              <span className="text-sm font-semibold text-text">3/5</span>
-              <Link
-                href="/upgrade"
-                className="text-brand-pink hover:text-brand-pink/80 transition-colors"
-                title="Upgrade for unlimited"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            {/* Usage Counter - hide for Pro users */}
+            {!isPro && (
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800">
+                <span className="text-sm text-text-secondary">Exports:</span>
+                <span className="text-sm font-semibold text-text">{used}/{limit}</span>
+                <Link
+                  href="/upgrade"
+                  className="text-brand-pink hover:text-brand-pink/80 transition-colors"
+                  title="Upgrade for unlimited"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                  </svg>
+                </Link>
+              </div>
+            )}
+
+            {/* Theme Toggle */}
+            <button
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-text-secondary hover:text-text"
+              title={mounted ? `Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode` : 'Toggle theme'}
+            >
+              {mounted && resolvedTheme === 'dark' ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
                 </svg>
-              </Link>
-            </div>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              )}
+            </button>
 
             {/* Settings */}
             <Link
@@ -146,26 +187,6 @@ export default function EditorContent() {
           </div>
         </div>
       </main>
-
-      {/* Bottom Controls Sheet */}
-      {hasPhotos && (
-        <div className="sheet-base fixed bottom-0 left-0 right-0 z-30 safe-bottom">
-          <div className="drag-handle" />
-
-          <div className="px-4 pb-6 flex justify-center">
-            {/* Mobile Export Button */}
-            <Button
-              variant="primary"
-              size="sm"
-              disabled={!hasBothPhotos}
-              className="sm:hidden px-5"
-              onClick={() => setShowExportModal(true)}
-            >
-              Export
-            </Button>
-          </div>
-        </div>
-      )}
 
       {/* Export Modal */}
       <ExportModal

@@ -1,11 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
-interface RateLimitConfig {
-  maxRequests: number;
-  windowSeconds: number;
-}
-
 interface RateLimitResult {
   success: boolean;
   count: number;
@@ -17,6 +12,7 @@ interface RateLimitResult {
 export const RATE_LIMIT_CONFIGS = {
   'usage-increment': { maxRequests: 100, windowSeconds: 60 }, // 100/min
   'backgrounds-upload': { maxRequests: 10, windowSeconds: 900 }, // 10/15min
+  'logos-upload': { maxRequests: 10, windowSeconds: 900 }, // 10/15min
   'stripe-checkout': { maxRequests: 5, windowSeconds: 300 }, // 5/5min
   'stripe-portal': { maxRequests: 10, windowSeconds: 60 }, // 10/min
   'account-delete': { maxRequests: 2, windowSeconds: 3600 }, // 2/hour

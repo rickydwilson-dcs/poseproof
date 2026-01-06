@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect, useCallback } from 'react';
 import { useUserStore } from '@/stores/user-store';
+import { FREE_EXPORT_LIMIT } from '@/lib/stripe/plans';
 
 export interface UsageLimit {
   used: number;
@@ -10,6 +12,7 @@ export interface UsageLimit {
   isPro: boolean;
   isLoading: boolean;
   error: string | null;
+  isAnonymous: boolean;
 
   checkAndIncrement: () => Promise<boolean>;
   refresh: () => Promise<void>;
@@ -17,58 +20,81 @@ export interface UsageLimit {
 
 /**
  * Hook for managing usage limits and export permissions.
- * Wraps the user store functionality in a convenient interface.
+ * Handles both authenticated users (server-side tracking) and
+ * anonymous users (localStorage tracking with monthly reset via Zustand store).
  */
 export function useUsageLimit(): UsageLimit {
   const {
     user,
     usage,
+    anonExports,
     isLoading,
     error,
     isPro,
     canExport,
     exportsRemaining,
-    exportLimit,
     incrementUsage,
+    incrementAnonUsage,
+    initAnonExports,
     fetchUsage,
   } = useUserStore();
 
-  // Calculate used count
-  const used = usage?.exports_count ?? 0;
-
-  // Get limit (Infinity for pro, 5 for free)
-  const limit = exportLimit();
-
-  // Get remaining exports
-  const remaining = exportsRemaining();
+  // Initialize anonymous exports from localStorage on mount
+  useEffect(() => {
+    if (!user) {
+      initAnonExports();
+    }
+  }, [user, initAnonExports]);
 
   // Check if user is pro
   const isProUser = isPro();
 
+  // Determine if user is anonymous
+  const isAnonymous = !user;
+
+  // Calculate used count (from server for logged-in, store for anonymous)
+  const used = isAnonymous ? anonExports : (usage?.exports_count ?? 0);
+
+  // Get limit (Infinity for pro, FREE_EXPORT_LIMIT for free/anonymous)
+  const limit = isProUser ? Infinity : FREE_EXPORT_LIMIT;
+
+  // Get remaining exports
+  const remaining = isAnonymous
+    ? Math.max(0, FREE_EXPORT_LIMIT - anonExports)
+    : exportsRemaining();
+
   // Check if user can export
-  const canExportNow = canExport();
+  const canExportNow = isAnonymous
+    ? anonExports < FREE_EXPORT_LIMIT
+    : canExport();
 
   /**
    * Check if user can export and increment usage count.
    * Returns true if export was allowed and count was incremented.
-   * Anonymous users are always allowed (no tracking).
    */
-  const checkAndIncrement = async (): Promise<boolean> => {
-    // Allow anonymous users to export (no usage tracking)
+  const checkAndIncrement = useCallback(async (): Promise<boolean> => {
+    // Anonymous users: use store (localStorage-backed)
     if (!user) {
-      return true;
+      const result = incrementAnonUsage();
+      return result.success;
     }
 
+    // Logged-in users: use server-side tracking
     const result = await incrementUsage();
     return result.success;
-  };
+  }, [user, incrementUsage, incrementAnonUsage]);
 
   /**
-   * Refresh usage data from the server.
+   * Refresh usage data from the server (for logged-in users)
+   * or from localStorage (for anonymous users).
    */
-  const refresh = async (): Promise<void> => {
-    await fetchUsage();
-  };
+  const refresh = useCallback(async (): Promise<void> => {
+    if (user) {
+      await fetchUsage();
+    } else {
+      initAnonExports();
+    }
+  }, [user, fetchUsage, initAnonExports]);
 
   return {
     used,
@@ -78,6 +104,7 @@ export function useUsageLimit(): UsageLimit {
     isPro: isProUser,
     isLoading,
     error,
+    isAnonymous,
     checkAndIncrement,
     refresh,
   };

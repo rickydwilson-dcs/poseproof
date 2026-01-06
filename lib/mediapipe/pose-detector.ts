@@ -8,7 +8,6 @@ import {
   PoseLandmarker,
   FilesetResolver,
   type PoseLandmarkerResult,
-  type FilesetResolver as FilesetResolverType,
 } from '@mediapipe/tasks-vision';
 
 import {
@@ -185,23 +184,8 @@ export async function detectPose(
   const detector = await initializePoseDetector();
 
   try {
-    // Extract image dimensions for proper landmark projection
-    const width = imageSource instanceof HTMLImageElement
-      ? (imageSource.naturalWidth || imageSource.width)
-      : imageSource.width;
-    const height = imageSource instanceof HTMLImageElement
-      ? (imageSource.naturalHeight || imageSource.height)
-      : imageSource.height;
-
-    // Detect pose with image dimensions to prevent NORM_RECT warning
-    const result: PoseLandmarkerResult = detector.detect(imageSource, {
-      regionOfInterest: {
-        left: 0,
-        top: 0,
-        right: width,
-        bottom: height,
-      },
-    });
+    // Detect pose - PoseLandmarker in IMAGE mode doesn't support regionOfInterest
+    const result: PoseLandmarkerResult = detector.detect(imageSource);
 
     if (!result.landmarks || result.landmarks.length === 0) {
       throw new PoseDetectionError(

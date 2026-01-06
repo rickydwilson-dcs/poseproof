@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const initialize = useUserStore((state) => state.initialize);
   const isInitialized = useUserStore((state) => state.isInitialized);
+  const user = useUserStore((state) => state.user);
   const fetchProfile = useUserStore((state) => state.fetchProfile);
   const fetchSubscription = useUserStore((state) => state.fetchSubscription);
   const fetchUsage = useUserStore((state) => state.fetchUsage);
@@ -66,6 +67,42 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       subscription.unsubscribe();
     };
   }, [fetchProfile, fetchSubscription, fetchUsage, reset]);
+
+  // Set up Realtime subscription for subscription changes
+  // This ensures Pro status updates automatically without requiring a page refresh
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseKey || !supabaseUrl.startsWith('http')) {
+      return;
+    }
+
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel(`subscription-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'subscriptions',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Refresh subscription data when it changes in the database
+          fetchSubscription();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, fetchSubscription]);
 
   return <>{children}</>;
 }

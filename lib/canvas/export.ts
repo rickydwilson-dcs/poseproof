@@ -210,17 +210,18 @@ function drawLabels(
   ctx.textBaseline = 'top';
   ctx.textAlign = 'center';
 
-  // Text shadow for better visibility
-  ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetX = 0;
-  ctx.shadowOffsetY = 2;
+  // White stroke/outline for visibility on any background
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+  ctx.lineWidth = Math.round(fontSize * 0.15);
+  ctx.lineJoin = 'round';
 
-  // Draw "Before" label on left half
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+  // Draw "Before" label on left half with stroke then fill
+  ctx.strokeText('Before', halfWidth / 2, padding);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
   ctx.fillText('Before', halfWidth / 2, padding);
 
-  // Draw "After" label on right half
+  // Draw "After" label on right half with stroke then fill
+  ctx.strokeText('After', halfWidth + halfWidth / 2, padding);
   ctx.fillText('After', halfWidth + halfWidth / 2, padding);
 
   // Restore context state

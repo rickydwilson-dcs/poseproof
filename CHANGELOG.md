@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] - 2026-01-06
+
+### Fixed
+
+- **Auth:** Resolve database error on new user signup
+- **CSP:** Add storage.googleapis.com for MediaPipe CDN fallback
+- **Auth:** Hide Apple OAuth and add contextual sign in/up text
+- **UI:** Resolve homepage flicker and optimize loading indicators
+- **Types:** Use instanceof check for image dimension extraction
+- **Accessibility:** Resolve MediaPipe and Radix UI console warnings
+- **Security:** Add vercel.live to frame-src and connect-src CSP
+- **Security:** Allow unsafe-inline for next-themes in production
+- **Security:** Add environment-specific CSP to resolve editor blocking
+- **Tests:** Add Request parameter to POST calls in usage tests
+- **Tests:** Add rpc mock to usage tests for rate limiting
+- **Security:** Update qs package to resolve DoS vulnerability
+- **Types:** Add explicit type parameters to withRateLimit calls
+- **Lint:** Exclude scripts and fix unused imports
+
+### Added
+
+- New API routes: exports/log and logos/upload
+- Service-level Supabase client for server-side operations
+
+### Changed
+
+- Removed deprecated .eslintignore file
+- Updated CSP configuration documentation
+
+### Technical
+
+- 119 TypeScript/TSX source files
+- 7 custom React hooks
+- 13 UI components
+- 7 API route directories (account, backgrounds, debug, exports, logos, stripe, usage)
+- 8 test files
+- 170 visual test fixtures
+
+---
+
 ## [0.3.1] - 2026-01-05
 
 ### Fixed
@@ -176,6 +216,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[0.3.2]: https://github.com/rickydwilson/svolta/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/rickydwilson/svolta/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/rickydwilson/svolta/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/rickydwilson/svolta/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/rickydwilson/svolta/releases/tag/v0.1.0

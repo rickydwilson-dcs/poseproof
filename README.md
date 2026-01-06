@@ -141,17 +141,17 @@ MIT
 
 ## Current Scope
 
-| Metric               | Count             |
-| -------------------- | ----------------- |
-| Source Files         | 92 TypeScript/TSX |
-| Custom Hooks         | 7                 |
-| State Stores         | 2                 |
-| UI Components        | 13                |
-| API Routes           | 5                 |
-| Test Files           | 6                 |
-| Visual Test Fixtures | 170               |
+| Metric               | Count              |
+| -------------------- | ------------------ |
+| Source Files         | 119 TypeScript/TSX |
+| Custom Hooks         | 7                  |
+| State Stores         | 2                  |
+| UI Components        | 13                 |
+| API Routes           | 7                  |
+| Test Files           | 8                  |
+| Visual Test Fixtures | 170                |
 
 ---
 
 **Domain:** www.svolta.app
-**Last Updated:** 2026-01-04
+**Last Updated:** 2026-01-06

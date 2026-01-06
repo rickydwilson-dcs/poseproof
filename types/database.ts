@@ -131,6 +131,41 @@ export interface Database {
           processed_at?: string
         }
       }
+      exports: {
+        Row: {
+          id: string
+          user_id: string | null
+          user_type: 'anonymous' | 'free' | 'pro'
+          anon_id: string | null
+          export_format: 'png' | 'gif'
+          aspect_ratio: '1:1' | '4:5' | '9:16' | null
+          exported_at: string
+          converted_to_signup: boolean
+          converted_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          user_type: 'anonymous' | 'free' | 'pro'
+          anon_id?: string | null
+          export_format: 'png' | 'gif'
+          aspect_ratio?: '1:1' | '4:5' | '9:16' | null
+          exported_at?: string
+          converted_to_signup?: boolean
+          converted_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          user_type?: 'anonymous' | 'free' | 'pro'
+          anon_id?: string | null
+          export_format?: 'png' | 'gif'
+          aspect_ratio?: '1:1' | '4:5' | '9:16' | null
+          exported_at?: string
+          converted_to_signup?: boolean
+          converted_at?: string | null
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -179,6 +214,12 @@ export type UsageUpdate = Database['public']['Tables']['usage']['Update']
 
 export type WebhookEvent = Database['public']['Tables']['webhook_events']['Row']
 export type WebhookEventInsert = Database['public']['Tables']['webhook_events']['Insert']
+
+export type Export = Database['public']['Tables']['exports']['Row']
+export type ExportInsert = Database['public']['Tables']['exports']['Insert']
+export type ExportUpdate = Database['public']['Tables']['exports']['Update']
+export type ExportUserType = Export['user_type']
+export type ExportFormat = Export['export_format']
 
 export type SubscriptionTier = Database['public']['Enums']['subscription_tier']
 export type SubscriptionStatus = Database['public']['Enums']['subscription_status']

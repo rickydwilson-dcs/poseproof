@@ -5,12 +5,61 @@ import type { Profile, Subscription, Usage } from '@/types/database';
 import { FREE_EXPORT_LIMIT } from '@/lib/stripe/plans';
 import { getCurrentBillingPeriod } from '@/lib/utils/billing-period';
 
+// localStorage keys for anonymous user exports
+const ANON_EXPORTS_KEY = 'svolta_anon_exports';
+const ANON_EXPORTS_MONTH_KEY = 'svolta_anon_exports_month';
+
+/**
+ * Get the current month in YYYY-MM format (for monthly reset)
+ */
+function getCurrentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/**
+ * Get anonymous user's export count from localStorage
+ * Resets monthly to match server-side behavior
+ */
+function getAnonExportsFromStorage(): number {
+  if (typeof window === 'undefined') return 0;
+
+  const storedMonth = localStorage.getItem(ANON_EXPORTS_MONTH_KEY);
+  const currentMonth = getCurrentMonth();
+
+  // Reset if it's a new month
+  if (storedMonth !== currentMonth) {
+    localStorage.setItem(ANON_EXPORTS_MONTH_KEY, currentMonth);
+    localStorage.setItem(ANON_EXPORTS_KEY, '0');
+    return 0;
+  }
+
+  const count = localStorage.getItem(ANON_EXPORTS_KEY);
+  return count ? parseInt(count, 10) : 0;
+}
+
+/**
+ * Increment anonymous user's export count in localStorage
+ */
+function incrementAnonExportsInStorage(): number {
+  if (typeof window === 'undefined') return 0;
+
+  const currentMonth = getCurrentMonth();
+  localStorage.setItem(ANON_EXPORTS_MONTH_KEY, currentMonth);
+
+  const current = getAnonExportsFromStorage();
+  const newCount = current + 1;
+  localStorage.setItem(ANON_EXPORTS_KEY, String(newCount));
+  return newCount;
+}
+
 interface UserState {
   // Data
   user: User | null;
   profile: Profile | null;
   subscription: Subscription | null;
   usage: Usage | null;
+  anonExports: number; // Anonymous user exports (localStorage-backed)
   isLoading: boolean;
   isInitialized: boolean;
   error: string | null;
@@ -26,7 +75,9 @@ interface UserState {
   fetchProfile: () => Promise<void>;
   fetchSubscription: () => Promise<void>;
   fetchUsage: () => Promise<void>;
+  initAnonExports: () => void;
   incrementUsage: () => Promise<{ success: boolean; remaining: number }>;
+  incrementAnonUsage: () => { success: boolean; remaining: number };
   signOut: () => Promise<void>;
   reset: () => void;
 }
@@ -37,6 +88,7 @@ export const useUserStore = create<UserState>((set, get) => ({
   profile: null,
   subscription: null,
   usage: null,
+  anonExports: 0,
   isLoading: false,
   isInitialized: false,
   error: null,
@@ -195,8 +247,29 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
   },
 
+  initAnonExports: () => {
+    const count = getAnonExportsFromStorage();
+    set({ anonExports: count });
+  },
+
+  incrementAnonUsage: () => {
+    const { anonExports } = get();
+
+    if (anonExports >= FREE_EXPORT_LIMIT) {
+      return { success: false, remaining: 0 };
+    }
+
+    const newCount = incrementAnonExportsInStorage();
+    set({ anonExports: newCount });
+
+    return {
+      success: true,
+      remaining: Math.max(0, FREE_EXPORT_LIMIT - newCount),
+    };
+  },
+
   incrementUsage: async () => {
-    const { user, isPro, canExport, exportsRemaining } = get();
+    const { user, isPro, canExport, exportsRemaining, fetchUsage } = get();
 
     if (!user) {
       return { success: false, remaining: 0 };
@@ -212,56 +285,34 @@ export const useUserStore = create<UserState>((set, get) => ({
       return { success: false, remaining: 0 };
     }
 
-    const supabase = createClient();
-    const currentMonth = getCurrentBillingPeriod();
-
     try {
-      // Upsert usage record
-      const { data, error } = await supabase
-        .from('usage')
-        .upsert(
-          {
-            user_id: user.id,
-            month: currentMonth,
-            exports_count: 1,
-            last_export_at: new Date().toISOString(),
-          },
-          {
-            onConflict: 'user_id,month',
-          }
-        )
-        .select()
-        .single();
+      // Call the API endpoint to increment usage
+      // This handles atomic increment with proper RLS bypass via server
+      const response = await fetch('/api/usage/increment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      });
 
-      if (error) {
-        // Try incrementing existing record
-        const { data: updated, error: updateError } = await supabase
-          .from('usage')
-          .update({
-            exports_count: (get().usage?.exports_count ?? 0) + 1,
-            last_export_at: new Date().toISOString(),
-          })
-          .eq('user_id', user.id)
-          .eq('month', currentMonth)
-          .select()
-          .single();
+      const data = await response.json();
 
-        if (updateError) {
-          console.error('Error incrementing usage:', updateError);
-          return { success: false, remaining: exportsRemaining() };
+      if (!response.ok) {
+        // Check if limit was reached
+        if (response.status === 403 && data.limit_reached) {
+          return { success: false, remaining: 0 };
         }
-
-        set({ usage: updated });
-        return {
-          success: true,
-          remaining: Math.max(0, FREE_EXPORT_LIMIT - (updated?.exports_count ?? 0))
-        };
+        console.error('Error incrementing usage:', data.error);
+        return { success: false, remaining: exportsRemaining() };
       }
 
-      set({ usage: data });
+      // Update local state with new usage data
+      await fetchUsage();
+
       return {
         success: true,
-        remaining: Math.max(0, FREE_EXPORT_LIMIT - (data?.exports_count ?? 0))
+        remaining: data.remaining === -1 ? Infinity : data.remaining,
       };
     } catch (error) {
       console.error('Error incrementing usage:', error);
