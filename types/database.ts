@@ -15,10 +15,7 @@ export interface Database {
           email: string
           full_name: string | null
           avatar_url: string | null
-          subscription_tier: 'free' | 'pro'
-          subscription_status: 'active' | 'canceled' | 'past_due' | null
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
+          logo_url: string | null
           custom_background_url: string | null
           created_at: string
           updated_at: string
@@ -28,10 +25,7 @@ export interface Database {
           email: string
           full_name?: string | null
           avatar_url?: string | null
-          subscription_tier?: 'free' | 'pro'
-          subscription_status?: 'active' | 'canceled' | 'past_due' | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
+          logo_url?: string | null
           custom_background_url?: string | null
           created_at?: string
           updated_at?: string
@@ -41,10 +35,7 @@ export interface Database {
           email?: string
           full_name?: string | null
           avatar_url?: string | null
-          subscription_tier?: 'free' | 'pro'
-          subscription_status?: 'active' | 'canceled' | 'past_due' | null
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
+          logo_url?: string | null
           custom_background_url?: string | null
           created_at?: string
           updated_at?: string

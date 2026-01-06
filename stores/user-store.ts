@@ -43,13 +43,10 @@ export const useUserStore = create<UserState>((set, get) => ({
 
   // Computed getters
   isPro: () => {
-    const { subscription, profile } = get();
-    // Check subscription first, then profile for backwards compatibility
+    const { subscription } = get();
+    // Check subscription table for tier status
     if (subscription) {
       return subscription.tier === 'pro' && subscription.status === 'active';
-    }
-    if (profile) {
-      return profile.subscription_tier === 'pro' && profile.subscription_status === 'active';
     }
     return false;
   },

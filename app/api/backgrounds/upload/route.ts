@@ -39,14 +39,14 @@ export async function POST(request: NextRequest) {
       }
 
     // Verify user has Pro subscription
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('subscription_tier, subscription_status')
-      .eq('id', user.id)
+    const { data: subscription } = await supabase
+      .from('subscriptions')
+      .select('tier, status')
+      .eq('user_id', user.id)
       .single();
 
-    const isPro = profile?.subscription_tier === 'pro' &&
-                  profile?.subscription_status === 'active';
+    const isPro = subscription?.tier === 'pro' &&
+                  subscription?.status === 'active';
 
     if (!isPro) {
       return NextResponse.json(
